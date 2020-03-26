@@ -1,0 +1,53 @@
+name: CI
+
+on: [push]
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        strategy:
+            max-parallel: 4
+            fail-fast: false
+            
+        steps:
+        - uses: actions/checkout@v1
+        - name: Install Dependencies
+          run: |
+            :
+        - name: Set up Build/Install
+          run: |
+            mkdir build
+            cd build
+            cmake ..
+        - name: Build
+          run: |
+            cd build
+            make
+        - name: Install
+          run: |
+            cd build
+            sudo make install
+        - name: Tests
+          run: |
+            :
+            
+    cpplint:
+        runs-on: ubuntu-latest
+        strategy:
+            max-parallel: 4
+            fail-fast: false
+
+        steps:
+        - uses: actions/checkout@master
+        - name: Set up Python
+          uses: actions/setup-python@v1
+          with:
+            python-verion: 3.7
+        - name: Install Dependencies
+          run: |
+            python -m pip install --upgrade pip
+            pip install cpplint
+        - name: Code Analysis
+          run: |
+            cpplint $(find . -name \*.h -or -name \*.cpp | grep -vE "^\.\/build\/")
+
