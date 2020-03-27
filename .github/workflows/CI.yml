@@ -11,10 +11,17 @@ jobs:
             
         steps:
         - uses: actions/checkout@v1
+        - name: Checkout Submodules
+          run: |
+            git config --file .gitmodules --get-regexp url | while read url; do
+              git config --file=.gitmodules $(echo "$url" | sed -E "s/git@github.com:|https:\/\/github.com\//https:\/\/${{ secrets.CI_PAT }}:${{ secrets.CI_PAT }}@github.com\//")
+            done
+            git submodule sync
+            git submodule update --init --recursive
         - name: Install Dependencies
           run: |
-            :
-        - name: Set up Build/Install
+            xargs -ra dependencies.txt sudo apt-get install
+        - name: Set up Build
           run: |
             mkdir build
             cd build
@@ -27,9 +34,38 @@ jobs:
           run: |
             cd build
             sudo make install
+            
+    googletest:
+        runs-on: ubuntu-latest
+        strategy:
+            max-parallel: 4
+            fail-fast: false
+            
+        steps:
+        - uses: actions/checkout@v1
+        - name: Checkout Submodules
+          run: |
+            git config --file .gitmodules --get-regexp url | while read url; do
+              git config --file=.gitmodules $(echo "$url" | sed -E "s/git@github.com:|https:\/\/github.com\//https:\/\/${{ secrets.CI_PAT }}:${{ secrets.CI_PAT }}@github.com\//")
+            done
+            git submodule sync
+            git submodule update --init --recursive
+        - name: Install Dependencies
+          run: |
+            xargs -ra dependencies.txt sudo apt-get install
+        - name: Set up Build
+          run: |
+            mkdir build
+            cd build
+            cmake ..
+        - name: Build
+          run: |
+            cd build
+            make
         - name: Tests
           run: |
-            :
+            cd build
+            ./test/LibClient_test
             
     cpplint:
         runs-on: ubuntu-latest
