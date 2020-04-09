@@ -1,11 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
-project(LibClient_test)
 
-set(CMAKE_CXX_STANDARD 17)
+include_directories(../src)
+include_directories(../src/datatypes)
 
-add_subdirectory(googletest)
-
-add_executable(${PROJECT_NAME} main.cpp test1.cpp)
-target_link_libraries(${PROJECT_NAME}
-        gtest gmock pthread
-        )
+add_executable(allTests test1.cpp)
+target_link_libraries(allTests gtest gmock gtest_main SopraClient)
+gtest_discover_tests(allTests)
