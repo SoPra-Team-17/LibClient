@@ -26,7 +26,7 @@ namespace libclient::model {
             spy::util::UUID activeCharacter;
             std::optional<spy::util::UUID> leftUserId;
             std::optional<spy::network::ErrorTypeEnum> errorReason;
-            bool gamePaued = false;
+            bool gamePaused = false;
             bool serverEnforced = false;
             unsigned int strikeNr = 0;
             unsigned int strikeMax;

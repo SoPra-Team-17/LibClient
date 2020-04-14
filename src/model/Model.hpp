@@ -11,18 +11,17 @@
 #include <model/ClientState.hpp>
 #include <model/GameState.hpp>
 #include <network/messages/Replay.hpp>
+#include <LibClient.hpp>
 
 namespace libclient::model {
-
     class Model {
         public:
             Model() = default;
 
             libclient::model::ClientState clientState;
-            libclient::model::GameState gameState;
+            liblibclient::model::GameState gameState;
             spy::network::messages::Replay replay;
     };
-
 }
 
 #endif //SAMPLELIBRARY_LIBRARY_H

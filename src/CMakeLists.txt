@@ -6,16 +6,19 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Werror -mtune=
 
 
 set(SOURCE
-        Callback.cpp
         model/Model.cpp
         Network.cpp
-        model/ClientState.cpp model/GameState.cpp model/GameState.hpp LibClient.cpp LibClient.hpp)
+        model/ClientState.cpp
+        model/GameState.cpp
+        LibClient.cpp
+        )
 
 set(INCLUDE
         Callback.hpp
         model/Model.hpp
-        Network.hpp
+        model/GameState.hpp
         model/ClientState.hpp
+        Network.hpp
         )
 
 include_directories(.)
