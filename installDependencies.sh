@@ -26,6 +26,9 @@ make -j$(nproc)
 sudo make install
 
 
+# libuuid
+sudo apt install uuid-dev
+
 # nlohmann json
 cd /tmp
 git clone --depth 1 https://github.com/nlohmann/json.git
