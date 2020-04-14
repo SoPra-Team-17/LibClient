@@ -6,13 +6,17 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Werror -mtune=
 
 
 set(SOURCE
-        Model.cpp
+        model/Model.cpp
+        model/ClientState.cpp
+        model/GameState.cpp
         Network.cpp
         )
 
 set(INCLUDE
         Callback.hpp
-        Model.hpp
+        model/Model.hpp
+        model/ClientState.hpp
+        model/GameState.hpp
         Network.hpp
         )
 
