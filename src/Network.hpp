@@ -31,7 +31,7 @@ namespace libclient::network {
         public:
             Network(std::shared_ptr<callback::Callback> c, std::shared_ptr<model::Model> m);
 
-            void connect(std::string servername, int port);
+            void connect(const std::string& servername, int port);
 
             void disconnect();
 
@@ -51,7 +51,6 @@ namespace libclient::network {
 
             bool sentRequestReplayMessage();
 
-            // TODO check how to handled reconnect
             void sentReconnect();
     };
 }

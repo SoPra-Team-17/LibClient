@@ -20,11 +20,70 @@ namespace libclient::network {
     }
 
     void Network::onReceiveMessage(std::string message) {
-        message.crend(); //TODO delete this line
-        //TODO switch MessageType and call callback->onReceiveMessage
+        auto json = nlohmann::json::parse(message);
+        auto mc = json.get<spy::network::MessageContainer>();
+        //TODO validation check
+
+        switch (mc.getType()) {
+            case spy::network::messages::MessageTypeEnum::HELLO_REPLY:
+                //TODO implement
+                mCallback->onHelloReply();
+                break;
+            case spy::network::messages::MessageTypeEnum::GAME_STARTED:
+                //TODO implement
+                mCallback->onGameStarted();
+                break;
+            case spy::network::messages::MessageTypeEnum::REQUEST_ITEM_CHOICE:
+                //TODO implement
+                mCallback->onRequestItemChoice();
+                break;
+            case spy::network::messages::MessageTypeEnum::REQUEST_EQUIPMENT_CHOICE:
+                //TODO implement
+                mCallback->onRequestEquipmentChoice();
+                break;
+            case spy::network::messages::MessageTypeEnum::GAME_STATUS:
+                //TODO implement
+                mCallback->onGameStatus();
+                break;
+            case spy::network::messages::MessageTypeEnum::REQUEST_GAME_OPERATION:
+                //TODO implement
+                mCallback->onRequestGameOperation();
+                break;
+            case spy::network::messages::MessageTypeEnum::STATISTICS:
+                //TODO implement
+                mCallback->onStatistics();
+                break;
+            case spy::network::messages::MessageTypeEnum::GAME_LEFT:
+                //TODO implement
+                mCallback->onGameLeft();
+                break;
+            case spy::network::messages::MessageTypeEnum::GAME_PAUSE:
+                //TODO implement
+                mCallback->onGamePause();
+                break;
+            case spy::network::messages::MessageTypeEnum::META_INFORMATION:
+                //TODO implement
+                mCallback->onMetaInformation();
+                break;
+            case spy::network::messages::MessageTypeEnum::STRIKE:
+                //TODO implement
+                mCallback->onStrike();
+                break;
+            case spy::network::messages::MessageTypeEnum::ERROR:
+                //TODO implement
+                mCallback->onError();
+                break;
+            case spy::network::messages::MessageTypeEnum::REPLAY:
+                //TODO implement
+                mCallback->onReplay();
+                break;
+            default:
+                // do nothing
+                break;
+        }
     }
 
-    void Network::connect(std::string servername, int port) {
+    void Network::connect(const std::string& servername, int port) {
         websocket::network::WebSocketClient client(std::move(servername), "/", port, "");
 
         this->mWebSocketClient.emplace(servername, "/", port, "");
@@ -36,8 +95,42 @@ namespace libclient::network {
         if (mWebSocketClient.has_value()) {
             mWebSocketClient.reset();
         }
-        //TODO update Model
+        //TODO implement
     }
 
-    //TODO implement sent methods with validation check (role, ...)
+    bool Network::sentHello() {
+        //TODO implement with validation check (role, ...)
+    }
+
+    bool Network::sentItemChoice() {
+        //TODO implement with validation check (role, ...)
+    }
+
+    bool Network::sentEquipmentChoice() {
+        //TODO implement with validation check (role, ...)
+    }
+
+    bool Network::sentOperation() {
+        //TODO implement with validation check (role, ...)
+    }
+
+    bool Network::sentGameLeave() {
+        //TODO implement with validation check (role, ...)
+    }
+
+    bool Network::sentRequestGamePause() {
+        //TODO implement with validation check (role, ...)
+    }
+
+    bool Network::sentRequestMeatInformation() {
+        //TODO implement with validation check (role, ...)
+    }
+
+    bool Network::sentRequestReplayMessage() {
+        //TODO implement with validation check (role, ...)
+    }
+
+    void Network::sentReconnect() {
+        // TODO implement with validation check (role, ...) and check how to handle reconnect in SopraNetwork
+    }
 }
