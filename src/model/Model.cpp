@@ -5,5 +5,5 @@
  * @brief  Definition of the model class (contains all Info needed by Clients).
  */
 
-#include "Model.hpp"
+#include "model/Model.hpp"
 

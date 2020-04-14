@@ -10,7 +10,7 @@
 
 #include <string>
 #include <iostream>
-#include "Model.hpp"
+#include "model/Model.hpp"
 //#include "Network.hpp"
 
 /**

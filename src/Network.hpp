@@ -11,7 +11,7 @@
 #define SAMPLELIBRARY_NETWORK_HPP
 
 #include "Callback.hpp"
-#include "Model.hpp"
+#include "model/Model.hpp"
 
 class Network {
     private:

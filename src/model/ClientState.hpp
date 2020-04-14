@@ -2,19 +2,18 @@
 // Created by marco on 14.04.20.
 //
 
-#ifndef LIBCLIENT_CLIENTINFO_HPP
-#define LIBCLIENT_CLIENTINFO_HPP
+#ifndef LIBCLIENT_CLIENTSTATE_HPP
+#define LIBCLIENT_CLIENTSTATE_HPP
 
 #include <string>
 #include <network/RoleEnum.hpp>
 #include <network/ErrorTypeEnum.hpp>
 #include <util/UUID.hpp>
 
-namespace libcommon::model {
-    class ClientInfo {
+namespace libclient::model {
+    class ClientState {
         public:
-            ClientInfo() = default;
-
+            ClientState() = default;
 
             std::string name;
             bool isConnected = false;
@@ -27,7 +26,12 @@ namespace libcommon::model {
             spy::util::UUID activeCharacter;
             std::optional<spy::util::UUID> leftUserId;
             std::optional<spy::network::ErrorTypeEnum> errorReason;
+            bool gamePaued = false;
+            bool serverEnforced = false;
+            unsigned int strikeNr = 0;
+            unsigned int strikeMax;
+            std::string strikeReason;
     };
 }
 
-#endif //LIBCLIENT_CLIENTINFO_HPP
+#endif //LIBCLIENT_CLIENTSTATE_HPP

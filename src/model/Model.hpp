@@ -8,19 +8,21 @@
 #ifndef SAMPLELIBRARY_LIBRARY_H
 #define SAMPLELIBRARY_LIBRARY_H
 
-#include <string>
-#include <iostream>
+#include <model/ClientState.hpp>
+#include <model/GameState.hpp>
+#include <network/messages/Replay.hpp>
 
+namespace libclient::model {
 
-class Model {
-    public:
+    class Model {
+        public:
+            Model() = default;
 
-        Model() = default;
+            libclient::model::ClientState clientState;
+            libclient::model::GameState gameState;
+            spy::network::messages::Replay replay;
+    };
 
-        //TODO set up model components (with LibCommon)
-    private:
-        std::string 
-
-};
+}
 
 #endif //SAMPLELIBRARY_LIBRARY_H
