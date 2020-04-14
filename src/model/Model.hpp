@@ -11,7 +11,6 @@
 #include <model/ClientState.hpp>
 #include <model/GameState.hpp>
 #include <network/messages/Replay.hpp>
-#include <LibClient.hpp>
 
 namespace libclient {
     class Model {
