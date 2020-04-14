@@ -6,16 +6,21 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Werror -mtune=
 
 
 set(SOURCE
-		library.cpp
-	)
+        Callback.cpp
+        Model.cpp
+        Network.cpp
+        )
 
 set(INCLUDE
-		library.h
-	)
-	
+        Callback.hpp
+        Model.hpp
+        Network.hpp
+        )
+
 include_directories(.)
 
 add_library(${PROJECT_NAME} SHARED ${SOURCE})
+target_link_libraries(${PROJECT_NAME} SopraNetwork)
 
 install(TARGETS ${PROJECT_NAME} DESTINATION /usr/lib)
 install(FILES ${INCLUDE} DESTINATION /usr/include/${PROJECT_NAME})

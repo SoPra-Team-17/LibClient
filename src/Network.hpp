@@ -10,13 +10,13 @@
 #ifndef SAMPLELIBRARY_NETWORK_HPP
 #define SAMPLELIBRARY_NETWORK_HPP
 
-#include "CallbackClass.hpp"
+#include "Callback.hpp"
 #include "Model.hpp"
 
 class Network {
     private:
         Model *model;
-        CallbackClass *callback;
+        Callback *callback;
 
         /**
          * function to handle received messages
@@ -27,7 +27,7 @@ class Network {
     public:
         Network() = default;
 
-        Network(CallbackClass *c, Model *m);
+        Network(Callback *c, Model *m);
 
         // TODO define connect method
         // TODO define all sentMessage methods

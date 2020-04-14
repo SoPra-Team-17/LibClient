@@ -7,7 +7,7 @@
 
 #include "Network.hpp"
 
-Network::Network(CallbackClass *c, Model *m)  {
+Network::Network(Callback *c, Model *m)  {
     callback = c;
     model = m;
 }
