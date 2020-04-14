@@ -1,7 +1,9 @@
-//
-// Created by marco on 14.04.20.
-//
-
+/**
+ * @file    LibClient.cpp
+ * @author  Marco
+ * @date    14.04.2020 (creation)
+ * @brief   Implementation of LibClient
+ */
 #include "LibClient.hpp"
 
 namespace libclient {

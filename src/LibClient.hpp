@@ -1,7 +1,9 @@
-//
-// Created by marco on 14.04.20.
-//
-
+/**
+ * @file    LibClient.hpp
+ * @author  Marco
+ * @date    14.04.2020 (creation)
+ * @brief   Definition of the client interface
+ */
 #ifndef LIBCLIENT_LIBCLIENT_HPP
 #define LIBCLIENT_LIBCLIENT_HPP
 

@@ -1,6 +1,9 @@
-//
-// Created by marco on 14.04.20.
-//
+/**
+ * @file    GameState.hpp
+ * @author  Marco
+ * @date    14.04.2020 (creation)
+ * @brief   Definition of GameState
+ */
 
 #ifndef LIBCLIENT_GAMESTATE_HPP
 #define LIBCLIENT_GAMESTATE_HPP

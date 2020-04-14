@@ -1,6 +1,9 @@
-//
-// Created by marco on 14.04.20.
-//
+/**
+ * @file    ClientState.hpp
+ * @author  Marco
+ * @date    14.04.2020 (creation)
+ * @brief   Definition of ClientState
+ */
 
 #ifndef LIBCLIENT_CLIENTSTATE_HPP
 #define LIBCLIENT_CLIENTSTATE_HPP

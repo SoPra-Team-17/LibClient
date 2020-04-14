@@ -1,13 +1,12 @@
-#include <utility>
-
-#include <utility>
-
 /**
  * @file   Network.hcp
  * @author Carolin
  * @date   14.04.2020 (creation)
  * @brief  Definition of the network class (Interface to Server).
  */
+
+#include <utility>
+#include <utility>
 
 #include "Network.hpp"
 #include <network/messages/MessageTypeEnum.hpp>
