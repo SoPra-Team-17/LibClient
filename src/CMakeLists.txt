@@ -6,7 +6,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Werror -mtune=
 
 
 set(SOURCE
-        Callback.cpp
         Model.cpp
         Network.cpp
         )
@@ -18,6 +17,7 @@ set(INCLUDE
         )
 
 include_directories(.)
+include_directories(../extern/LibCommon/src)
 
 add_library(${PROJECT_NAME} SHARED ${SOURCE})
 target_link_libraries(${PROJECT_NAME} SopraNetwork)

@@ -12,7 +12,7 @@
 
 #include <memory>
 #include "Callback.hpp"
-#include "Model.hpp"
+#include "model/Model.hpp"
 
 namespace libclient::network {
 

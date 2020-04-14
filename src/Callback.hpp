@@ -8,11 +8,6 @@
 #ifndef SAMPLELIBRARY_CALLBACK_HPP
 #define SAMPLELIBRARY_CALLBACK_HPP
 
-#include <string>
-#include <iostream>
-#include "Model.hpp"
-//#include "Network.hpp"
-
 namespace libclient::callback {
 /**
  * Client has to implement class that has CallbackClass as parent

@@ -11,16 +11,17 @@
 #include <string>
 #include <iostream>
 
+namespace libclient::model {
+    class Model {
+        public:
 
-class Model {
-    public:
+            Model() = default;
 
-        Model() = default;
+            //TODO set up model components (with LibCommon)
+        private:
 
-        //TODO set up model components (with LibCommon)
-    private:
-        std::string 
 
-};
+    };
+}
 
 #endif //SAMPLELIBRARY_LIBRARY_H
