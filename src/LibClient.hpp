@@ -50,7 +50,7 @@ namespace libclient {
             [[nodiscard]] bool getHasReplay() const;
 
         private:
-            libclient::model::Model model;
+            libclient::Model model;
 
     };
 

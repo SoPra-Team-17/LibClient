@@ -11,15 +11,15 @@
 #define SAMPLELIBRARY_NETWORK_HPP
 
 #include <memory>
-#include "Callback.hpp"
-#include "model/Model.hpp"
+#include <Callback.hpp>
+#include <model/Model.hpp>
 
-namespace libclient::network {
+namespace libclient {
 
     class Network {
         private:
-            std::shared_ptr<model::Model> mModel;
-            std::shared_ptr<callback::Callback> mCallback;
+            std::shared_ptr<Model> mModel;
+            std::shared_ptr<Callback> mCallback;
             std::optional<websocket::network::WebSocketClient> mWebSocketClient;
 
             /**
@@ -29,7 +29,7 @@ namespace libclient::network {
             void onReceiveMessage(std::string message);
 
         public:
-            Network(std::shared_ptr<callback::Callback> c, std::shared_ptr<model::Model> m);
+            Network(std::shared_ptr<libclient::Callback> c, std::shared_ptr<libclient::Model> m);
 
             void connect(const std::string& servername, int port);
 
@@ -51,7 +51,7 @@ namespace libclient::network {
 
             bool sentRequestReplayMessage();
 
-            void sentReconnect();
+            bool sentReconnect();
     };
 }
 

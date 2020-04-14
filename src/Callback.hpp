@@ -8,7 +8,7 @@
 #ifndef SAMPLELIBRARY_CALLBACK_HPP
 #define SAMPLELIBRARY_CALLBACK_HPP
 
-namespace libclient::callback {
+namespace libclient {
 /**
  * Client has to implement class that has CallbackClass as parent
  */

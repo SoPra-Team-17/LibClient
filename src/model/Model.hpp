@@ -13,13 +13,13 @@
 #include <network/messages/Replay.hpp>
 #include <LibClient.hpp>
 
-namespace libclient::model {
+namespace libclient {
     class Model {
         public:
             Model() = default;
 
             libclient::model::ClientState clientState;
-            liblibclient::model::GameState gameState;
+            libclient::model::GameState gameState;
             spy::network::messages::Replay replay;
     };
 }

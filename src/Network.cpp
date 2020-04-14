@@ -12,8 +12,8 @@
 #include <network/messages/MessageTypeEnum.hpp>
 #include <network/MessageContainer.hpp>
 
-namespace libclient::network {
-    Network::Network(std::shared_ptr<callback::Callback> c, std::shared_ptr<model::Model> m) {
+namespace libclient {
+    Network::Network(std::shared_ptr<Callback> c, std::shared_ptr<Model> m) {
         mCallback = std::move(c);
         mModel = std::move(m);
     }
@@ -83,7 +83,7 @@ namespace libclient::network {
     }
 
     void Network::connect(const std::string& servername, int port) {
-        websocket::network::WebSocketClient client(std::move(servername), "/", port, "");
+        websocket::network::WebSocketClient client(servername, "/", port, "");
 
         this->mWebSocketClient.emplace(servername, "/", port, "");
         mWebSocketClient->receiveListener.subscribe(std::bind(&Network::onReceiveMessage, this, std::placeholders::_1));
@@ -99,37 +99,46 @@ namespace libclient::network {
 
     bool Network::sentHello() {
         //TODO implement with validation check (role, ...)
+        return true;
     }
 
     bool Network::sentItemChoice() {
         //TODO implement with validation check (role, ...)
+        return true;
     }
 
     bool Network::sentEquipmentChoice() {
         //TODO implement with validation check (role, ...)
+        return true;
     }
 
     bool Network::sentOperation() {
         //TODO implement with validation check (role, ...)
+        return true;
     }
 
     bool Network::sentGameLeave() {
         //TODO implement with validation check (role, ...)
+        return true;
     }
 
     bool Network::sentRequestGamePause() {
         //TODO implement with validation check (role, ...)
+        return true;
     }
 
     bool Network::sentRequestMeatInformation() {
         //TODO implement with validation check (role, ...)
+        return true;
     }
 
     bool Network::sentRequestReplayMessage() {
         //TODO implement with validation check (role, ...)
+        return true;
     }
 
-    void Network::sentReconnect() {
+    bool Network::sentReconnect() {
         // TODO implement with validation check (role, ...) and check how to handle reconnect in SopraNetwork
+        return true;
     }
 }
