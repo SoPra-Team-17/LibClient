@@ -4,6 +4,7 @@ project(SopraClient)
 # build options
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Werror -mtune=native -march=native")
 
+find_package(nlohmann_json REQUIRED)
 
 set(SOURCE
         model/Model.cpp
