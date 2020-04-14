@@ -13,11 +13,13 @@
 
 
 class Model {
-public:
+    public:
 
-    Model() = default;
+        Model() = default;
 
-    //TODO set up model components (with LibCommon)
+        //TODO set up model components (with LibCommon)
+    private:
+        std::string 
 
 };
 
