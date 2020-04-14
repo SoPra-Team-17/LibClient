@@ -13,18 +13,43 @@
 #include "Model.hpp"
 //#include "Network.hpp"
 
+namespace libclient::callback {
 /**
  * Client has to implement class that has CallbackClass as parent
  */
-class Callback {
-public:
+    class Callback {
+        public:
 
-    Callback() = default;
-    virtual ~Callback() = default;
+            Callback() = default;
 
-    // TODO define onReceiveMessage as virtual methods
+            virtual ~Callback() = default;
 
-};
+            virtual void onHelloReply() = 0;
 
+            virtual void onGameStarted() = 0;
+
+            virtual void onRequestItemChoice() = 0;
+
+            virtual void onRequestEquipmentChoice() = 0;
+
+            virtual void onGameStatus() = 0;
+
+            virtual void onRequestGameOperation() = 0;
+
+            virtual void onStatistics() = 0;
+
+            virtual void onGameLeft() = 0;
+
+            virtual void onGamePause() = 0;
+
+            virtual void onMetaInformation() = 0;
+
+            virtual void onStrike() = 0;
+
+            virtual void onError() = 0;
+
+            virtual void onReplay() = 0;
+    };
+}
 
 #endif //SAMPLELIBRARY_CALLBACK_HPP
