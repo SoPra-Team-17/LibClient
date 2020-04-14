@@ -10,28 +10,50 @@
 #ifndef SAMPLELIBRARY_NETWORK_HPP
 #define SAMPLELIBRARY_NETWORK_HPP
 
+#include <memory>
 #include "Callback.hpp"
 #include "Model.hpp"
 
-class Network {
-    private:
-        Model *model;
-        Callback *callback;
+namespace libclient::network {
 
-        /**
-         * function to handle received messages
-         * @param message std::string received message from server
-         */
-        void onReceiveMessage(std::string message);
+    class Network {
+        private:
+            std::shared_ptr<model::Model> mModel;
+            std::shared_ptr<callback::Callback> mCallback;
+            std::optional<websocket::network::WebSocketClient> mWebSocketClient;
 
-    public:
-        Network() = default;
+            /**
+             * function to handle received messages
+             * @param message std::string received message from server
+             */
+            void onReceiveMessage(std::string message);
 
-        Network(Callback *c, Model *m);
+        public:
+            Network(std::shared_ptr<callback::Callback> c, std::shared_ptr<model::Model> m);
 
-        // TODO define connect method
-        // TODO define all sentMessage methods
-};
+            void connect(std::string servername, int port);
 
+            void disconnect();
+
+            bool sentHello();
+
+            bool sentItemChoice();
+
+            bool sentEquipmentChoice();
+
+            bool sentOperation();
+
+            bool sentGameLeave();
+
+            bool sentRequestGamePause();
+
+            bool sentRequestMeatInformation();
+
+            bool sentRequestReplayMessage();
+
+            // TODO check how to handled reconnect
+            void sentReconnect();
+    };
+}
 
 #endif //SAMPLELIBRARY_NETWORK_HPP
