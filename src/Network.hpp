@@ -51,7 +51,6 @@ namespace libclient::network {
 
             bool sentRequestReplayMessage();
 
-            // TODO check how to handled reconnect
             void sentReconnect();
     };
 }
