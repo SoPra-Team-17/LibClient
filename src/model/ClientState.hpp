@@ -18,6 +18,7 @@ namespace libclient::model {
         public:
             ClientState() = default;
 
+            spy::util::UUID id;
             std::string name;
             bool isConnected = false;
             spy::network::RoleEnum role;

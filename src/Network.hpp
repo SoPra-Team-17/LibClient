@@ -11,8 +11,13 @@
 #define SAMPLELIBRARY_NETWORK_HPP
 
 #include <memory>
+#include <variant>
 #include <Callback.hpp>
 #include <model/Model.hpp>
+#include <network/RoleEnum.hpp>
+#include <util/UUID.hpp>
+#include <datatypes/gadgets/GadgetEnum.hpp>
+#include <datatypes/gameplay/Operation.hpp>
 
 namespace libclient {
 
@@ -35,19 +40,19 @@ namespace libclient {
 
             void disconnect();
 
-            bool sentHello();
+            bool sentHello(std::string name, spy::network::RoleEnum role);
 
-            bool sentItemChoice();
+            bool sentItemChoice(std::variant<spy::util::UUID, spy::gadget::GadgetEnum> choice);
 
-            bool sentEquipmentChoice();
+            bool sentEquipmentChoice(std::map<spy::util::UUID, std::set<spy::gadget::GadgetEnum>> equipment);
 
-            bool sentOperation();
+            bool sentGameOperation(spy::gameplay::Operation operation);
 
             bool sentGameLeave();
 
-            bool sentRequestGamePause();
+            bool sentRequestGamePause(bool gamePause);
 
-            bool sentRequestMeatInformation();
+            bool sentRequestMeatInformation(std::vector<std::string> keys);
 
             bool sentRequestReplayMessage();
 

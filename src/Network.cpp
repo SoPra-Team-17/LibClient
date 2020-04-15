@@ -1,3 +1,5 @@
+#include <utility>
+
 /**
  * @file   Network.cpp
  * @author Carolin
@@ -8,6 +10,16 @@
 #include "Network.hpp"
 #include <network/messages/MessageTypeEnum.hpp>
 #include <network/MessageContainer.hpp>
+#include <network/messages/Hello.hpp>
+#include <network/messages/ItemChoice.hpp>
+#include <network/messages/EquipmentChoice.hpp>
+#include <network/messages/GameOperation.hpp>
+#include <network/messages/GameLeave.hpp>
+#include <network/messages/GamePause.hpp>
+#include <network/messages/RequestGamePause.hpp>
+#include <network/messages/RequestMetaInformation.hpp>
+#include <network/messages/RequestReplay.hpp>
+#include <network/messages/Reconnect.hpp>
 
 namespace libclient {
     Network::Network(std::shared_ptr<Callback> c, std::shared_ptr<Model> m) {
@@ -18,59 +30,58 @@ namespace libclient {
     void Network::onReceiveMessage(std::string message) {
         auto json = nlohmann::json::parse(message);
         auto mc = json.get<spy::network::MessageContainer>();
-        //TODO validation check (playerId, SessionId, ...)
 
         switch (mc.getType()) {
             case spy::network::messages::MessageTypeEnum::HELLO_REPLY:
-                //TODO implement
+                //TODO implement with validation check (playerId, sessionId, ..)
                 mCallback->onHelloReply();
                 break;
             case spy::network::messages::MessageTypeEnum::GAME_STARTED:
-                //TODO implement
+                //TODO implement with validation check (playerId, sessionId, ..)
                 mCallback->onGameStarted();
                 break;
             case spy::network::messages::MessageTypeEnum::REQUEST_ITEM_CHOICE:
-                //TODO implement
+                //TODO implement with validation check (playerId, sessionId, ..)
                 mCallback->onRequestItemChoice();
                 break;
             case spy::network::messages::MessageTypeEnum::REQUEST_EQUIPMENT_CHOICE:
-                //TODO implement
+                //TODO implement with validation check (playerId, sessionId, ..)
                 mCallback->onRequestEquipmentChoice();
                 break;
             case spy::network::messages::MessageTypeEnum::GAME_STATUS:
-                //TODO implement
+                //TODO implement with validation check (playerId, sessionId, ..)
                 mCallback->onGameStatus();
                 break;
             case spy::network::messages::MessageTypeEnum::REQUEST_GAME_OPERATION:
-                //TODO implement
+                //TODO implement with validation check (playerId, sessionId, ..)
                 mCallback->onRequestGameOperation();
                 break;
             case spy::network::messages::MessageTypeEnum::STATISTICS:
-                //TODO implement
+                //TODO implement with validation check (playerId, sessionId, ..)
                 mCallback->onStatistics();
                 break;
             case spy::network::messages::MessageTypeEnum::GAME_LEFT:
-                //TODO implement
+                //TODO implement with validation check (playerId, sessionId, ..)
                 mCallback->onGameLeft();
                 break;
             case spy::network::messages::MessageTypeEnum::GAME_PAUSE:
-                //TODO implement
+                //TODO implement with validation check (playerId, sessionId, ..)
                 mCallback->onGamePause();
                 break;
             case spy::network::messages::MessageTypeEnum::META_INFORMATION:
-                //TODO implement
+                //TODO implement with validation check (playerId, sessionId, ..)
                 mCallback->onMetaInformation();
                 break;
             case spy::network::messages::MessageTypeEnum::STRIKE:
-                //TODO implement
+                //TODO implement with validation check (playerId, sessionId, ..)
                 mCallback->onStrike();
                 break;
             case spy::network::messages::MessageTypeEnum::ERROR:
-                //TODO implement
+                //TODO implement with validation check (playerId, sessionId, ..)
                 mCallback->onError();
                 break;
             case spy::network::messages::MessageTypeEnum::REPLAY:
-                //TODO implement
+                //TODO implement with validation check (playerId, sessionId, ..)
                 mCallback->onReplay();
                 break;
             default:
@@ -79,7 +90,7 @@ namespace libclient {
         }
     }
 
-    void Network::connect(const std::string& servername, int port) {
+    void Network::connect(const std::string &servername, int port) {
         websocket::network::WebSocketClient client(servername, "/", port, "");
 
         this->mWebSocketClient.emplace(servername, "/", port, "");
@@ -88,54 +99,117 @@ namespace libclient {
     }
 
     void Network::disconnect() {
+        // TODO validation check (rules of game, ...)
         if (mWebSocketClient.has_value()) {
             mWebSocketClient.reset();
         }
-        //TODO implement
+        //TODO implement (reset model, ...)
     }
 
-    bool Network::sentHello() {
-        //TODO implement with validation check (role, ...)
+    bool Network::sentHello(std::string name, spy::network::RoleEnum role) {
+        if (role == spy::network::RoleEnum::INVALID) {
+            return false;
+        }
+        //TODO validation check (rules of game, ...)
+        auto message = spy::network::messages::Hello(mModel->clientState.id, std::move(name), role);
+        nlohmann::json j = message;
+        mWebSocketClient->send(j.dump());
         return true;
     }
 
-    bool Network::sentItemChoice() {
-        //TODO implement with validation check (role, ...)
+    bool Network::sentItemChoice(std::variant<spy::util::UUID, spy::gadget::GadgetEnum> choice) {
+        if (mModel->clientState.role == spy::network::RoleEnum::INVALID ||
+            mModel->clientState.role == spy::network::RoleEnum::SPECTATOR) {
+            return false;
+        }
+        //TODO validation check (rules of game, valid UUID, valid GadgetEnum, ...)
+        auto message = spy::network::messages::ItemChoice(mModel->clientState.id, std::move(choice));
+        nlohmann::json j = message;
+        mWebSocketClient->send(j.dump());
         return true;
     }
 
-    bool Network::sentEquipmentChoice() {
-        //TODO implement with validation check (role, ...)
+    bool Network::sentEquipmentChoice(std::map<spy::util::UUID, std::set<spy::gadget::GadgetEnum>> equipment) {
+        if (mModel->clientState.role == spy::network::RoleEnum::INVALID ||
+            mModel->clientState.role == spy::network::RoleEnum::SPECTATOR) {
+            return false;
+        }
+        //TODO validation check (rules of game, valid UUID, valid set of GadgetEnums, ...)
+        auto message = spy::network::messages::EquipmentChoice(mModel->clientState.id, std::move(equipment));
+        nlohmann::json j = message;
+        mWebSocketClient->send(j.dump());
         return true;
     }
 
-    bool Network::sentOperation() {
-        //TODO implement with validation check (role, ...)
+    bool Network::sentGameOperation(spy::gameplay::Operation operation) {
+        if (mModel->clientState.role == spy::network::RoleEnum::INVALID ||
+            mModel->clientState.role == spy::network::RoleEnum::SPECTATOR) {
+            return false;
+        }
+        //TODO validation check (rules of game, valid operation values, ...)
+        auto message = spy::network::messages::GameOperation(mModel->clientState.id, std::move(operation));
+        nlohmann::json j = message;
+        mWebSocketClient->send(j.dump());
         return true;
     }
 
     bool Network::sentGameLeave() {
-        //TODO implement with validation check (role, ...)
+        if (mModel->clientState.role == spy::network::RoleEnum::INVALID) {
+            return false;
+        }
+        //TODO validation check (rules of game, ...)
+        auto message = spy::network::messages::GameLeave(mModel->clientState.id);
+        nlohmann::json j = message;
+        mWebSocketClient->send(j.dump());
         return true;
     }
 
-    bool Network::sentRequestGamePause() {
-        //TODO implement with validation check (role, ...)
+    bool Network::sentRequestGamePause(bool gamePause) {
+        if (mModel->clientState.role == spy::network::RoleEnum::INVALID ||
+            mModel->clientState.role == spy::network::RoleEnum::SPECTATOR ||
+            mModel->clientState.role == spy::network::RoleEnum::AI) {
+            return false;
+        }
+        //TODO validation check (rules of game, valid bool for gamePause, ...)
+        auto message = spy::network::messages::RequestGamePause(mModel->clientState.id, gamePause);
+        nlohmann::json j = message;
+        mWebSocketClient->send(j.dump());
         return true;
     }
 
-    bool Network::sentRequestMeatInformation() {
-        //TODO implement with validation check (role, ...)
+    bool Network::sentRequestMeatInformation(std::vector<std::string> keys) {
+        if (mModel->clientState.role == spy::network::RoleEnum::INVALID) {
+            return false;
+        }
+        //TODO validation check (rules of game, valid key values, ...)
+        auto message = spy::network::messages::RequestMetaInformation(mModel->clientState.id, std::move(keys));
+        nlohmann::json j = message;
+        mWebSocketClient->send(j.dump());
         return true;
     }
 
     bool Network::sentRequestReplayMessage() {
-        //TODO implement with validation check (role, ...)
+        if (mModel->clientState.role == spy::network::RoleEnum::INVALID ||
+            mModel->clientState.role == spy::network::RoleEnum::AI) {
+            return false;
+        }
+        //TODO validation check (rules of game, replay available, ...)
+        auto message = spy::network::messages::RequestReplay(mModel->clientState.id);
+        nlohmann::json j = message;
+        mWebSocketClient->send(j.dump());
         return true;
     }
 
     bool Network::sentReconnect() {
-        // TODO implement with validation check (role, ...) and check how to handle reconnect in SopraNetwork
+        // TODO check how reconnect is handled by SopraNetwork
+        if (mModel->clientState.role == spy::network::RoleEnum::INVALID ||
+            mModel->clientState.role == spy::network::RoleEnum::SPECTATOR) {
+            return false;
+        }
+        //TODO validation check (rules of game, check connection, ...)
+        auto message = spy::network::messages::Reconnect(mModel->clientState.id, mModel->clientState.sessionId);
+        nlohmann::json j = message;
+        mWebSocketClient->send(j.dump());
         return true;
     }
 }
