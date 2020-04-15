@@ -1,12 +1,9 @@
 /**
- * @file   Network.hcp
+ * @file   Network.cpp
  * @author Carolin
  * @date   14.04.2020 (creation)
  * @brief  Definition of the network class (Interface to Server).
  */
-
-#include <utility>
-#include <utility>
 
 #include "Network.hpp"
 #include <network/messages/MessageTypeEnum.hpp>
@@ -21,7 +18,7 @@ namespace libclient {
     void Network::onReceiveMessage(std::string message) {
         auto json = nlohmann::json::parse(message);
         auto mc = json.get<spy::network::MessageContainer>();
-        //TODO validation check
+        //TODO validation check (playerId, SessionId, ...)
 
         switch (mc.getType()) {
             case spy::network::messages::MessageTypeEnum::HELLO_REPLY:

@@ -9,9 +9,11 @@
 #define SAMPLELIBRARY_CALLBACK_HPP
 
 namespace libclient {
-/**
- * Client has to implement class that has CallbackClass as parent
- */
+
+    /**
+     * Client has to implement class that has Callback as parent.
+     * This class has to implement all pure virtual methods declared in Callback.
+     */
     class Callback {
         public:
 
