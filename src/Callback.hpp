@@ -46,6 +46,8 @@ namespace libclient {
             virtual void onError() = 0;
 
             virtual void onReplay() = 0;
+
+            virtual void connectionLost() = 0;
     };
 }
 
