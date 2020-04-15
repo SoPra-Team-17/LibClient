@@ -19,6 +19,7 @@ else ()
     message("############################\n")
 endif ()
 
+add_subdirectory(extern/LibCommon/src) # to be able to link SopraCommon in src/CMakeLists.txt
 add_subdirectory(src)
 
 option(LIBCOMMON_TESTS "Build the tests" ON)

@@ -28,7 +28,7 @@ include_directories(../extern/LibCommon/src)
 include_directories(../extern/LibCommon/src/datatypes)
 
 add_library(${PROJECT_NAME} SHARED ${SOURCE})
-target_link_libraries(${PROJECT_NAME} SopraNetwork nlohmann_json::nlohmann_json)
+target_link_libraries(${PROJECT_NAME} SopraCommon SopraNetwork nlohmann_json::nlohmann_json)
 
 install(TARGETS ${PROJECT_NAME} DESTINATION /usr/lib)
 install(FILES ${INCLUDE} DESTINATION /usr/include/${PROJECT_NAME})
