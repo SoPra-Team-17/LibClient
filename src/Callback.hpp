@@ -5,7 +5,7 @@
  * @brief  Declaration of the callback class (Interface to Clients).
  */
 
-#ifndef LIBCLIENT__CALLBACK_HPP
+#ifndef LIBCLIENT_CALLBACK_HPP
 #define LIBCLIENT_CALLBACK_HPP
 
 namespace libclient {
