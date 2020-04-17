@@ -21,13 +21,22 @@ cd /tmp
 git clone https://github.com/SoPra-Team-17/WebsocketCPP.git
 cd WebsocketCPP
 mkdir build && cd build
-cmake ..
+cmake -DJSON_BuildTests=false ..
 make -j$(nproc)
 sudo make install
 
 
 # LibCommon
-./extern/LibCommon/installDependencies.sh
+# libuuid
+sudo apt install uuid-dev
+# nlohmann json
+cd /tmp
+git clone --depth 1 https://github.com/nlohmann/json.git
+cd json
+mkdir build && cd build
+cmake -DJSON_BuildTests=false ..
+make -j$(nproc)
+sudo make install
 
 
 sudo ldconfig
