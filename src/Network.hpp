@@ -23,8 +23,8 @@ namespace libclient {
 
     class Network {
         private:
-            std::shared_ptr<Model> model;
             std::shared_ptr<Callback> callback;
+            std::shared_ptr<Model> model;
             std::optional<websocket::network::WebSocketClient> webSocketClient;
 
             /**

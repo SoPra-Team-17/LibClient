@@ -1,3 +1,5 @@
+#include <utility>
+
 /**
  * @file   Network.cpp
  * @author Carolin
@@ -20,10 +22,8 @@
 #include <network/messages/Reconnect.hpp>
 
 namespace libclient {
-    Network::Network(std::shared_ptr<Callback> c, std::shared_ptr<Model> m) {
-        callback = c;
-        model = m;
-    }
+    Network::Network(std::shared_ptr<Callback> c, std::shared_ptr<Model> m) : callback(std::move(c)),
+                                                                              model(std::move(m)) {}
 
     void Network::onReceiveMessage(std::string message) {
         auto json = nlohmann::json::parse(message);
