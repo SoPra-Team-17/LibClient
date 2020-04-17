@@ -5,8 +5,8 @@
  * @brief  Declaration of the model class (contains all Info needed by Clients).
  */
 
-#ifndef SAMPLELIBRARY_LIBRARY_H
-#define SAMPLELIBRARY_LIBRARY_H
+#ifndef LIBCLIENT_MODEL_HPP
+#define LIBCLIENT_MODEL_HPP
 
 #include <model/ClientState.hpp>
 #include <model/GameState.hpp>
@@ -21,4 +21,4 @@ namespace libclient {
     };
 }
 
-#endif //SAMPLELIBRARY_LIBRARY_H
+#endif //LIBCLIENT_MODEL_HPP
