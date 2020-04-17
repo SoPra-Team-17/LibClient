@@ -13,6 +13,7 @@
 namespace libclient {
     class LibClient {
         public:
+            [[nodiscard]] spy::util::UUID &getId() const;
             [[nodiscard]] const std::string &getName() const;
             [[nodiscard]] bool isConnected() const;
             [[nodiscard]] const spy::network::RoleEnum &getRole() const;

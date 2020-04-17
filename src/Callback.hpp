@@ -5,8 +5,8 @@
  * @brief  Declaration of the callback class (Interface to Clients).
  */
 
-#ifndef SAMPLELIBRARY_CALLBACK_HPP
-#define SAMPLELIBRARY_CALLBACK_HPP
+#ifndef LIBCLIENT__CALLBACK_HPP
+#define LIBCLIENT_CALLBACK_HPP
 
 namespace libclient {
 
@@ -48,4 +48,4 @@ namespace libclient {
     };
 }
 
-#endif //SAMPLELIBRARY_CALLBACK_HPP
+#endif //LIBCLIENT_CALLBACK_HPP

@@ -8,6 +8,10 @@
 
 namespace libclient {
 
+    const spy::util::UUID &LibClient::getId() const {
+        return model.clientState.id;
+    }
+
     const std::string &LibClient::getName() const {
         return model.clientState.name;
     }

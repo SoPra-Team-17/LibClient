@@ -22,8 +22,6 @@ set(INCLUDE
         )
 
 include_directories(.)
-include_directories(../extern/LibCommon/src)
-include_directories(../extern/LibCommon/src/datatypes)
 
 add_library(${PROJECT_NAME} SHARED ${SOURCE})
 target_link_libraries(${PROJECT_NAME} SopraCommon SopraNetwork)

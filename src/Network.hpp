@@ -7,8 +7,8 @@
 
 #include <SopraNetwork/WebSocketClient.hpp>
 
-#ifndef SAMPLELIBRARY_NETWORK_HPP
-#define SAMPLELIBRARY_NETWORK_HPP
+#ifndef LIBCLIENT_NETWORK_HPP
+#define LIBCLIENT_NETWORK_HPP
 
 #include <memory>
 #include <variant>
@@ -23,9 +23,9 @@ namespace libclient {
 
     class Network {
         private:
-            std::shared_ptr<Model> mModel;
-            std::shared_ptr<Callback> mCallback;
-            std::optional<websocket::network::WebSocketClient> mWebSocketClient;
+            std::shared_ptr<Model> model;
+            std::shared_ptr<Callback> callback;
+            std::optional<websocket::network::WebSocketClient> webSocketClient;
 
             /**
              * function to handle received messages
@@ -40,24 +40,24 @@ namespace libclient {
 
             void disconnect();
 
-            bool sentHello(std::string name, spy::network::RoleEnum role);
+            bool sendHello(std::string name, spy::network::RoleEnum role);
 
-            bool sentItemChoice(std::variant<spy::util::UUID, spy::gadget::GadgetEnum> choice);
+            bool sendItemChoice(std::variant<spy::util::UUID, spy::gadget::GadgetEnum> choice);
 
-            bool sentEquipmentChoice(std::map<spy::util::UUID, std::set<spy::gadget::GadgetEnum>> equipment);
+            bool sendEquipmentChoice(std::map<spy::util::UUID, std::set<spy::gadget::GadgetEnum>> equipment);
 
-            bool sentGameOperation(spy::gameplay::Operation operation);
+            bool sendGameOperation(spy::gameplay::Operation operation);
 
-            bool sentGameLeave();
+            bool sendGameLeave();
 
-            bool sentRequestGamePause(bool gamePause);
+            bool sendRequestGamePause(bool gamePause);
 
-            bool sentRequestMeatInformation(std::vector<std::string> keys);
+            bool sendRequestMeatInformation(std::vector<std::string> keys);
 
-            bool sentRequestReplayMessage();
+            bool sendRequestReplayMessage();
 
-            bool sentReconnect();
+            bool sendReconnect();
     };
 }
 
-#endif //SAMPLELIBRARY_NETWORK_HPP
+#endif //LIBCLIENT_NETWORK_HPP
