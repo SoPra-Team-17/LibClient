@@ -15,8 +15,6 @@
 namespace libclient {
     class Model {
         public:
-            Model() = default;
-
             libclient::model::ClientState clientState;
             libclient::model::GameState gameState;
             spy::network::messages::Replay replay;

@@ -16,9 +16,6 @@ namespace libclient {
      */
     class Callback {
         public:
-
-            Callback() = default;
-
             virtual ~Callback() = default;
 
             virtual void onHelloReply() = 0;

@@ -19,8 +19,6 @@
 namespace libclient::model {
     class GameState {
         public:
-            GameState() = default;
-
             spy::scenario::Scenario level;
             spy::MatchConfig settings;
             std::vector<spy::character::CharacterInformation> characterSettings;

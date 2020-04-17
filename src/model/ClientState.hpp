@@ -16,8 +16,6 @@
 namespace libclient::model {
     class ClientState {
         public:
-            ClientState() = default;
-
             spy::util::UUID id;
             std::string name;
             bool isConnected = false;
