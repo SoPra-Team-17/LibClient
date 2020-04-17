@@ -19,10 +19,12 @@ else ()
     message("############################\n")
 endif ()
 
+set(LIBCOMMON_TESTS OFF CACHE BOOL "Build LibCommon tests" FORCE)
+add_subdirectory(extern/LibCommon)
 add_subdirectory(src)
 
-option(LIBCOMMON_TESTS "Build the tests" ON)
-if (LIBCOMMON_TESTS)
+option(LIBCLIENT_TESTS "Build the tests" ON)
+if (LIBCLIENT_TESTS)
     # Download and unpack googletest at configure time
     configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
     execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .

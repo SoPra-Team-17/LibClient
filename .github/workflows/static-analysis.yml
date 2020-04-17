@@ -19,6 +19,8 @@ jobs:
         with:
           # fetch-depth = 0 is equivalent to entire commit-history
           fetch-depth: 0
+          submodules: true
+      - run: git fetch origin develop:refs/remotes/origin/develop
       - name: Restore cache for sonar analysis
         uses: actions/cache@v1
         env:
