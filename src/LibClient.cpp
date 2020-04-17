@@ -128,7 +128,7 @@ namespace libclient {
         return model.gameState.winningReason;
     }
 
-    bool LibClient::getHasReplay() const {
+    bool LibClient::hasReplay() const {
         return model.gameState.hasReplay;
     }
 
