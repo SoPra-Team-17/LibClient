@@ -21,7 +21,7 @@ cd /tmp
 git clone https://github.com/SoPra-Team-17/WebsocketCPP.git
 cd WebsocketCPP
 mkdir build && cd build
-cmake -DJSON_BuildTests=false ..
+cmake ..
 make -j$(nproc)
 sudo make install
 
