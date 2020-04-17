@@ -1,21 +1,20 @@
 cmake_minimum_required(VERSION 3.10)
 project(SopraClient)
 
-# build options
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Werror -mtune=native -march=native")
-
-
 set(SOURCE
-		library.cpp
-	)
-
-set(INCLUDE
-		library.h
-	)
-	
-include_directories(.)
+        model/Model.cpp
+        Network.cpp
+        model/ClientState.cpp
+        model/GameState.cpp
+        LibClient.cpp
+        )
 
 add_library(${PROJECT_NAME} SHARED ${SOURCE})
-
-install(TARGETS ${PROJECT_NAME} DESTINATION /usr/lib)
-install(FILES ${INCLUDE} DESTINATION /usr/include/${PROJECT_NAME})
+target_compile_options(${PROJECT_NAME} PRIVATE ${COMMON_CXX_FLAGS} -Wall -Wextra -Wpedantic -Werror -mtune=native -march=native)
+target_link_libraries(${PROJECT_NAME}
+        PUBLIC SopraCommon
+        PUBLIC SopraNetwork)
+target_include_directories(${PROJECT_NAME}
+        PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
