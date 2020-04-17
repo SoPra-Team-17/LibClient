@@ -17,7 +17,7 @@ namespace libclient {
         public:
             libclient::model::ClientState clientState;
             libclient::model::GameState gameState;
-            spy::network::messages::Replay replay;
+            std::optional<spy::network::messages::Replay> replay;
     };
 }
 
