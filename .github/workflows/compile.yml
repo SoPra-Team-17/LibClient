@@ -28,7 +28,3 @@ jobs:
         run: |
           cd build
           make
-      - name: Install
-        run: |
-          cd build
-          sudo make install
