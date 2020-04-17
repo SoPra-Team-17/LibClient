@@ -45,7 +45,7 @@ namespace libclient {
             [[nodiscard]] bool isGameOver() const;
             [[nodiscard]] const std::optional<spy::util::UUID> &getWinner() const;
             [[nodiscard]] const std::optional<spy::statistics::Statistics> &getStatistics() const;
-            [[nodiscard]] const std::optional<spy::statistics::VictoryEnum> &getWinningReasoin() const;
+            [[nodiscard]] const std::optional<spy::statistics::VictoryEnum> &getWinningReason() const;
             [[nodiscard]] bool getHasReplay() const;
 
         private:

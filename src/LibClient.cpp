@@ -124,7 +124,7 @@ namespace libclient {
         return model.gameState.statistics;
     }
 
-    const std::optional<spy::statistics::VictoryEnum> &LibClient::getWinningReasoin() const {
+    const std::optional<spy::statistics::VictoryEnum> &LibClient::getWinningReason() const {
         return model.gameState.winningReason;
     }
 
