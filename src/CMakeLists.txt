@@ -12,8 +12,9 @@ set(SOURCE
 add_library(${PROJECT_NAME} SHARED ${SOURCE})
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMMON_CXX_FLAGS} -Wall -Wextra -Wpedantic -Werror -mtune=native -march=native)
 target_link_libraries(${PROJECT_NAME}
-        PUBLIC SopraCommon $<$<CONFIG:Debug>:--coverage>
-        PUBLIC SopraNetwork $<$<CONFIG:Debug>:--coverage>)
+        PUBLIC SopraCommon
+        PUBLIC SopraNetwork
+        $<$<CONFIG:Debug>:--coverage>)
 target_include_directories(${PROJECT_NAME}
         PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
