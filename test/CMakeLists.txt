@@ -7,5 +7,10 @@ set(SOURCE
 	)
 
 add_executable(allTests ${SOURCE})
-target_link_libraries(allTests gtest gmock gtest_main SopraClient)
-gtest_discover_tests(allTests)
+target_compile_options(allTests PRIVATE ${COMMON_CXX_FLAGS})
+target_link_libraries(allTests
+		gtest
+		gmock
+		gtest_main
+		SopraClient
+		$<$<CONFIG:Debug>:--coverage>)
