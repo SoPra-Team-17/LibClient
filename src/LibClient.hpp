@@ -14,7 +14,7 @@
 namespace libclient {
     class LibClient {
         public:
-            [[nodiscard]] const spy::util::UUID &getId() const;
+            [[nodiscard]] const std::optional<spy::util::UUID> &getId() const;
             [[nodiscard]] const std::string &getName() const;
             [[nodiscard]] bool isConnected() const;
             [[nodiscard]] const spy::network::RoleEnum &getRole() const;

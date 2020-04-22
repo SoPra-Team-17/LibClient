@@ -8,7 +8,7 @@
 
 namespace libclient {
 
-    const spy::util::UUID &LibClient::getId() const {
+    const std::optional<spy::util::UUID> &LibClient::getId() const {
         return model.clientState.id;
     }
 

@@ -16,11 +16,11 @@
 namespace libclient::model {
     class ClientState {
         public:
-            spy::util::UUID id;
+            std::optional<spy::util::UUID> id; //set by HelloReply message
             std::string name;
-            bool isConnected = false;
+            bool isConnected = false; //set to true by connect method
             spy::network::RoleEnum role;
-            spy::util::UUID sessionId;
+            spy::util::UUID sessionId; //set by HelloReply message
             spy::util::UUID playerOneId;
             spy::util::UUID playerTwoId;
             std::string playerOneName;

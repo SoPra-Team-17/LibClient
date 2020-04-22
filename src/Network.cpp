@@ -20,6 +20,7 @@
 #include <network/messages/RequestMetaInformation.hpp>
 #include <network/messages/RequestReplay.hpp>
 #include <network/messages/Reconnect.hpp>
+#include <network/messages/HelloReply.hpp>
 
 namespace libclient {
     Network::Network(std::shared_ptr<Callback> c, std::shared_ptr<Model> m) : callback(std::move(c)),
@@ -29,57 +30,68 @@ namespace libclient {
         auto json = nlohmann::json::parse(message);
         auto mc = json.get<spy::network::MessageContainer>();
 
+        if (model->clientState.id.has_value() && model->clientState.id.value() != mc.getPlayerId()) {
+            // received message that was not for this client
+            return;
+        }
+
         switch (mc.getType()) {
-            case spy::network::messages::MessageTypeEnum::HELLO_REPLY:
-                //TODO implement with validation check (playerId, sessionId, ..)
+            case spy::network::messages::MessageTypeEnum::HELLO_REPLY: {
+                model->clientState.id = mc.getPlayerId();
+                auto m = json.get<spy::network::messages::HelloReply>();
+                model->clientState.sessionId = m.getSessionId();
+                model->gameState.level = m.getLevel();
+                model->gameState.settings = m.getSettings();
+                model->gameState.characterSettings = m.getCharacterSettings();
                 callback->onHelloReply();
                 break;
+            }
             case spy::network::messages::MessageTypeEnum::GAME_STARTED:
-                //TODO implement with validation check (playerId, sessionId, ..)
+                //TODO implement with validation check (sessionId, ..)
                 callback->onGameStarted();
                 break;
             case spy::network::messages::MessageTypeEnum::REQUEST_ITEM_CHOICE:
-                //TODO implement with validation check (playerId, sessionId, ..)
+                //TODO implement with validation check (sessionId, ..)
                 callback->onRequestItemChoice();
                 break;
             case spy::network::messages::MessageTypeEnum::REQUEST_EQUIPMENT_CHOICE:
-                //TODO implement with validation check (playerId, sessionId, ..)
+                //TODO implement with validation check (sessionId, ..)
                 callback->onRequestEquipmentChoice();
                 break;
             case spy::network::messages::MessageTypeEnum::GAME_STATUS:
-                //TODO implement with validation check (playerId, sessionId, ..)
+                //TODO implement with validation check (sessionId, ..)
                 callback->onGameStatus();
                 break;
             case spy::network::messages::MessageTypeEnum::REQUEST_GAME_OPERATION:
-                //TODO implement with validation check (playerId, sessionId, ..)
+                //TODO implement with validation check (sessionId, ..)
                 callback->onRequestGameOperation();
                 break;
             case spy::network::messages::MessageTypeEnum::STATISTICS:
-                //TODO implement with validation check (playerId, sessionId, ..)
+                //TODO implement with validation check (sessionId, ..)
                 callback->onStatistics();
                 break;
             case spy::network::messages::MessageTypeEnum::GAME_LEFT:
-                //TODO implement with validation check (playerId, sessionId, ..)
+                //TODO implement with validation check (sessionId, ..)
                 callback->onGameLeft();
                 break;
             case spy::network::messages::MessageTypeEnum::GAME_PAUSE:
-                //TODO implement with validation check (playerId, sessionId, ..)
+                //TODO implement with validation check (sessionId, ..)
                 callback->onGamePause();
                 break;
             case spy::network::messages::MessageTypeEnum::META_INFORMATION:
-                //TODO implement with validation check (playerId, sessionId, ..)
+                //TODO implement with validation check (sessionId, ..)
                 callback->onMetaInformation();
                 break;
             case spy::network::messages::MessageTypeEnum::STRIKE:
-                //TODO implement with validation check (playerId, sessionId, ..)
+                //TODO implement with validation check (sessionId, ..)
                 callback->onStrike();
                 break;
             case spy::network::messages::MessageTypeEnum::ERROR:
-                //TODO implement with validation check (playerId, sessionId, ..)
+                //TODO implement with validation check (sessionId, ..)
                 callback->onError();
                 break;
             case spy::network::messages::MessageTypeEnum::REPLAY:
-                //TODO implement with validation check (playerId, sessionId, ..)
+                //TODO implement with validation check (sessionId, ..)
                 callback->onReplay();
                 break;
             default:
@@ -94,6 +106,8 @@ namespace libclient {
         this->webSocketClient.emplace(servername, "/", port, "");
         webSocketClient->receiveListener.subscribe(std::bind(&Network::onReceiveMessage, this, std::placeholders::_1));
         webSocketClient->closeListener.subscribe(std::bind(&Network::onClose, this));
+
+        model->clientState.isConnected = true;
     }
 
     void Network::onClose() {

@@ -19,9 +19,9 @@
 namespace libclient::model {
     class GameState {
         public:
-            spy::scenario::Scenario level;
-            spy::MatchConfig settings;
-            std::vector<spy::character::CharacterInformation> characterSettings;
+            spy::scenario::Scenario level; //set by HelloReply message
+            spy::MatchConfig settings; //set by HelloReply message
+            std::vector<spy::character::CharacterInformation> characterSettings; //set by HelloReply message
             std::vector<spy::util::UUID> offeredCharacters;
             std::vector<spy::gadget::GadgetEnum> offeredGadgets;
             std::vector<spy::util::UUID> chosenCharacter;
