@@ -135,4 +135,8 @@ namespace libclient {
     const spy::gameplay::State &LibClient::getState() const {
         return model.gameState.state;
     }
+
+    const spy::util::UUID &LibClient::getLastActiveCharacter() const {
+        return model.gameState.lastActiveCharacter;
+    }
 }

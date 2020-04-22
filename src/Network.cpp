@@ -24,6 +24,8 @@
 #include <network/messages/GameStarted.hpp>
 #include <network/messages/RequestItemChoice.hpp>
 #include <network/messages/RequestEquipmentChoice.hpp>
+#include <network/messages/GameStatus.hpp>
+#include <network/messages/RequestGameOperation.hpp>
 
 namespace libclient {
     Network::Network(std::shared_ptr<Callback> c, std::shared_ptr<Model> m) : callback(std::move(c)),
@@ -80,14 +82,23 @@ namespace libclient {
                 callback->onRequestEquipmentChoice();
                 break;
             }
-            case spy::network::messages::MessageTypeEnum::GAME_STATUS:
-                //TODO implement with validation check (sessionId, ..)
+            case spy::network::messages::MessageTypeEnum::GAME_STATUS: {
+                auto m = json.get<spy::network::messages::GameStatus>();
+                model->gameState.lastActiveCharacter = m.getActiveCharacterId();
+                model->gameState.operations = m.getOperations();
+                model->gameState.state = m.getState();
+                model->gameState.isGameOver = m.getIsGameOver();
+
                 callback->onGameStatus();
                 break;
-            case spy::network::messages::MessageTypeEnum::REQUEST_GAME_OPERATION:
-                //TODO implement with validation check (sessionId, ..)
+            }
+            case spy::network::messages::MessageTypeEnum::REQUEST_GAME_OPERATION: {
+                auto m = json.get<spy::network::messages::RequestGameOperation>();
+                model->clientState.activeCharacter = m.getCharacterId();
+
                 callback->onRequestGameOperation();
                 break;
+            }
             case spy::network::messages::MessageTypeEnum::STATISTICS:
                 //TODO implement with validation check (sessionId, ..)
                 callback->onStatistics();

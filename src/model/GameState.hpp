@@ -27,13 +27,14 @@ namespace libclient::model {
             std::vector<spy::util::UUID> chosenCharacter; //set by RequestEquipmentChoice message
             std::vector<spy::gadget::GadgetEnum> chosenGadget; //set by RequestEquipmentChoice message
             std::map<spy::util::UUID, spy::gadget::GadgetEnum> equipmentMap;
-            std::vector<spy::gameplay::Operation> operations;
-            spy::gameplay::State state;
-            bool isGameOver = false;
+            std::vector<spy::gameplay::Operation> operations; //set by GameStatus message
+            spy::gameplay::State state; //set by GameStatus message
+            bool isGameOver = false; //set by GameStatus message
             std::optional<spy::util::UUID> winner;
             std::optional<spy::statistics::Statistics> statistics;
             std::optional<spy::statistics::VictoryEnum> winningReason;
             bool hasReplay = false;
+            spy::util::UUID lastActiveCharacter; //set by GameStatusMessage
     };
 
 }

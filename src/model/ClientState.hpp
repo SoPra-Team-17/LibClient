@@ -25,7 +25,7 @@ namespace libclient::model {
             spy::util::UUID playerTwoId; //set by GameStarted message
             std::string playerOneName; //set by GameStarted message
             std::string playerTwoName; //set by GameStarted message
-            spy::util::UUID activeCharacter;
+            spy::util::UUID activeCharacter; //set by RequestGameOperation message
             std::optional<spy::util::UUID> leftUserId;
             std::optional<spy::network::ErrorTypeEnum> errorReason;
             bool gamePaused = false;

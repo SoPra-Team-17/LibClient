@@ -47,6 +47,7 @@ namespace libclient {
             [[nodiscard]] const std::optional<spy::statistics::Statistics> &getStatistics() const;
             [[nodiscard]] const std::optional<spy::statistics::VictoryEnum> &getWinningReason() const;
             [[nodiscard]] bool hasReplay() const;
+            [[nodiscard]] const spy::util::UUID &getLastActiveCharacter() const;
 
         private:
             libclient::Model model;
