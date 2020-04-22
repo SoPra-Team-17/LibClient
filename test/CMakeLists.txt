@@ -14,3 +14,4 @@ target_link_libraries(allTests
 		gtest_main
 		SopraClient
 		$<$<CONFIG:Debug>:--coverage>)
+gtest_discover_tests(allTests)
