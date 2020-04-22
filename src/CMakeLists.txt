@@ -31,8 +31,8 @@ target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
 
 execute_process(COMMAND cling-config --cmake OUTPUT_VARIABLE CPPYY_MODULE_PATH OUTPUT_STRIP_TRAILING_WHITESPACE)
-message("CPYY_MODULE_PATH: " ${CPPYY_MODULE_PATH})
 list(INSERT CMAKE_MODULE_PATH 0 ${CPPYY_MODULE_PATH})
+find_package(Cppyy)
 
 cppyy_add_bindings(
         "SopraClient"
