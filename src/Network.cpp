@@ -93,7 +93,11 @@ namespace libclient {
 
         this->webSocketClient.emplace(servername, "/", port, "");
         webSocketClient->receiveListener.subscribe(std::bind(&Network::onReceiveMessage, this, std::placeholders::_1));
-        webSocketClient->closeListener.subscribe(std::bind(&Network::disconnect, this));
+        webSocketClient->closeListener.subscribe(std::bind(&Network::onClose, this));
+    }
+
+    void Network::onClose() {
+        callback->connectionLost();
     }
 
     void Network::disconnect() {

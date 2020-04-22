@@ -34,6 +34,11 @@ namespace libclient {
              */
             void onReceiveMessage(std::string message);
 
+            /**
+             * function to handle connection lost
+             */
+            void onClose();
+
         public:
             Network(std::shared_ptr<libclient::Callback> c, std::shared_ptr<libclient::Model> m);
 
