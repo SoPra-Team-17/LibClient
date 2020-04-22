@@ -153,21 +153,12 @@ namespace libclient {
                 break;
             }
             case spy::network::messages::MessageTypeEnum::REPLAY: {
-                //TODO implement with validation check (sessionId, ..)
-                /*
-                util::UUID sessionId;
-                std::string gameStart;
-                std::string gameEnd;
-                util::UUID playerOneId;
-                util::UUID playerTwoId;
-                std::string playerOneName;
-                std::string playerTwoName;
-                unsigned int rounds;
-                spy::scenario::Scenario level;
-                spy::MatchConfig settings;
-                spy::character::CharacterDescription characterSettings;
-                std::vector<MessageContainer> messages;
-                 */
+                auto m = json.get<spy::network::messages::Replay>();
+                if (model->clientState.sessionId != m.getSessionId()) {
+                    // received message that was not for this session
+                    return;
+                }
+                model->replay = m;
 
                 callback->onReplay();
                 break;
