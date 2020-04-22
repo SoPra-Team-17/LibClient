@@ -28,6 +28,9 @@
 #include <network/messages/RequestGameOperation.hpp>
 #include <network/messages/StatisticsMessage.hpp>
 #include <network/messages/GameLeft.hpp>
+#include <network/messages/Error.hpp>
+#include <network/messages/Strike.hpp>
+#include <network/messages/MetaInformation.hpp>
 
 namespace libclient {
     Network::Network(std::shared_ptr<Callback> c, std::shared_ptr<Model> m) : callback(std::move(c)),
@@ -119,22 +122,34 @@ namespace libclient {
                 break;
             }
             case spy::network::messages::MessageTypeEnum::GAME_PAUSE: {
-                //TODO implement with validation check (sessionId, ..)
+                auto m = json.get<spy::network::messages::GamePause>();
+                model->clientState.gamePaused = m.isGamePause();
+                model->clientState.serverEnforced = m.isServerEnforced();
+
                 callback->onGamePause();
                 break;
             }
             case spy::network::messages::MessageTypeEnum::META_INFORMATION: {
-                //TODO implement with validation check (sessionId, ..)
+                auto m = json.get<spy::network::messages::MetaInformation>();
+
+                //TODO std::map<std::string, Info> information;
+
                 callback->onMetaInformation();
                 break;
             }
             case spy::network::messages::MessageTypeEnum::STRIKE: {
-                //TODO implement with validation check (sessionId, ..)
+                auto m = json.get<spy::network::messages::Strike>();
+                model->clientState.strikeNr = m.getStrikeNr();
+                model->clientState.strikeMax = m.getStrikeMax();
+                model->clientState.strikeReason = m.getReason();
+
                 callback->onStrike();
                 break;
             }
             case spy::network::messages::MessageTypeEnum::ERROR: {
-                //TODO implement with validation check (sessionId, ..)
+                auto m = json.get<spy::network::messages::Error>();
+                model->clientState.errorReason = m.getReason();
+
                 callback->onError();
                 break;
             }

@@ -26,13 +26,13 @@ namespace libclient::model {
             std::string playerOneName; //set by GameStarted message
             std::string playerTwoName; //set by GameStarted message
             spy::util::UUID activeCharacter; //set by RequestGameOperation message
-            std::optional<spy::util::UUID> leftUserId;
-            std::optional<spy::network::ErrorTypeEnum> errorReason;
-            bool gamePaused = false;
-            bool serverEnforced = false;
-            unsigned int strikeNr = 0;
-            unsigned int strikeMax;
-            std::string strikeReason;
+            std::optional<spy::util::UUID> leftUserId; //set by GameLeft message
+            std::optional<spy::network::ErrorTypeEnum> errorReason; //set by Error message
+            bool gamePaused = false; //set by GamePause message
+            bool serverEnforced = false; //set by GamePause message
+            unsigned int strikeNr = 0; //set by Strike message
+            unsigned int strikeMax; //set by Strike message
+            std::string strikeReason; //set by Strike message
     };
 }
 
