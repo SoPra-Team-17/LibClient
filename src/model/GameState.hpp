@@ -30,10 +30,10 @@ namespace libclient::model {
             std::vector<spy::gameplay::Operation> operations; //set by GameStatus message
             spy::gameplay::State state; //set by GameStatus message
             bool isGameOver = false; //set by GameStatus message
-            std::optional<spy::util::UUID> winner;
-            std::optional<spy::statistics::Statistics> statistics;
-            std::optional<spy::statistics::VictoryEnum> winningReason;
-            bool hasReplay = false;
+            std::optional<spy::util::UUID> winner; //set by Statistics message
+            std::optional<spy::statistics::Statistics> statistics; //set by Statistics message
+            std::optional<spy::statistics::VictoryEnum> winningReason; //set by Statistics message
+            bool hasReplay = false; //set by Statistics message
             spy::util::UUID lastActiveCharacter; //set by GameStatusMessage
     };
 

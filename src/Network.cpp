@@ -26,6 +26,8 @@
 #include <network/messages/RequestEquipmentChoice.hpp>
 #include <network/messages/GameStatus.hpp>
 #include <network/messages/RequestGameOperation.hpp>
+#include <network/messages/StatisticsMessage.hpp>
+#include <network/messages/GameLeft.hpp>
 
 namespace libclient {
     Network::Network(std::shared_ptr<Callback> c, std::shared_ptr<Model> m) : callback(std::move(c)),
@@ -99,34 +101,48 @@ namespace libclient {
                 callback->onRequestGameOperation();
                 break;
             }
-            case spy::network::messages::MessageTypeEnum::STATISTICS:
-                //TODO implement with validation check (sessionId, ..)
+            case spy::network::messages::MessageTypeEnum::STATISTICS: {
+                auto m = json.get<spy::network::messages::StatisticsMessage>();
+                model->gameState.winner = m.getWinner();
+                model->gameState.winningReason = m.getReason();
+                model->gameState.statistics = m.getStatistics();
+                model->gameState.hasReplay = m.getHasReplay();
+
                 callback->onStatistics();
                 break;
-            case spy::network::messages::MessageTypeEnum::GAME_LEFT:
-                //TODO implement with validation check (sessionId, ..)
+            }
+            case spy::network::messages::MessageTypeEnum::GAME_LEFT: {
+                auto m = json.get<spy::network::messages::GameLeft>();
+                model->clientState.leftUserId = m.getLeftUserId();
+
                 callback->onGameLeft();
                 break;
-            case spy::network::messages::MessageTypeEnum::GAME_PAUSE:
+            }
+            case spy::network::messages::MessageTypeEnum::GAME_PAUSE: {
                 //TODO implement with validation check (sessionId, ..)
                 callback->onGamePause();
                 break;
-            case spy::network::messages::MessageTypeEnum::META_INFORMATION:
+            }
+            case spy::network::messages::MessageTypeEnum::META_INFORMATION: {
                 //TODO implement with validation check (sessionId, ..)
                 callback->onMetaInformation();
                 break;
-            case spy::network::messages::MessageTypeEnum::STRIKE:
+            }
+            case spy::network::messages::MessageTypeEnum::STRIKE: {
                 //TODO implement with validation check (sessionId, ..)
                 callback->onStrike();
                 break;
-            case spy::network::messages::MessageTypeEnum::ERROR:
+            }
+            case spy::network::messages::MessageTypeEnum::ERROR: {
                 //TODO implement with validation check (sessionId, ..)
                 callback->onError();
                 break;
-            case spy::network::messages::MessageTypeEnum::REPLAY:
+            }
+            case spy::network::messages::MessageTypeEnum::REPLAY: {
                 //TODO implement with validation check (sessionId, ..)
                 callback->onReplay();
                 break;
+            }
             default:
                 // do nothing
                 break;
