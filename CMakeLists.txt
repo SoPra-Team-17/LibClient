@@ -20,8 +20,8 @@ else ()
     message("############################\n")
 endif ()
 
-set(LIBCOMMON_TESTS OFF CACHE BOOL "Build LibCommon tests" FORCE)
 add_subdirectory(extern/LibCommon)
+add_subdirectory(extern/WebsocketCPP)
 add_subdirectory(src)
 
 option(LIBCLIENT_TESTS "Build the tests" ON)
