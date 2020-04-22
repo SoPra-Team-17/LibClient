@@ -11,6 +11,7 @@
 #include <string>
 #include <network/RoleEnum.hpp>
 #include <network/ErrorTypeEnum.hpp>
+#include <network/messages/MetaInformation.hpp>
 #include <util/UUID.hpp>
 
 namespace libclient::model {
@@ -33,6 +34,7 @@ namespace libclient::model {
             unsigned int strikeNr = 0; //set by Strike message
             unsigned int strikeMax; //set by Strike message
             std::string strikeReason; //set by Strike message
+            std::map<std::string, spy::network::messages::MetaInformation::Info> information; //set by MetaInformation message
     };
 }
 

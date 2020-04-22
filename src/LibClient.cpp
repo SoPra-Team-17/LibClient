@@ -139,4 +139,8 @@ namespace libclient {
     const spy::util::UUID &LibClient::getLastActiveCharacter() const {
         return model.gameState.lastActiveCharacter;
     }
+
+    const std::map<std::string, spy::network::messages::MetaInformation::Info> &LibClient::getInformation() const {
+        return model.clientState.information;
+    }
 }

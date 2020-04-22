@@ -31,6 +31,7 @@ namespace libclient {
             [[nodiscard]] const unsigned int &getStrikeNr() const;
             [[nodiscard]] const unsigned int &getStrikeMax() const;
             [[nodiscard]] const std::string &getStrikeReason() const;
+            [[nodiscard]] const std::map<std::string, spy::network::messages::MetaInformation::Info> &getInformation() const;
 
             [[nodiscard]] const spy::scenario::Scenario &getLevel() const;
             [[nodiscard]] const spy::MatchConfig &getSettings() const;

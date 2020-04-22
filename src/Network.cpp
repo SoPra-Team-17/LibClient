@@ -131,8 +131,7 @@ namespace libclient {
             }
             case spy::network::messages::MessageTypeEnum::META_INFORMATION: {
                 auto m = json.get<spy::network::messages::MetaInformation>();
-
-                //TODO std::map<std::string, Info> information;
+                model->clientState.information = m.getInformation();
 
                 callback->onMetaInformation();
                 break;
@@ -155,6 +154,21 @@ namespace libclient {
             }
             case spy::network::messages::MessageTypeEnum::REPLAY: {
                 //TODO implement with validation check (sessionId, ..)
+                /*
+                util::UUID sessionId;
+                std::string gameStart;
+                std::string gameEnd;
+                util::UUID playerOneId;
+                util::UUID playerTwoId;
+                std::string playerOneName;
+                std::string playerTwoName;
+                unsigned int rounds;
+                spy::scenario::Scenario level;
+                spy::MatchConfig settings;
+                spy::character::CharacterDescription characterSettings;
+                std::vector<MessageContainer> messages;
+                 */
+
                 callback->onReplay();
                 break;
             }
