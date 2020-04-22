@@ -196,7 +196,7 @@ namespace libclient {
             return false;
         }
         //TODO validation check (rules of game, ...)
-        auto message = spy::network::messages::Hello(model->clientState.id, std::move(name), role);
+        auto message = spy::network::messages::Hello(model->clientState.id.value(), std::move(name), role);
         nlohmann::json j = message;
         webSocketClient->send(j.dump());
         return true;
@@ -208,7 +208,7 @@ namespace libclient {
             return false;
         }
         //TODO validation check (rules of game, valid UUID, valid GadgetEnum, ...)
-        auto message = spy::network::messages::ItemChoice(model->clientState.id, std::move(choice));
+        auto message = spy::network::messages::ItemChoice(model->clientState.id.value(), std::move(choice));
         nlohmann::json j = message;
         webSocketClient->send(j.dump());
         return true;
@@ -220,7 +220,7 @@ namespace libclient {
             return false;
         }
         //TODO validation check (rules of game, valid UUID, valid set of GadgetEnums, ...)
-        auto message = spy::network::messages::EquipmentChoice(model->clientState.id, std::move(equipment));
+        auto message = spy::network::messages::EquipmentChoice(model->clientState.id.value(), std::move(equipment));
         nlohmann::json j = message;
         webSocketClient->send(j.dump());
         return true;
@@ -232,7 +232,7 @@ namespace libclient {
             return false;
         }
         //TODO validation check (rules of game, valid operation values, ...)
-        auto message = spy::network::messages::GameOperation(model->clientState.id, std::move(operation));
+        auto message = spy::network::messages::GameOperation(model->clientState.id.value(), std::move(operation));
         nlohmann::json j = message;
         webSocketClient->send(j.dump());
         return true;
@@ -243,7 +243,7 @@ namespace libclient {
             return false;
         }
         //TODO validation check (rules of game, ...)
-        auto message = spy::network::messages::GameLeave(model->clientState.id);
+        auto message = spy::network::messages::GameLeave(model->clientState.id.value());
         nlohmann::json j = message;
         webSocketClient->send(j.dump());
         return true;
@@ -256,7 +256,7 @@ namespace libclient {
             return false;
         }
         //TODO validation check (rules of game, valid bool for gamePause, ...)
-        auto message = spy::network::messages::RequestGamePause(model->clientState.id, gamePause);
+        auto message = spy::network::messages::RequestGamePause(model->clientState.id.value(), gamePause);
         nlohmann::json j = message;
         webSocketClient->send(j.dump());
         return true;
@@ -267,7 +267,7 @@ namespace libclient {
             return false;
         }
         //TODO validation check (rules of game, valid key values, ...)
-        auto message = spy::network::messages::RequestMetaInformation(model->clientState.id, std::move(keys));
+        auto message = spy::network::messages::RequestMetaInformation(model->clientState.id.value(), std::move(keys));
         nlohmann::json j = message;
         webSocketClient->send(j.dump());
         return true;
@@ -279,7 +279,7 @@ namespace libclient {
             return false;
         }
         //TODO validation check (rules of game, replay available, ...)
-        auto message = spy::network::messages::RequestReplay(model->clientState.id);
+        auto message = spy::network::messages::RequestReplay(model->clientState.id.value());
         nlohmann::json j = message;
         webSocketClient->send(j.dump());
         return true;
@@ -292,7 +292,7 @@ namespace libclient {
             return false;
         }
         //TODO validation check (rules of game, check connection, ...)
-        auto message = spy::network::messages::Reconnect(model->clientState.id, model->clientState.sessionId);
+        auto message = spy::network::messages::Reconnect(model->clientState.id.value(), model->clientState.sessionId);
         nlohmann::json j = message;
         webSocketClient->send(j.dump());
         return true;
