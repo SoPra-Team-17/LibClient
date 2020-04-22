@@ -22,6 +22,8 @@
 #include <network/messages/Reconnect.hpp>
 #include <network/messages/HelloReply.hpp>
 #include <network/messages/GameStarted.hpp>
+#include <network/messages/RequestItemChoice.hpp>
+#include <network/messages/RequestEquipmentChoice.hpp>
 
 namespace libclient {
     Network::Network(std::shared_ptr<Callback> c, std::shared_ptr<Model> m) : callback(std::move(c)),
@@ -44,6 +46,7 @@ namespace libclient {
                 model->gameState.level = m.getLevel();
                 model->gameState.settings = m.getSettings();
                 model->gameState.characterSettings = m.getCharacterSettings();
+
                 callback->onHelloReply();
                 break;
             }
@@ -57,17 +60,26 @@ namespace libclient {
                 model->clientState.playerTwoId = m.getPlayerTwoId();
                 model->clientState.playerOneName = m.getPlayerOneName();
                 model->clientState.playerTwoName = m.getPlayerTwoName();
+
                 callback->onGameStarted();
                 break;
             }
-            case spy::network::messages::MessageTypeEnum::REQUEST_ITEM_CHOICE:
-                //TODO implement with validation check (sessionId, ..)
+            case spy::network::messages::MessageTypeEnum::REQUEST_ITEM_CHOICE: {
+                auto m = json.get<spy::network::messages::RequestItemChoice>();
+                model->gameState.offeredCharacters = m.getOfferedCharacterIds();
+                model->gameState.offeredGadgets = m.getOfferedGadgets();
+
                 callback->onRequestItemChoice();
                 break;
-            case spy::network::messages::MessageTypeEnum::REQUEST_EQUIPMENT_CHOICE:
-                //TODO implement with validation check (sessionId, ..)
+            }
+            case spy::network::messages::MessageTypeEnum::REQUEST_EQUIPMENT_CHOICE: {
+                auto m = json.get<spy::network::messages::RequestEquipmentChoice>();
+                model->gameState.chosenCharacter = m.getChosenCharacterIds();
+                model->gameState.chosenGadget = m.getChosenGadgets();
+
                 callback->onRequestEquipmentChoice();
                 break;
+            }
             case spy::network::messages::MessageTypeEnum::GAME_STATUS:
                 //TODO implement with validation check (sessionId, ..)
                 callback->onGameStatus();

@@ -22,10 +22,10 @@ namespace libclient::model {
             spy::scenario::Scenario level; //set by HelloReply message
             spy::MatchConfig settings; //set by HelloReply message
             std::vector<spy::character::CharacterInformation> characterSettings; //set by HelloReply message
-            std::vector<spy::util::UUID> offeredCharacters;
-            std::vector<spy::gadget::GadgetEnum> offeredGadgets;
-            std::vector<spy::util::UUID> chosenCharacter;
-            std::vector<spy::gadget::GadgetEnum> chosenGadget;
+            std::vector<spy::util::UUID> offeredCharacters; //set by RequestItemChoice message
+            std::vector<spy::gadget::GadgetEnum> offeredGadgets; //set by RequestItemChoice message
+            std::vector<spy::util::UUID> chosenCharacter; //set by RequestEquipmentChoice message
+            std::vector<spy::gadget::GadgetEnum> chosenGadget; //set by RequestEquipmentChoice message
             std::map<spy::util::UUID, spy::gadget::GadgetEnum> equipmentMap;
             std::vector<spy::gameplay::Operation> operations;
             spy::gameplay::State state;
