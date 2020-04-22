@@ -21,10 +21,10 @@ namespace libclient::model {
             bool isConnected = false; //set to true by connect method
             spy::network::RoleEnum role;
             spy::util::UUID sessionId; //set by HelloReply message
-            spy::util::UUID playerOneId;
-            spy::util::UUID playerTwoId;
-            std::string playerOneName;
-            std::string playerTwoName;
+            spy::util::UUID playerOneId; //set by GameStarted message
+            spy::util::UUID playerTwoId; //set by GameStarted message
+            std::string playerOneName; //set by GameStarted message
+            std::string playerTwoName; //set by GameStarted message
             spy::util::UUID activeCharacter;
             std::optional<spy::util::UUID> leftUserId;
             std::optional<spy::network::ErrorTypeEnum> errorReason;

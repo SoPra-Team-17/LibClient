@@ -21,6 +21,7 @@
 #include <network/messages/RequestReplay.hpp>
 #include <network/messages/Reconnect.hpp>
 #include <network/messages/HelloReply.hpp>
+#include <network/messages/GameStarted.hpp>
 
 namespace libclient {
     Network::Network(std::shared_ptr<Callback> c, std::shared_ptr<Model> m) : callback(std::move(c)),
@@ -46,10 +47,19 @@ namespace libclient {
                 callback->onHelloReply();
                 break;
             }
-            case spy::network::messages::MessageTypeEnum::GAME_STARTED:
-                //TODO implement with validation check (sessionId, ..)
+            case spy::network::messages::MessageTypeEnum::GAME_STARTED: {
+                auto m = json.get<spy::network::messages::GameStarted>();
+                if (model->clientState.sessionId != m.getSessionId()) {
+                    // received message that was not for this session
+                    return;
+                }
+                model->clientState.playerOneId = m.getPlayerOneId();
+                model->clientState.playerTwoId = m.getPlayerTwoId();
+                model->clientState.playerOneName = m.getPlayerOneName();
+                model->clientState.playerTwoName = m.getPlayerTwoName();
                 callback->onGameStarted();
                 break;
+            }
             case spy::network::messages::MessageTypeEnum::REQUEST_ITEM_CHOICE:
                 //TODO implement with validation check (sessionId, ..)
                 callback->onRequestItemChoice();
