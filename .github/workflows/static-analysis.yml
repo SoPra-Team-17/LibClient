@@ -52,7 +52,7 @@ jobs:
         # gcov is used to generate coverage information for sonar-scanner
         run: |
           cd build
-          ./test/allTests
+          ./test/LibClientTests
           gcov-8 $(find . -type f -name "*.gc*")
       - name: sonar-scanner
         run: |
