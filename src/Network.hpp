@@ -5,7 +5,7 @@
  * @brief  Declaration of the network class (Interface to Serve).
  */
 
-#include <SopraNetwork/WebSocketClient.hpp>
+
 
 #ifndef LIBCLIENT_NETWORK_HPP
 #define LIBCLIENT_NETWORK_HPP
@@ -18,6 +18,7 @@
 #include <util/UUID.hpp>
 #include <datatypes/gadgets/GadgetEnum.hpp>
 #include <datatypes/gameplay/Operation.hpp>
+#include <Client/WebSocketClient.hpp>
 
 namespace libclient {
 

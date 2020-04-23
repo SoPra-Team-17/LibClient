@@ -43,7 +43,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DCMAKE_BUILD_TYPE=Debug ..
+          cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_VERBOSE_MAKEFILE=True ..
       - name: Build
         run: |
           cd build
@@ -52,7 +52,7 @@ jobs:
         # gcov is used to generate coverage information for sonar-scanner
         run: |
           cd build
-          ./test/allTests
+          ./test/LibClientTests
           gcov-8 $(find . -type f -name "*.gc*")
       - name: sonar-scanner
         run: |
