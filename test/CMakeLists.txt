@@ -6,12 +6,12 @@ set(SOURCE
 		test1.cpp
 	)
 
-add_executable(allTests ${SOURCE})
-target_compile_options(allTests PRIVATE ${COMMON_CXX_FLAGS})
-target_link_libraries(allTests
+add_executable(LibClientTests ${SOURCE})
+target_compile_options(LibClientTests PRIVATE ${COMMON_CXX_FLAGS})
+target_link_libraries(LibClientTests
 		gtest
 		gmock
 		gtest_main
 		SopraClient
 		$<$<CONFIG:Debug>:--coverage>)
-gtest_discover_tests(allTests)
+gtest_discover_tests(LibClientTests)
