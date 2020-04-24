@@ -18,7 +18,7 @@
 #include <util/UUID.hpp>
 #include <datatypes/gadgets/GadgetEnum.hpp>
 #include <datatypes/gameplay/Operation.hpp>
-#include "../extern/WebsocketCPP/src/Client/WebSocketClient.hpp"
+#include <Client/WebSocketClient.hpp>
 
 namespace libclient {
 
