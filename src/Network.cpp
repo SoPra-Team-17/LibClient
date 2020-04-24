@@ -184,11 +184,10 @@ namespace libclient {
     }
 
     void Network::disconnect() {
-        // TODO validation check (rules of game, ...)
         if (webSocketClient.has_value()) {
             webSocketClient.reset();
         }
-        //TODO implement (reset model, isConnected = false, id.has_value() = false, ...)
+        model = std::make_shared<Model>();
     }
 
     bool Network::sendHello(std::string name, spy::network::RoleEnum role) {
@@ -234,35 +233,30 @@ namespace libclient {
     }
 
     bool Network::sendGameLeave() {
-        if (model->clientState.role == spy::network::RoleEnum::INVALID) {
+        auto message = spy::network::messages::GameLeave(model->clientState.id.value());
+        if (!message.validate(model->clientState.role)) {
             return false;
         }
-        //TODO validation check (rules of game, ...)
-        auto message = spy::network::messages::GameLeave(model->clientState.id.value());
         nlohmann::json j = message;
         webSocketClient->send(j.dump());
         return true;
     }
 
     bool Network::sendRequestGamePause(bool gamePause) {
-        if (model->clientState.role == spy::network::RoleEnum::INVALID ||
-            model->clientState.role == spy::network::RoleEnum::SPECTATOR ||
-            model->clientState.role == spy::network::RoleEnum::AI) {
+        auto message = spy::network::messages::RequestGamePause(model->clientState.id.value(), gamePause);
+        if (!message.validate(model->clientState.role, model->clientState.gamePaused, model->clientState.serverEnforced)) {
             return false;
         }
-        //TODO validation check (rules of game, valid bool for gamePause, ...)
-        auto message = spy::network::messages::RequestGamePause(model->clientState.id.value(), gamePause);
         nlohmann::json j = message;
         webSocketClient->send(j.dump());
         return true;
     }
 
-    bool Network::sendRequestMeatInformation(std::vector<std::string> keys) {
-        if (model->clientState.role == spy::network::RoleEnum::INVALID) {
+    bool Network::sendRequestMetaInformation(std::vector<std::string> keys) {
+        auto message = spy::network::messages::RequestMetaInformation(model->clientState.id.value(), std::move(keys));
+        if (!message.validate(model->clientState.role)) {
             return false;
         }
-        //TODO validation check (rules of game, valid key values, ...)
-        auto message = spy::network::messages::RequestMetaInformation(model->clientState.id.value(), std::move(keys));
         nlohmann::json j = message;
         webSocketClient->send(j.dump());
         return true;
@@ -280,7 +274,7 @@ namespace libclient {
 
     bool Network::sendReconnect() {
         auto message = spy::network::messages::Reconnect(model->clientState.id.value(), model->clientState.sessionId);
-        if (!message.validate(model->clientState.role, model->clientState.id.has_value())) {
+        if (!message.validate(model->clientState.role) || !model->clientState.id.has_value()) {
             return false;
         }
         nlohmann::json j = message;

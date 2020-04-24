@@ -58,7 +58,7 @@ namespace libclient {
 
             bool sendRequestGamePause(bool gamePause);
 
-            bool sendRequestMeatInformation(std::vector<std::string> keys);
+            bool sendRequestMetaInformation(std::vector<std::string> keys);
 
             bool sendRequestReplayMessage();
 
