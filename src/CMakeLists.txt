@@ -9,15 +9,6 @@ set(SOURCE
         LibClient.cpp
         )
 
-set(HEADER
-        Callback.hpp
-        model/Model.hpp
-        Network.hpp
-        model/ClientState.hpp
-        model/GameState.hpp
-        LibClient.hpp
-        )
-
 add_library(${PROJECT_NAME} SHARED ${SOURCE})
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMMON_CXX_FLAGS} -Wall -Wextra -Wpedantic -Werror -mtune=native -march=native)
 target_link_libraries(${PROJECT_NAME}
@@ -31,4 +22,7 @@ target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
 include(GNUInstallDirs)
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_LIBDIR})
-install(FILES ${HEADER} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/"
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
+        FILES_MATCHING PATTERN "*.hpp"
+        )
