@@ -63,6 +63,8 @@ namespace libclient {
             bool sendRequestReplayMessage();
 
             bool sendReconnect();
+
+            //TODO state for network to check for allowed actions (message flow)
     };
 }
 

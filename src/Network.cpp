@@ -188,39 +188,34 @@ namespace libclient {
         if (webSocketClient.has_value()) {
             webSocketClient.reset();
         }
-        //TODO implement (reset model, ...)
+        //TODO implement (reset model, isConnected = false, id.has_value() = false, ...)
     }
 
     bool Network::sendHello(std::string name, spy::network::RoleEnum role) {
-        if (role == spy::network::RoleEnum::INVALID) {
+        auto message = spy::network::messages::Hello(model->clientState.id.value(), std::move(name), role);
+        if (!message.validate() || model->clientState.id.has_value()) {
             return false;
         }
-        //TODO validation check (rules of game, ...)
-        auto message = spy::network::messages::Hello(model->clientState.id.value(), std::move(name), role);
         nlohmann::json j = message;
         webSocketClient->send(j.dump());
         return true;
     }
 
     bool Network::sendItemChoice(std::variant<spy::util::UUID, spy::gadget::GadgetEnum> choice) {
-        if (model->clientState.role == spy::network::RoleEnum::INVALID ||
-            model->clientState.role == spy::network::RoleEnum::SPECTATOR) {
+        auto message = spy::network::messages::ItemChoice(model->clientState.id.value(), std::move(choice));
+        if (!message.validate(model->clientState.role, model->gameState.offeredCharacters, model->gameState.offeredGadgets)) {
             return false;
         }
-        //TODO validation check (rules of game, valid UUID, valid GadgetEnum, ...)
-        auto message = spy::network::messages::ItemChoice(model->clientState.id.value(), std::move(choice));
         nlohmann::json j = message;
         webSocketClient->send(j.dump());
         return true;
     }
 
     bool Network::sendEquipmentChoice(std::map<spy::util::UUID, std::set<spy::gadget::GadgetEnum>> equipment) {
-        if (model->clientState.role == spy::network::RoleEnum::INVALID ||
-            model->clientState.role == spy::network::RoleEnum::SPECTATOR) {
+        auto message = spy::network::messages::EquipmentChoice(model->clientState.id.value(), std::move(equipment));
+        if (!message.validate(model->clientState.role, model->gameState.chosenCharacter, model->gameState.chosenGadget)) {
             return false;
         }
-        //TODO validation check (rules of game, valid UUID, valid set of GadgetEnums, ...)
-        auto message = spy::network::messages::EquipmentChoice(model->clientState.id.value(), std::move(equipment));
         nlohmann::json j = message;
         webSocketClient->send(j.dump());
         return true;
@@ -274,25 +269,20 @@ namespace libclient {
     }
 
     bool Network::sendRequestReplayMessage() {
-        if (model->clientState.role == spy::network::RoleEnum::INVALID ||
-            model->clientState.role == spy::network::RoleEnum::AI) {
+        auto message = spy::network::messages::RequestReplay(model->clientState.id.value());
+        if (!message.validate(model->clientState.role, model->gameState.hasReplay)) {
             return false;
         }
-        //TODO validation check (rules of game, replay available, ...)
-        auto message = spy::network::messages::RequestReplay(model->clientState.id.value());
         nlohmann::json j = message;
         webSocketClient->send(j.dump());
         return true;
     }
 
     bool Network::sendReconnect() {
-        // TODO check how reconnect is handled by SopraNetwork
-        if (model->clientState.role == spy::network::RoleEnum::INVALID ||
-            model->clientState.role == spy::network::RoleEnum::SPECTATOR) {
+        auto message = spy::network::messages::Reconnect(model->clientState.id.value(), model->clientState.sessionId);
+        if (!message.validate(model->clientState.role, model->clientState.id.has_value())) {
             return false;
         }
-        //TODO validation check (rules of game, check connection, ...)
-        auto message = spy::network::messages::Reconnect(model->clientState.id.value(), model->clientState.sessionId);
         nlohmann::json j = message;
         webSocketClient->send(j.dump());
         return true;
