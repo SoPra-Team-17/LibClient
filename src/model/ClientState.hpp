@@ -18,9 +18,9 @@ namespace libclient::model {
     class ClientState {
         public:
             std::optional<spy::util::UUID> id; //set by HelloReply message
-            std::string name;
+            std::string name; //set by sendHello method
             bool isConnected = false; //set to true by connect method
-            spy::network::RoleEnum role;
+            spy::network::RoleEnum role; //set by sendHello method
             spy::util::UUID sessionId; //set by HelloReply message
             spy::util::UUID playerOneId; //set by GameStarted message
             spy::util::UUID playerTwoId; //set by GameStarted message
@@ -35,6 +35,7 @@ namespace libclient::model {
             unsigned int strikeMax; //set by Strike message
             std::string strikeReason; //set by Strike message
             std::map<std::string, spy::network::messages::MetaInformation::Info> information; //set by MetaInformation message
+            std::optional<std::string> debugMessage; //set by every received message
     };
 }
 

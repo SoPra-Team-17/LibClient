@@ -40,8 +40,11 @@ namespace libclient {
         auto json = nlohmann::json::parse(message);
         auto mc = json.get<spy::network::MessageContainer>();
 
+        model->clientState.debugMessage = mc.getDebugMessage();
+
         if (model->clientState.id.has_value() && model->clientState.id.value() != mc.getPlayerId()) {
             // received message that was not for this client
+            callback->wrongDestination();
             return;
         }
 
@@ -62,6 +65,7 @@ namespace libclient {
                 auto m = json.get<spy::network::messages::GameStarted>();
                 if (model->clientState.sessionId != m.getSessionId()) {
                     // received message that was not for this session
+                    callback->wrongDestination();
                     return;
                 }
                 model->clientState.playerOneId = m.getPlayerOneId();
@@ -170,6 +174,7 @@ namespace libclient {
                 auto m = json.get<spy::network::messages::Replay>();
                 if (model->clientState.sessionId != m.getSessionId()) {
                     // received message that was not for this session
+                    callback->wrongDestination();
                     return;
                 }
                 model->replay = m;
@@ -180,6 +185,7 @@ namespace libclient {
             }
             default:
                 // do nothing
+                callback->wrongDestination();
                 break;
         }
     }
@@ -213,6 +219,8 @@ namespace libclient {
         if (!message.validate() || state != NetworkState::CONNECTED) {
             return false;
         }
+        model->clientState.role = role;
+        model->clientState.name = name;
         nlohmann::json j = message;
         webSocketClient->send(j.dump());
         return true;
