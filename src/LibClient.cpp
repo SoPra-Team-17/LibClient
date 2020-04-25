@@ -9,138 +9,141 @@
 namespace libclient {
 
     const std::optional<spy::util::UUID> &LibClient::getId() const {
-        return model.clientState.id;
+        return model->clientState.id;
     }
 
     const std::string &LibClient::getName() const {
-        return model.clientState.name;
+        return model->clientState.name;
     }
 
     bool LibClient::isConnected() const {
-        return model.clientState.isConnected;
+        return model->clientState.isConnected;
     }
 
     const spy::network::RoleEnum &LibClient::getRole() const {
-        return model.clientState.role;
+        return model->clientState.role;
     }
 
     const spy::util::UUID &LibClient::getSessionId() const {
-        return model.clientState.sessionId;
+        return model->clientState.sessionId;
     }
 
     const spy::util::UUID &LibClient::getPlayerOneId() const {
-        return model.clientState.playerOneId;
+        return model->clientState.playerOneId;
     }
 
     const spy::util::UUID &LibClient::getPlayerTwoId() const {
-        return model.clientState.playerTwoId;
+        return model->clientState.playerTwoId;
     }
 
     const std::string &LibClient::getPlayerOneName() const {
-        return model.clientState.playerOneName;
+        return model->clientState.playerOneName;
     }
 
     const std::string &LibClient::getPlayerTwoName() const {
-        return model.clientState.playerTwoName;
+        return model->clientState.playerTwoName;
     }
 
     const spy::util::UUID &LibClient::getActiveCharacter() const {
-        return model.clientState.activeCharacter;
+        return model->clientState.activeCharacter;
     }
 
     const std::optional<spy::util::UUID> &LibClient::getLeftUserId() const {
-        return model.clientState.leftUserId;
+        return model->clientState.leftUserId;
     }
 
     const std::optional<spy::network::ErrorTypeEnum> &LibClient::getErrorReason() const {
-        return model.clientState.errorReason;
+        return model->clientState.errorReason;
     }
 
     bool LibClient::isGamePaused() const {
-        return model.clientState.gamePaused;
+        return model->clientState.gamePaused;
     }
 
     bool LibClient::isServerEnforced() const {
-        return model.clientState.serverEnforced;
+        return model->clientState.serverEnforced;
     }
 
     const unsigned int &LibClient::getStrikeNr() const {
-        return model.clientState.strikeNr;
+        return model->clientState.strikeNr;
     }
 
     const unsigned int &LibClient::getStrikeMax() const {
-        return model.clientState.strikeMax;
+        return model->clientState.strikeMax;
     }
 
     const std::string &LibClient::getStrikeReason() const {
-        return model.clientState.strikeReason;
+        return model->clientState.strikeReason;
     }
 
     const spy::scenario::Scenario &LibClient::getLevel() const {
-        return model.gameState.level;
+        return model->gameState.level;
     }
 
     const spy::MatchConfig &LibClient::getSettings() const {
-        return model.gameState.settings;
+        return model->gameState.settings;
     }
 
     const std::vector<spy::character::CharacterInformation> &LibClient::getCharacterSettings() const {
-        return model.gameState.characterSettings;
+        return model->gameState.characterSettings;
     }
 
     const std::vector<spy::util::UUID> &LibClient::getOfferedCharacters() const {
-        return model.gameState.offeredCharacters;
+        return model->gameState.offeredCharacters;
     }
 
     const std::vector<spy::gadget::GadgetEnum> &LibClient::getOfferedGadgets() const {
-        return model.gameState.offeredGadgets;
+        return model->gameState.offeredGadgets;
     }
 
     const std::vector<spy::util::UUID> &LibClient::getChosenCharacters() const {
-        return model.gameState.chosenCharacter;
+        return model->gameState.chosenCharacter;
     }
 
     const std::vector<spy::gadget::GadgetEnum> &LibClient::getChosenGadgets() const {
-        return model.gameState.chosenGadget;
+        return model->gameState.chosenGadget;
     }
 
     const std::map<spy::util::UUID, spy::gadget::GadgetEnum> &LibClient::getEquipmentMap() const {
-        return model.gameState.equipmentMap;
+        return model->gameState.equipmentMap;
     }
 
     const std::vector<spy::gameplay::Operation> &LibClient::getOperations() const {
-        return model.gameState.operations;
+        return model->gameState.operations;
     }
 
     bool LibClient::isGameOver() const {
-        return model.gameState.isGameOver;
+        return model->gameState.isGameOver;
     }
 
     const std::optional<spy::util::UUID> &LibClient::getWinner() const {
-        return model.gameState.winner;
+        return model->gameState.winner;
     }
 
     const std::optional<spy::statistics::Statistics> &LibClient::getStatistics() const {
-        return model.gameState.statistics;
+        return model->gameState.statistics;
     }
 
     const std::optional<spy::statistics::VictoryEnum> &LibClient::getWinningReason() const {
-        return model.gameState.winningReason;
+        return model->gameState.winningReason;
     }
 
     bool LibClient::hasReplay() const {
-        return model.gameState.hasReplay;
+        return model->gameState.hasReplay;
     }
 
     const spy::gameplay::State &LibClient::getState() const {
-        return model.gameState.state;
+        return model->gameState.state;
     }
 
     const spy::util::UUID &LibClient::getLastActiveCharacter() const {
-        return model.gameState.lastActiveCharacter;
+        return model->gameState.lastActiveCharacter;
     }
 
     const std::map<std::string, spy::network::messages::MetaInformation::Info> &LibClient::getInformation() const {
-        return model.clientState.information;
+        return model->clientState.information;
     }
+
+    LibClient::LibClient(std::shared_ptr<Callback> callback) : model(std::make_shared<Model>()),
+                                                               network(callback, model) {}
 }
