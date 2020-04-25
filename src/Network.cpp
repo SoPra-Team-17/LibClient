@@ -54,6 +54,7 @@ namespace libclient {
                 model->gameState.settings = m.getSettings();
                 model->gameState.characterSettings = m.getCharacterSettings();
 
+                state = NetworkState::WELCOMED;
                 callback->onHelloReply();
                 break;
             }
@@ -68,6 +69,7 @@ namespace libclient {
                 model->clientState.playerOneName = m.getPlayerOneName();
                 model->clientState.playerTwoName = m.getPlayerTwoName();
 
+                state = NetworkState::IN_GAME;
                 callback->onGameStarted();
                 break;
             }
@@ -76,6 +78,7 @@ namespace libclient {
                 model->gameState.offeredCharacters = m.getOfferedCharacterIds();
                 model->gameState.offeredGadgets = m.getOfferedGadgets();
 
+                state = NetworkState::IN_ITEMCHOICE;
                 callback->onRequestItemChoice();
                 break;
             }
@@ -84,6 +87,7 @@ namespace libclient {
                 model->gameState.chosenCharacter = m.getChosenCharacterIds();
                 model->gameState.chosenGadget = m.getChosenGadgets();
 
+                state = NetworkState::IN_EQUIPMENTCHOICE;
                 callback->onRequestEquipmentChoice();
                 break;
             }
@@ -94,6 +98,7 @@ namespace libclient {
                 model->gameState.state = m.getState();
                 model->gameState.isGameOver = m.getIsGameOver();
 
+                state = m.getIsGameOver() ? NetworkState::GAME_OVER : NetworkState::IN_GAME;
                 callback->onGameStatus();
                 break;
             }
@@ -101,6 +106,7 @@ namespace libclient {
                 auto m = json.get<spy::network::messages::RequestGameOperation>();
                 model->clientState.activeCharacter = m.getCharacterId();
 
+                state = NetworkState::IN_GAME_ACTIVE;
                 callback->onRequestGameOperation();
                 break;
             }
@@ -111,6 +117,7 @@ namespace libclient {
                 model->gameState.statistics = m.getStatistics();
                 model->gameState.hasReplay = m.getHasReplay();
 
+                state = NetworkState::GAME_OVER;
                 callback->onStatistics();
                 break;
             }
@@ -118,6 +125,7 @@ namespace libclient {
                 auto m = json.get<spy::network::messages::GameLeft>();
                 model->clientState.leftUserId = m.getLeftUserId();
 
+                state = NetworkState::GAME_OVER;
                 callback->onGameLeft();
                 break;
             }
@@ -126,6 +134,12 @@ namespace libclient {
                 model->clientState.gamePaused = m.isGamePause();
                 model->clientState.serverEnforced = m.isServerEnforced();
 
+                if (m.isGamePause()) {
+                    stateBeforePause = state;
+                    state = NetworkState::PAUSE;
+                } else {
+                    state = stateBeforePause;
+                }
                 callback->onGamePause();
                 break;
             }
@@ -160,6 +174,7 @@ namespace libclient {
                 }
                 model->replay = m;
 
+                state = NetworkState::GAME_OVER;
                 callback->onReplay();
                 break;
             }
@@ -176,10 +191,12 @@ namespace libclient {
         webSocketClient->receiveListener.subscribe(std::bind(&Network::onReceiveMessage, this, std::placeholders::_1));
         webSocketClient->closeListener.subscribe(std::bind(&Network::onClose, this));
 
+        state = NetworkState::CONNECTED;
         model->clientState.isConnected = true;
     }
 
     void Network::onClose() {
+        state = model->clientState.id.has_value() ? NetworkState::WELCOMED : NetworkState::CONNECTED;
         callback->connectionLost();
     }
 
@@ -187,12 +204,13 @@ namespace libclient {
         if (webSocketClient.has_value()) {
             webSocketClient.reset();
         }
+        state = NetworkState::NOT_CONNECTED;
         model = std::make_shared<Model>();
     }
 
     bool Network::sendHello(std::string name, spy::network::RoleEnum role) {
         auto message = spy::network::messages::Hello(model->clientState.id.value(), std::move(name), role);
-        if (!message.validate() || model->clientState.id.has_value()) {
+        if (!message.validate() || state != NetworkState::CONNECTED) {
             return false;
         }
         nlohmann::json j = message;
@@ -202,7 +220,7 @@ namespace libclient {
 
     bool Network::sendItemChoice(std::variant<spy::util::UUID, spy::gadget::GadgetEnum> choice) {
         auto message = spy::network::messages::ItemChoice(model->clientState.id.value(), std::move(choice));
-        if (!message.validate(model->clientState.role, model->gameState.offeredCharacters, model->gameState.offeredGadgets)) {
+        if (!message.validate(model->clientState.role, model->gameState.offeredCharacters, model->gameState.offeredGadgets) || state != NetworkState::IN_ITEMCHOICE) {
             return false;
         }
         nlohmann::json j = message;
@@ -212,7 +230,7 @@ namespace libclient {
 
     bool Network::sendEquipmentChoice(std::map<spy::util::UUID, std::set<spy::gadget::GadgetEnum>> equipment) {
         auto message = spy::network::messages::EquipmentChoice(model->clientState.id.value(), std::move(equipment));
-        if (!message.validate(model->clientState.role, model->gameState.chosenCharacter, model->gameState.chosenGadget)) {
+        if (!message.validate(model->clientState.role, model->gameState.chosenCharacter, model->gameState.chosenGadget) || state != NetworkState::IN_EQUIPMENTCHOICE) {
             return false;
         }
         nlohmann::json j = message;
@@ -225,7 +243,10 @@ namespace libclient {
             model->clientState.role == spy::network::RoleEnum::SPECTATOR) {
             return false;
         }
-        //TODO validation check (rules of game, valid operation values, ...)
+        //TODO validation check (valid operation values / correctness of operation)
+        if (state != NetworkState::IN_GAME_ACTIVE) {
+            return false;
+        }
         auto message = spy::network::messages::GameOperation(model->clientState.id.value(), std::move(operation));
         nlohmann::json j = message;
         webSocketClient->send(j.dump());
@@ -234,7 +255,7 @@ namespace libclient {
 
     bool Network::sendGameLeave() {
         auto message = spy::network::messages::GameLeave(model->clientState.id.value());
-        if (!message.validate(model->clientState.role)) {
+        if (!message.validate(model->clientState.role) || state == NetworkState::NOT_CONNECTED || state == NetworkState::CONNECTED) {
             return false;
         }
         nlohmann::json j = message;
@@ -244,7 +265,7 @@ namespace libclient {
 
     bool Network::sendRequestGamePause(bool gamePause) {
         auto message = spy::network::messages::RequestGamePause(model->clientState.id.value(), gamePause);
-        if (!message.validate(model->clientState.role, model->clientState.gamePaused, model->clientState.serverEnforced)) {
+        if (!message.validate(model->clientState.role, model->clientState.gamePaused, model->clientState.serverEnforced) || (state != NetworkState::IN_GAME && state != NetworkState::IN_GAME_ACTIVE && state != NetworkState::PAUSE)) {
             return false;
         }
         nlohmann::json j = message;
@@ -264,7 +285,7 @@ namespace libclient {
 
     bool Network::sendRequestReplayMessage() {
         auto message = spy::network::messages::RequestReplay(model->clientState.id.value());
-        if (!message.validate(model->clientState.role, model->gameState.hasReplay)) {
+        if (!message.validate(model->clientState.role, model->gameState.hasReplay) || state != NetworkState::GAME_OVER) {
             return false;
         }
         nlohmann::json j = message;
@@ -274,7 +295,7 @@ namespace libclient {
 
     bool Network::sendReconnect() {
         auto message = spy::network::messages::Reconnect(model->clientState.id.value(), model->clientState.sessionId);
-        if (!message.validate(model->clientState.role) || !model->clientState.id.has_value()) {
+        if (!message.validate(model->clientState.role) || state != NetworkState::WELCOMED) {
             return false;
         }
         nlohmann::json j = message;

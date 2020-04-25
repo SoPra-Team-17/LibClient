@@ -24,9 +24,23 @@ namespace libclient {
 
     class Network {
         private:
+            enum NetworkState {
+                NOT_CONNECTED,
+                CONNECTED,
+                WELCOMED,
+                IN_ITEMCHOICE,
+                IN_EQUIPMENTCHOICE,
+                IN_GAME,
+                IN_GAME_ACTIVE,
+                PAUSE,
+                GAME_OVER
+            };
+
             std::shared_ptr<Callback> callback;
             std::shared_ptr<Model> model;
             std::optional<websocket::network::WebSocketClient> webSocketClient;
+            NetworkState state = NetworkState::NOT_CONNECTED;
+            NetworkState stateBeforePause;
 
             /**
              * function to handle received messages
@@ -63,8 +77,6 @@ namespace libclient {
             bool sendRequestReplayMessage();
 
             bool sendReconnect();
-
-            //TODO state for network to check for allowed actions (message flow)
     };
 }
 
