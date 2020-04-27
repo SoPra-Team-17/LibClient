@@ -85,9 +85,9 @@ namespace libclient {
 
             [[nodiscard]] bool hasReplay() const;
 
-            void setName(const std::string &name);
+            bool setName(const std::string &name);
 
-            void setRole(const spy::network::RoleEnum &role);
+            bool setRole(const spy::network::RoleEnum &role);
     };
 
 }

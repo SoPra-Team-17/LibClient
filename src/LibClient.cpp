@@ -141,11 +141,19 @@ namespace libclient {
     LibClient::LibClient(std::shared_ptr<Callback> callback) : model(std::make_shared<Model>()),
                                                                network(std::move(callback), model) {}
 
-    void LibClient::setName(const std::string &name) {
-        model->clientState.name = name;
+    bool LibClient::setName(const std::string &name) {
+        if(model->clientState.name.empty()){
+            model->clientState.name = name;
+            return true;
+        }
+        return false;
     }
 
-    void LibClient::setRole(const spy::network::RoleEnum &role) {
-        model->clientState.role = role;
+    bool LibClient::setRole(const spy::network::RoleEnum &role) {
+        if(model->clientState.role == spy::network::RoleEnum::INVALID){
+            model->clientState.role = role;
+            return true;
+        }
+        return false;
     }
 }
