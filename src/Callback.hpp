@@ -45,6 +45,12 @@ namespace libclient {
             virtual void onReplay() = 0;
 
             virtual void connectionLost() = 0;
+
+            /**
+             * called when client receives message of unknown type or that was not meant for its player or session id
+             * message params are not stored (besides debugMessage string) --> client only should log this for server debugging
+             */
+            virtual void wrongDestination() = 0;
     };
 }
 
