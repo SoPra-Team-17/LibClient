@@ -200,8 +200,13 @@ namespace libclient {
     }
 
     void Network::onClose() {
-        state = model->clientState.id.has_value() ? NetworkState::WELCOMED : NetworkState::CONNECTED;
-        state = model->clientState.role == spy::network::RoleEnum::SPECTATOR ? NetworkState::CONNECTED : state;
+        if ( model->clientState.role == spy::network::RoleEnum::SPECTATOR) {
+            // spectators are not remembered by server when connection is lost
+            state = NetworkState::CONNECTED;
+        } else {
+            // if server already knows client WELCOMED (-> reconnect possible), else CONNECTED
+            state = model->clientState.id.has_value() ? NetworkState::WELCOMED : NetworkState::CONNECTED;
+        }
         callback->connectionLost();
     }
 
