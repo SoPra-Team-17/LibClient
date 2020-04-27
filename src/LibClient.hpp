@@ -84,6 +84,10 @@ namespace libclient {
             [[nodiscard]] const std::optional<spy::statistics::VictoryEnum> &getWinningReason() const;
 
             [[nodiscard]] bool hasReplay() const;
+
+            void setName(const std::string &name);
+
+            void setRole(const spy::network::RoleEnum &role);
     };
 
 }

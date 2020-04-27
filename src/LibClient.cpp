@@ -6,6 +6,8 @@
  */
 #include "LibClient.hpp"
 
+#include <utility>
+
 namespace libclient {
 
     const spy::util::UUID &LibClient::getId() const {
@@ -137,5 +139,13 @@ namespace libclient {
     }
 
     LibClient::LibClient(std::shared_ptr<Callback> callback) : model(std::make_shared<Model>()),
-                                                               network(callback, model) {}
+                                                               network(std::move(callback), model) {}
+
+    void LibClient::setName(const std::string &name) {
+        model->clientState.name = name;
+    }
+
+    void LibClient::setRole(const spy::network::RoleEnum &role) {
+        model->clientState.role = role;
+    }
 }
