@@ -24,15 +24,34 @@ namespace libclient {
 
     class Network {
         private:
+            enum NetworkState {
+                NOT_CONNECTED,
+                CONNECTED,
+                WELCOMED,
+                IN_ITEMCHOICE,
+                IN_EQUIPMENTCHOICE,
+                IN_GAME,
+                IN_GAME_ACTIVE,
+                PAUSE,
+                GAME_OVER
+            };
+
             std::shared_ptr<Callback> callback;
             std::shared_ptr<Model> model;
             std::optional<websocket::network::WebSocketClient> webSocketClient;
+            NetworkState state = NetworkState::NOT_CONNECTED;
+            NetworkState stateBeforePause;
 
             /**
              * function to handle received messages
              * @param message std::string received message from server
              */
             void onReceiveMessage(std::string message);
+
+            /**
+             * function to handle connection lost
+             */
+            void onClose();
 
         public:
             Network(std::shared_ptr<libclient::Callback> c, std::shared_ptr<libclient::Model> m);
@@ -53,7 +72,7 @@ namespace libclient {
 
             bool sendRequestGamePause(bool gamePause);
 
-            bool sendRequestMeatInformation(std::vector<std::string> keys);
+            bool sendRequestMetaInformation(std::vector<spy::network::messages::MetaInformationKey> keys);
 
             bool sendRequestReplayMessage();
 

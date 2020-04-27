@@ -8,7 +8,7 @@
 
 namespace libclient {
 
-    const spy::util::UUID &LibClient::getId() const {
+    const std::optional<spy::util::UUID> &LibClient::getId() const {
         return model->clientState.id;
     }
 
@@ -134,6 +134,18 @@ namespace libclient {
 
     const spy::gameplay::State &LibClient::getState() const {
         return model->gameState.state;
+    }
+
+    const spy::util::UUID &LibClient::getLastActiveCharacter() const {
+        return model->gameState.lastActiveCharacter;
+    }
+
+    const std::map<spy::network::messages::MetaInformationKey, spy::network::messages::MetaInformation::Info> &LibClient::getInformation() const {
+        return model->clientState.information;
+    }
+
+    const std::optional<std::string> &LibClient::getDebugMessage() const {
+        return model->clientState.debugMessage;
     }
 
     LibClient::LibClient(std::shared_ptr<Callback> callback) : model(std::make_shared<Model>()),
