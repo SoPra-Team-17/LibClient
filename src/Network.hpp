@@ -23,10 +23,11 @@
 namespace libclient {
 
     class Network {
-        private:
+        public:
             enum NetworkState {
                 NOT_CONNECTED,
                 CONNECTED,
+                SENT_HELLO,
                 WELCOMED,
                 IN_ITEMCHOICE,
                 IN_EQUIPMENTCHOICE,
@@ -36,31 +37,15 @@ namespace libclient {
                 GAME_OVER
             };
 
-            std::shared_ptr<Callback> callback;
-            std::shared_ptr<Model> model;
-            std::optional<websocket::network::WebSocketClient> webSocketClient;
-            NetworkState state = NetworkState::NOT_CONNECTED;
-            NetworkState stateBeforePause;
-
-            /**
-             * function to handle received messages
-             * @param message std::string received message from server
-             */
-            void onReceiveMessage(std::string message);
-
-            /**
-             * function to handle connection lost
-             */
-            void onClose();
-
-        public:
             Network(std::shared_ptr<libclient::Callback> c, std::shared_ptr<libclient::Model> m);
 
-            void connect(const std::string& servername, int port);
+            [[nodiscard]] NetworkState getState() const;
+
+            void connect(const std::string &servername, int port);
 
             void disconnect();
 
-            bool sendHello(std::string name, spy::network::RoleEnum role);
+            bool sendHello(const std::string &name, spy::network::RoleEnum role);
 
             bool sendItemChoice(std::variant<spy::util::UUID, spy::gadget::GadgetEnum> choice);
 
@@ -77,6 +62,24 @@ namespace libclient {
             bool sendRequestReplayMessage();
 
             bool sendReconnect();
+
+        private:
+            std::shared_ptr<Callback> callback;
+            std::shared_ptr<Model> model;
+            std::optional<websocket::network::WebSocketClient> webSocketClient;
+            NetworkState state = NetworkState::NOT_CONNECTED;
+            NetworkState stateBeforePause;
+
+            /**
+             * function to handle received messages
+             * @param message std::string received message from server
+             */
+            void onReceiveMessage(const std::string& message);
+
+            /**
+             * function to handle connection lost
+             */
+            void onClose();
     };
 }
 

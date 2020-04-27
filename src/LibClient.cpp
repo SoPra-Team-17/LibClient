@@ -154,18 +154,18 @@ namespace libclient {
                                                                network(std::move(callback), model) {}
 
     bool LibClient::setName(const std::string &name) {
-        if(model->clientState.name.empty()){
-            model->clientState.name = name;
-            return true;
+        if(network.getState() != Network::NetworkState::NOT_CONNECTED && network.getState() != Network::NetworkState::CONNECTED){
+            return false;
         }
-        return false;
+        model->clientState.name = name;
+        return true;
     }
 
     bool LibClient::setRole(const spy::network::RoleEnum &role) {
-        if(model->clientState.role == spy::network::RoleEnum::INVALID){
-            model->clientState.role = role;
-            return true;
+        if(network.getState() != Network::NetworkState::NOT_CONNECTED && network.getState() != Network::NetworkState::CONNECTED){
+            return false;
         }
-        return false;
+        model->clientState.role = role;
+        return true;
     }
 }
