@@ -56,7 +56,9 @@ namespace libclient {
 
             [[nodiscard]] const std::string &getStrikeReason() const;
       
-            [[nodiscard]] const std::map<std::string, spy::network::messages::MetaInformation::Info> &getInformation() const;
+            [[nodiscard]] const std::map<spy::network::messages::MetaInformationKey, spy::network::messages::MetaInformation::Info> &getInformation() const;
+
+            [[nodiscard]] const std::optional<std::string> &getDebugMessage() const;
 
             [[nodiscard]] const spy::scenario::Scenario &getLevel() const;
 

@@ -34,7 +34,7 @@ namespace libclient::model {
             unsigned int strikeNr = 0; //set by Strike message
             unsigned int strikeMax; //set by Strike message
             std::string strikeReason; //set by Strike message
-            std::map<std::string, spy::network::messages::MetaInformation::Info> information; //set by MetaInformation message
+            std::map<spy::network::messages::MetaInformationKey, spy::network::messages::MetaInformation::Info> information; //set by MetaInformation message
             std::optional<std::string> debugMessage; //set by every received message
     };
 }

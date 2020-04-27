@@ -281,7 +281,7 @@ namespace libclient {
         return true;
     }
 
-    bool Network::sendRequestMetaInformation(std::vector<std::string> keys) {
+    bool Network::sendRequestMetaInformation(std::vector<spy::network::messages::MetaInformationKey> keys) {
         auto message = spy::network::messages::RequestMetaInformation(model->clientState.id.value(), std::move(keys));
         if (!message.validate(model->clientState.role)) {
             return false;
