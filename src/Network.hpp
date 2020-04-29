@@ -46,7 +46,7 @@ namespace libclient {
              * function to handle received messages
              * @param message std::string received message from server
              */
-            void onReceiveMessage(std::string message);
+            void onReceiveMessage(const std::string& message);
 
             /**
              * function to handle connection lost
@@ -60,13 +60,13 @@ namespace libclient {
 
             void disconnect();
 
-            bool sendHello(std::string name, spy::network::RoleEnum role);
+            bool sendHello(const std::string& name, spy::network::RoleEnum role);
 
             bool sendItemChoice(std::variant<spy::util::UUID, spy::gadget::GadgetEnum> choice);
 
             bool sendEquipmentChoice(std::map<spy::util::UUID, std::set<spy::gadget::GadgetEnum>> equipment);
 
-            bool sendGameOperation(spy::gameplay::Operation operation);
+            bool sendGameOperation(const spy::gameplay::Operation& operation);
 
             bool sendGameLeave();
 

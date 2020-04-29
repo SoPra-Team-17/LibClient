@@ -36,7 +36,7 @@ namespace libclient {
     Network::Network(std::shared_ptr<Callback> c, std::shared_ptr<Model> m) : callback(std::move(c)),
                                                                               model(std::move(m)) {}
 
-    void Network::onReceiveMessage(std::string message) {
+    void Network::onReceiveMessage(const std::string& message) {
         auto json = nlohmann::json::parse(message);
         auto mc = json.get<spy::network::MessageContainer>();
 
@@ -214,8 +214,8 @@ namespace libclient {
         model = std::make_shared<Model>();
     }
 
-    bool Network::sendHello(std::string name, spy::network::RoleEnum role) {
-        auto message = spy::network::messages::Hello(model->clientState.id.value(), std::move(name), role);
+    bool Network::sendHello(const std::string& name, spy::network::RoleEnum role) {
+        auto message = spy::network::messages::Hello(model->clientState.id.value(), name, role);
         if (!message.validate() || state != NetworkState::CONNECTED) {
             return false;
         }
@@ -246,16 +246,11 @@ namespace libclient {
         return true;
     }
 
-    bool Network::sendGameOperation(spy::gameplay::Operation operation) {
-        if (model->clientState.role == spy::network::RoleEnum::INVALID ||
-            model->clientState.role == spy::network::RoleEnum::SPECTATOR) {
+    bool Network::sendGameOperation(const spy::gameplay::Operation& operation) {
+        auto message = spy::network::messages::GameOperation(model->clientState.id.value(), std::make_shared<spy::gameplay::Operation>(operation));
+        if (!message.validate(model->clientState.role, model->gameState.state)  || state != NetworkState::IN_GAME_ACTIVE) {
             return false;
         }
-        //TODO validation check (valid operation values / correctness of operation)
-        if (state != NetworkState::IN_GAME_ACTIVE) {
-            return false;
-        }
-        auto message = spy::network::messages::GameOperation(model->clientState.id.value(), std::move(operation));
         nlohmann::json j = message;
         webSocketClient->send(j.dump());
         return true;
