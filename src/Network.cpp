@@ -1,5 +1,3 @@
-#include <utility>
-
 /**
  * @file   Network.cpp
  * @author Carolin
@@ -36,7 +34,7 @@ namespace libclient {
     Network::Network(std::shared_ptr<Callback> c, std::shared_ptr<Model> m) : callback(std::move(c)),
                                                                               model(std::move(m)) {}
 
-    void Network::onReceiveMessage(std::string message) {
+    void Network::onReceiveMessage(const std::string& message) {
         auto json = nlohmann::json::parse(message);
         auto mc = json.get<spy::network::MessageContainer>();
 
@@ -202,7 +200,13 @@ namespace libclient {
     }
 
     void Network::onClose() {
-        state = model->clientState.id.has_value() ? NetworkState::WELCOMED : NetworkState::CONNECTED;
+        if ( model->clientState.role == spy::network::RoleEnum::SPECTATOR) {
+            // spectators are not remembered by server when connection is lost
+            state = NetworkState::CONNECTED;
+        } else {
+            // if server already knows client WELCOMED (-> reconnect possible), else CONNECTED
+            state = model->clientState.id.has_value() ? NetworkState::WELCOMED : NetworkState::CONNECTED;
+        }
         callback->connectionLost();
     }
 
@@ -214,13 +218,14 @@ namespace libclient {
         model = std::make_shared<Model>();
     }
 
-    bool Network::sendHello(std::string name, spy::network::RoleEnum role) {
-        auto message = spy::network::messages::Hello(model->clientState.id.value(), std::move(name), role);
+    bool Network::sendHello(const std::string& name, spy::network::RoleEnum role) {
+        auto message = spy::network::messages::Hello(model->clientState.id.value(), name, role);
         if (!message.validate() || state != NetworkState::CONNECTED) {
             return false;
         }
         model->clientState.role = role;
         model->clientState.name = name;
+        state = NetworkState::SENT_HELLO;
         nlohmann::json j = message;
         webSocketClient->send(j.dump());
         return true;
@@ -263,7 +268,7 @@ namespace libclient {
 
     bool Network::sendGameLeave() {
         auto message = spy::network::messages::GameLeave(model->clientState.id.value());
-        if (!message.validate(model->clientState.role) || state == NetworkState::NOT_CONNECTED || state == NetworkState::CONNECTED) {
+        if (!message.validate(model->clientState.role) || state == NetworkState::NOT_CONNECTED || state == NetworkState::CONNECTED || state == Network::SENT_HELLO) {
             return false;
         }
         nlohmann::json j = message;
@@ -309,5 +314,9 @@ namespace libclient {
         nlohmann::json j = message;
         webSocketClient->send(j.dump());
         return true;
+    }
+
+    Network::NetworkState Network::getState() const {
+        return state;
     }
 }
