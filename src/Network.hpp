@@ -41,7 +41,7 @@ namespace libclient {
 
             [[nodiscard]] NetworkState getState() const;
 
-            void connect(const std::string &servername, int port);
+            bool connect(const std::string &servername, int port);
 
             void disconnect();
 
@@ -69,6 +69,9 @@ namespace libclient {
             std::optional<websocket::network::WebSocketClient> webSocketClient;
             NetworkState state = NetworkState::NOT_CONNECTED;
             NetworkState stateBeforePause;
+
+            std::string serverName;
+            int serverPort;
 
             /**
              * function to handle received messages
