@@ -70,6 +70,9 @@ namespace libclient {
             NetworkState state = NetworkState::NOT_CONNECTED;
             NetworkState stateBeforePause;
 
+            std::string serverName;
+            int serverPort;
+
             /**
              * function to handle received messages
              * @param message std::string received message from server

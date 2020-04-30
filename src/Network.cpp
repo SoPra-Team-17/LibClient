@@ -189,6 +189,11 @@ namespace libclient {
     }
 
     bool Network::connect(const std::string &servername, int port) {
+        if (state != NetworkState::NOT_CONNECTED && state != NetworkState::CONNECTED && state !=NetworkState::WELCOMED) {
+            return false;
+        }
+        this->serverName = servername;
+        this->serverPort = port;
         try {
             this->webSocketClient.emplace(servername, "/", port, "");
             webSocketClient->receiveListener.subscribe( std::bind(&Network::onReceiveMessage, this, std::placeholders::_1));
@@ -315,6 +320,7 @@ namespace libclient {
         if (!message.validate(model->clientState.role) || state != NetworkState::WELCOMED) {
             return false;
         }
+        connect(this->serverName, this->serverPort);
         nlohmann::json j = message;
         webSocketClient->send(j.dump());
         return true;
