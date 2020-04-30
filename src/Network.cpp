@@ -188,15 +188,19 @@ namespace libclient {
         }
     }
 
-    void Network::connect(const std::string &servername, int port) {
-        websocket::network::WebSocketClient client(servername, "/", port, "");
+    bool Network::connect(const std::string &servername, int port) {
+        try {
+            this->webSocketClient.emplace(servername, "/", port, "");
+            webSocketClient->receiveListener.subscribe( std::bind(&Network::onReceiveMessage, this, std::placeholders::_1));
+            webSocketClient->closeListener.subscribe(std::bind(&Network::onClose, this));
 
-        this->webSocketClient.emplace(servername, "/", port, "");
-        webSocketClient->receiveListener.subscribe(std::bind(&Network::onReceiveMessage, this, std::placeholders::_1));
-        webSocketClient->closeListener.subscribe(std::bind(&Network::onClose, this));
-
-        state = NetworkState::CONNECTED;
-        model->clientState.isConnected = true;
+            state = NetworkState::CONNECTED;
+            model->clientState.isConnected = true;
+            return true;
+        } catch (std::runtime_error& e) {
+            // could not connect
+            return false;
+        }
     }
 
     void Network::onClose() {

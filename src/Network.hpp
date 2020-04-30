@@ -41,7 +41,7 @@ namespace libclient {
 
             [[nodiscard]] NetworkState getState() const;
 
-            void connect(const std::string &servername, int port);
+            bool connect(const std::string &servername, int port);
 
             void disconnect();
 
