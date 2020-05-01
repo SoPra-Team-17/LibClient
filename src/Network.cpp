@@ -189,7 +189,7 @@ namespace libclient {
     }
 
     bool Network::connect(const std::string &servername, int port) {
-        if (state != NetworkState::NOT_CONNECTED && state != NetworkState::CONNECTED && state !=NetworkState::WELCOMED) {
+        if (state != NetworkState::NOT_CONNECTED && state != NetworkState::CONNECTED && state !=NetworkState::RECONNECT) {
             return false;
         }
         this->serverName = servername;
@@ -199,7 +199,7 @@ namespace libclient {
             webSocketClient->receiveListener.subscribe( std::bind(&Network::onReceiveMessage, this, std::placeholders::_1));
             webSocketClient->closeListener.subscribe(std::bind(&Network::onClose, this));
 
-            state = NetworkState::CONNECTED;
+            state = (state == NetworkState::RECONNECT) ? NetworkState::RECONNECT : NetworkState::CONNECTED;
             model->clientState.isConnected = true;
             return true;
         } catch (std::runtime_error& e) {
@@ -213,8 +213,8 @@ namespace libclient {
             // spectators are not remembered by server when connection is lost
             state = NetworkState::CONNECTED;
         } else {
-            // if server already knows client WELCOMED (-> reconnect possible), else CONNECTED
-            state = model->clientState.id.has_value() ? NetworkState::WELCOMED : NetworkState::CONNECTED;
+            // if server already knows client RECONNECT (-> reconnect possible), else CONNECTED
+            state = model->clientState.id.has_value() ? NetworkState::RECONNECT : NetworkState::CONNECTED;
         }
         callback->connectionLost();
     }
@@ -260,7 +260,7 @@ namespace libclient {
         return true;
     }
 
-    bool Network::sendGameOperation(spy::gameplay::Operation operation) {
+    bool Network::sendGameOperation(const spy::gameplay::Operation& operation) {
         if (model->clientState.role == spy::network::RoleEnum::INVALID ||
             model->clientState.role == spy::network::RoleEnum::SPECTATOR) {
             return false;
@@ -297,7 +297,7 @@ namespace libclient {
 
     bool Network::sendRequestMetaInformation(std::vector<spy::network::messages::MetaInformationKey> keys) {
         auto message = spy::network::messages::RequestMetaInformation(model->clientState.id.value(), std::move(keys));
-        if (!message.validate(model->clientState.role)) {
+        if (!message.validate(model->clientState.role) || state == Network::NetworkState::NOT_CONNECTED || state == Network::NetworkState::CONNECTED || state == SENT_HELLO) {
             return false;
         }
         nlohmann::json j = message;
@@ -317,10 +317,12 @@ namespace libclient {
 
     bool Network::sendReconnect() {
         auto message = spy::network::messages::Reconnect(model->clientState.id.value(), model->clientState.sessionId);
-        if (!message.validate(model->clientState.role) || state != NetworkState::WELCOMED) {
+        if (!message.validate(model->clientState.role) || state != NetworkState::RECONNECT) {
             return false;
         }
-        connect(this->serverName, this->serverPort);
+        if (!connect(this->serverName, this->serverPort)) {
+            return false;
+        }
         nlohmann::json j = message;
         webSocketClient->send(j.dump());
         return true;
