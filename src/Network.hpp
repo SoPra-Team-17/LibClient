@@ -27,6 +27,7 @@ namespace libclient {
             enum NetworkState {
                 NOT_CONNECTED,
                 CONNECTED,
+                RECONNECT,
                 SENT_HELLO,
                 WELCOMED,
                 IN_ITEMCHOICE,
@@ -51,7 +52,7 @@ namespace libclient {
 
             bool sendEquipmentChoice(std::map<spy::util::UUID, std::set<spy::gadget::GadgetEnum>> equipment);
 
-            bool sendGameOperation(spy::gameplay::Operation operation);
+            bool sendGameOperation(const spy::gameplay::Operation& operation);
 
             bool sendGameLeave();
 
