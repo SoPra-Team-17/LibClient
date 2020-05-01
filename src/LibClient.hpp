@@ -76,7 +76,7 @@ namespace libclient {
 
             [[nodiscard]] const std::map<spy::util::UUID, spy::gadget::GadgetEnum> &getEquipmentMap() const;
 
-            [[nodiscard]] const std::vector<std::shared_ptr<spy::gameplay::BaseOperation>> &getOperations() const;
+            [[nodiscard]] const std::vector<std::shared_ptr<const spy::gameplay::BaseOperation>> &getOperations() const;
 
             [[nodiscard]] const spy::gameplay::State &getState() const;
 

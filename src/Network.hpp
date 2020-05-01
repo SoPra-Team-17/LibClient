@@ -17,7 +17,7 @@
 #include <network/RoleEnum.hpp>
 #include <util/UUID.hpp>
 #include <datatypes/gadgets/GadgetEnum.hpp>
-#include <datatypes/gameplay/Operation.hpp>
+#include <datatypes/gameplay/BaseOperation.hpp>
 #include <Client/WebSocketClient.hpp>
 
 namespace libclient {
