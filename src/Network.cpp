@@ -260,16 +260,11 @@ namespace libclient {
         return true;
     }
 
-    bool Network::sendGameOperation(const spy::gameplay::Operation& operation) {
-        if (model->clientState.role == spy::network::RoleEnum::INVALID ||
-            model->clientState.role == spy::network::RoleEnum::SPECTATOR) {
+    bool Network::sendGameOperation(const std::shared_ptr<spy::gameplay::BaseOperation>& operation) {
+        auto message = spy::network::messages::GameOperation(model->clientState.id.value(), operation);
+        if (!message.validate(model->clientState.role, model->gameState.state, model->clientState.activeCharacter)  || state != NetworkState::IN_GAME_ACTIVE) {
             return false;
         }
-        //TODO validation check (valid operation values / correctness of operation)
-        if (state != NetworkState::IN_GAME_ACTIVE) {
-            return false;
-        }
-        auto message = spy::network::messages::GameOperation(model->clientState.id.value(), std::move(operation));
         nlohmann::json j = message;
         webSocketClient->send(j.dump());
         return true;

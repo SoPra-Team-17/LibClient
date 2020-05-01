@@ -110,7 +110,7 @@ namespace libclient {
         return model->gameState.equipmentMap;
     }
 
-    const std::vector<spy::gameplay::Operation> &LibClient::getOperations() const {
+    const std::vector<std::shared_ptr<spy::gameplay::BaseOperation>> &LibClient::getOperations() const {
         return model->gameState.operations;
     }
 

@@ -17,7 +17,7 @@
 #include <network/RoleEnum.hpp>
 #include <util/UUID.hpp>
 #include <datatypes/gadgets/GadgetEnum.hpp>
-#include <datatypes/gameplay/Operation.hpp>
+#include <datatypes/gameplay/BaseOperation.hpp>
 #include <Client/WebSocketClient.hpp>
 
 namespace libclient {
@@ -37,7 +37,6 @@ namespace libclient {
                 PAUSE,
                 GAME_OVER
             };
-
             Network(std::shared_ptr<libclient::Callback> c, std::shared_ptr<libclient::Model> m);
 
             [[nodiscard]] NetworkState getState() const;
@@ -45,14 +44,14 @@ namespace libclient {
             bool connect(const std::string &servername, int port);
 
             void disconnect();
-
-            bool sendHello(const std::string &name, spy::network::RoleEnum role);
+      
+            bool sendHello(const std::string& name, spy::network::RoleEnum role);
 
             bool sendItemChoice(std::variant<spy::util::UUID, spy::gadget::GadgetEnum> choice);
 
             bool sendEquipmentChoice(std::map<spy::util::UUID, std::set<spy::gadget::GadgetEnum>> equipment);
 
-            bool sendGameOperation(const spy::gameplay::Operation& operation);
+            bool sendGameOperation(const std::shared_ptr<spy::gameplay::BaseOperation>& operation);
 
             bool sendGameLeave();
 
@@ -64,7 +63,7 @@ namespace libclient {
 
             bool sendReconnect();
 
-        private:
+        private:      
             std::shared_ptr<Callback> callback;
             std::shared_ptr<Model> model;
             std::optional<websocket::network::WebSocketClient> webSocketClient;
