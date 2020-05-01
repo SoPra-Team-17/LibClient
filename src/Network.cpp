@@ -246,9 +246,9 @@ namespace libclient {
         return true;
     }
 
-    bool Network::sendGameOperation(const spy::gameplay::Operation& operation) {
-        auto message = spy::network::messages::GameOperation(model->clientState.id.value(), std::make_shared<spy::gameplay::Operation>(operation));
-        if (!message.validate(model->clientState.role, model->gameState.state)  || state != NetworkState::IN_GAME_ACTIVE) {
+    bool Network::sendGameOperation(const std::shared_ptr<spy::gameplay::BaseOperation>& operation) {
+        auto message = spy::network::messages::GameOperation(model->clientState.id.value(), operation);
+        if (!message.validate(model->clientState.role, model->gameState.state, model->clientState.activeCharacter)  || state != NetworkState::IN_GAME_ACTIVE) {
             return false;
         }
         nlohmann::json j = message;

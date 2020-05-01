@@ -66,7 +66,7 @@ namespace libclient {
 
             bool sendEquipmentChoice(std::map<spy::util::UUID, std::set<spy::gadget::GadgetEnum>> equipment);
 
-            bool sendGameOperation(const spy::gameplay::Operation& operation);
+            bool sendGameOperation(const std::shared_ptr<spy::gameplay::BaseOperation>& operation);
 
             bool sendGameLeave();
 

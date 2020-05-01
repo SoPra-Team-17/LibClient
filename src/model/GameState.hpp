@@ -11,7 +11,7 @@
 #include <datatypes/scenario/Scenario.hpp>
 #include <datatypes/matchconfig/MatchConfig.hpp>
 #include <datatypes/character/CharacterInformation.hpp>
-#include <datatypes/gameplay/Operation.hpp>
+#include <datatypes/gameplay/BaseOperation.hpp>
 #include <datatypes/gameplay/State.hpp>
 #include <datatypes/statistics/Statistics.hpp>
 #include <datatypes/statistics/VictoryEnum.hpp>
@@ -27,7 +27,7 @@ namespace libclient::model {
             std::vector<spy::util::UUID> chosenCharacter; //set by RequestEquipmentChoice message
             std::vector<spy::gadget::GadgetEnum> chosenGadget; //set by RequestEquipmentChoice message
             std::map<spy::util::UUID, spy::gadget::GadgetEnum> equipmentMap;
-            std::vector<spy::gameplay::Operation> operations; //set by GameStatus message
+            std::vector<std::shared_ptr<spy::gameplay::BaseOperation>> operations; //set by GameStatus message
             spy::gameplay::State state; //set by GameStatus message
             bool isGameOver = false; //set by GameStatus message
             std::optional<spy::util::UUID> winner; //set by Statistics message
