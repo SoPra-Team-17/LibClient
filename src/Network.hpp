@@ -27,6 +27,7 @@ namespace libclient {
             enum NetworkState {
                 NOT_CONNECTED,
                 CONNECTED,
+                RECONNECT,
                 SENT_HELLO,
                 WELCOMED,
                 IN_ITEMCHOICE,
