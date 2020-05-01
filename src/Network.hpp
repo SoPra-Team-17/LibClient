@@ -17,16 +17,17 @@
 #include <network/RoleEnum.hpp>
 #include <util/UUID.hpp>
 #include <datatypes/gadgets/GadgetEnum.hpp>
-#include <datatypes/gameplay/Operation.hpp>
+#include <datatypes/gameplay/BaseOperation.hpp>
 #include <Client/WebSocketClient.hpp>
 
 namespace libclient {
 
     class Network {
-        private:
+        public:
             enum NetworkState {
                 NOT_CONNECTED,
                 CONNECTED,
+                SENT_HELLO,
                 WELCOMED,
                 IN_ITEMCHOICE,
                 IN_EQUIPMENTCHOICE,
@@ -35,31 +36,14 @@ namespace libclient {
                 PAUSE,
                 GAME_OVER
             };
-
-            std::shared_ptr<Callback> callback;
-            std::shared_ptr<Model> model;
-            std::optional<websocket::network::WebSocketClient> webSocketClient;
-            NetworkState state = NetworkState::NOT_CONNECTED;
-            NetworkState stateBeforePause;
-
-            /**
-             * function to handle received messages
-             * @param message std::string received message from server
-             */
-            void onReceiveMessage(const std::string& message);
-
-            /**
-             * function to handle connection lost
-             */
-            void onClose();
-
-        public:
             Network(std::shared_ptr<libclient::Callback> c, std::shared_ptr<libclient::Model> m);
 
-            void connect(const std::string& servername, int port);
+            [[nodiscard]] NetworkState getState() const;
+
+            bool connect(const std::string &servername, int port);
 
             void disconnect();
-
+      
             bool sendHello(const std::string& name, spy::network::RoleEnum role);
 
             bool sendItemChoice(std::variant<spy::util::UUID, spy::gadget::GadgetEnum> choice);
@@ -77,6 +61,27 @@ namespace libclient {
             bool sendRequestReplayMessage();
 
             bool sendReconnect();
+
+        private:      
+            std::shared_ptr<Callback> callback;
+            std::shared_ptr<Model> model;
+            std::optional<websocket::network::WebSocketClient> webSocketClient;
+            NetworkState state = NetworkState::NOT_CONNECTED;
+            NetworkState stateBeforePause;
+
+            std::string serverName;
+            int serverPort;
+
+            /**
+             * function to handle received messages
+             * @param message std::string received message from server
+             */
+            void onReceiveMessage(const std::string& message);
+
+            /**
+             * function to handle connection lost
+             */
+            void onClose();
     };
 }
 

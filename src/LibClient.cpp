@@ -6,6 +6,8 @@
  */
 #include "LibClient.hpp"
 
+#include <utility>
+
 namespace libclient {
 
     const std::optional<spy::util::UUID> &LibClient::getId() const {
@@ -149,5 +151,21 @@ namespace libclient {
     }
 
     LibClient::LibClient(std::shared_ptr<Callback> callback) : model(std::make_shared<Model>()),
-                                                               network(callback, model) {}
+                                                               network(std::move(callback), model) {}
+
+    bool LibClient::setName(const std::string &name) {
+        if(network.getState() != Network::NetworkState::NOT_CONNECTED && network.getState() != Network::NetworkState::CONNECTED){
+            return false;
+        }
+        model->clientState.name = name;
+        return true;
+    }
+
+    bool LibClient::setRole(const spy::network::RoleEnum &role) {
+        if(network.getState() != Network::NetworkState::NOT_CONNECTED && network.getState() != Network::NetworkState::CONNECTED){
+            return false;
+        }
+        model->clientState.role = role;
+        return true;
+    }
 }

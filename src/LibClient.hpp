@@ -91,6 +91,10 @@ namespace libclient {
             [[nodiscard]] bool hasReplay() const;
       
             [[nodiscard]] const spy::util::UUID &getLastActiveCharacter() const;
+
+            bool setName(const std::string &name);
+
+            bool setRole(const spy::network::RoleEnum &role);
     };
 
 }

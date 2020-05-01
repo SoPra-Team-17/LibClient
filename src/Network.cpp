@@ -1,5 +1,3 @@
-#include <utility>
-
 /**
  * @file   Network.cpp
  * @author Carolin
@@ -190,19 +188,34 @@ namespace libclient {
         }
     }
 
-    void Network::connect(const std::string &servername, int port) {
-        websocket::network::WebSocketClient client(servername, "/", port, "");
+    bool Network::connect(const std::string &servername, int port) {
+        if (state != NetworkState::NOT_CONNECTED && state != NetworkState::CONNECTED && state !=NetworkState::WELCOMED) {
+            return false;
+        }
+        this->serverName = servername;
+        this->serverPort = port;
+        try {
+            this->webSocketClient.emplace(servername, "/", port, "");
+            webSocketClient->receiveListener.subscribe( std::bind(&Network::onReceiveMessage, this, std::placeholders::_1));
+            webSocketClient->closeListener.subscribe(std::bind(&Network::onClose, this));
 
-        this->webSocketClient.emplace(servername, "/", port, "");
-        webSocketClient->receiveListener.subscribe(std::bind(&Network::onReceiveMessage, this, std::placeholders::_1));
-        webSocketClient->closeListener.subscribe(std::bind(&Network::onClose, this));
-
-        state = NetworkState::CONNECTED;
-        model->clientState.isConnected = true;
+            state = NetworkState::CONNECTED;
+            model->clientState.isConnected = true;
+            return true;
+        } catch (std::runtime_error& e) {
+            // could not connect
+            return false;
+        }
     }
 
     void Network::onClose() {
-        state = model->clientState.id.has_value() ? NetworkState::WELCOMED : NetworkState::CONNECTED;
+        if ( model->clientState.role == spy::network::RoleEnum::SPECTATOR) {
+            // spectators are not remembered by server when connection is lost
+            state = NetworkState::CONNECTED;
+        } else {
+            // if server already knows client WELCOMED (-> reconnect possible), else CONNECTED
+            state = model->clientState.id.has_value() ? NetworkState::WELCOMED : NetworkState::CONNECTED;
+        }
         callback->connectionLost();
     }
 
@@ -221,6 +234,7 @@ namespace libclient {
         }
         model->clientState.role = role;
         model->clientState.name = name;
+        state = NetworkState::SENT_HELLO;
         nlohmann::json j = message;
         webSocketClient->send(j.dump());
         return true;
@@ -258,7 +272,7 @@ namespace libclient {
 
     bool Network::sendGameLeave() {
         auto message = spy::network::messages::GameLeave(model->clientState.id.value());
-        if (!message.validate(model->clientState.role) || state == NetworkState::NOT_CONNECTED || state == NetworkState::CONNECTED) {
+        if (!message.validate(model->clientState.role) || state == NetworkState::NOT_CONNECTED || state == NetworkState::CONNECTED || state == Network::SENT_HELLO) {
             return false;
         }
         nlohmann::json j = message;
@@ -301,8 +315,13 @@ namespace libclient {
         if (!message.validate(model->clientState.role) || state != NetworkState::WELCOMED) {
             return false;
         }
+        connect(this->serverName, this->serverPort);
         nlohmann::json j = message;
         webSocketClient->send(j.dump());
         return true;
+    }
+
+    Network::NetworkState Network::getState() const {
+        return state;
     }
 }
