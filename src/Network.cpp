@@ -56,9 +56,6 @@ namespace libclient {
                 model->gameState.characterSettings = m.getCharacterSettings();
 
                 state = NetworkState::WELCOMED;
-                if (sendRequestMetaInformation({spy::network::messages::MetaInformationKey::CONFIGURATION_MATCH_CONFIG})) {
-                    requestedMatchConfig = true;
-                }
                 callback->onHelloReply();
                 break;
             }
@@ -151,13 +148,6 @@ namespace libclient {
             case spy::network::messages::MessageTypeEnum::META_INFORMATION: {
                 auto m = json.get<spy::network::messages::MetaInformation>();
                 model->clientState.information = m.getInformation();
-
-                if (requestedMatchConfig) {
-                    requestedMatchConfig = false;
-                } else {
-                    callback->onMetaInformation();
-                }
-                break;
             }
             case spy::network::messages::MessageTypeEnum::STRIKE: {
                 auto m = json.get<spy::network::messages::Strike>();
@@ -271,11 +261,11 @@ namespace libclient {
         return true;
     }
 
-    bool Network::sendGameOperation(const std::shared_ptr<spy::gameplay::BaseOperation> &operation) {
+    bool Network::sendGameOperation(const std::shared_ptr<spy::gameplay::BaseOperation> &operation,
+                                    const spy::MatchConfig &config) {
         auto message = spy::network::messages::GameOperation(model->clientState.id.value(), operation);
         if (!message.validate(model->clientState.role, model->gameState.state, model->clientState.activeCharacter,
-                              std::get<spy::MatchConfig>(model->clientState.information.at(
-                                      spy::network::messages::MetaInformationKey::CONFIGURATION_MATCH_CONFIG))) ||
+                              config) ||
             state != NetworkState::IN_GAME_ACTIVE) {
             return false;
         }

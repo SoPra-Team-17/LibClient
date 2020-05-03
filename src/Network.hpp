@@ -51,7 +51,8 @@ namespace libclient {
 
             bool sendEquipmentChoice(std::map<spy::util::UUID, std::set<spy::gadget::GadgetEnum>> equipment);
 
-            bool sendGameOperation(const std::shared_ptr<spy::gameplay::BaseOperation>& operation);
+            bool sendGameOperation(const std::shared_ptr<spy::gameplay::BaseOperation>& operation,
+                                   const spy::MatchConfig &config);
 
             bool sendGameLeave();
 
@@ -70,7 +71,6 @@ namespace libclient {
             NetworkState state = NetworkState::NOT_CONNECTED;
             NetworkState stateBeforePause;
 
-            bool requestedMatchConfig = false;
             std::string serverName;
             int serverPort;
 
@@ -84,6 +84,8 @@ namespace libclient {
              * function to handle connection lost
              */
             void onClose();
+
+            void sendRequestMatchConfig();
     };
 }
 
