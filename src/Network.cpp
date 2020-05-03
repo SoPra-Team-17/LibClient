@@ -148,6 +148,9 @@ namespace libclient {
             case spy::network::messages::MessageTypeEnum::META_INFORMATION: {
                 auto m = json.get<spy::network::messages::MetaInformation>();
                 model->clientState.information = m.getInformation();
+
+                callback->onMetaInformation();
+                break;
             }
             case spy::network::messages::MessageTypeEnum::STRIKE: {
                 auto m = json.get<spy::network::messages::Strike>();
