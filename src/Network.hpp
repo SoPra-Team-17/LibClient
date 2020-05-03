@@ -70,6 +70,7 @@ namespace libclient {
             NetworkState state = NetworkState::NOT_CONNECTED;
             NetworkState stateBeforePause;
 
+            bool requestedMatchConfig = false;
             std::string serverName;
             int serverPort;
 
