@@ -34,7 +34,7 @@ namespace libclient {
     Network::Network(std::shared_ptr<Callback> c, std::shared_ptr<Model> m) : callback(std::move(c)),
                                                                               model(std::move(m)) {}
 
-    void Network::onReceiveMessage(const std::string& message) {
+    void Network::onReceiveMessage(const std::string &message) {
         auto json = nlohmann::json::parse(message);
         auto mc = json.get<spy::network::MessageContainer>();
 
@@ -189,27 +189,29 @@ namespace libclient {
     }
 
     bool Network::connect(const std::string &servername, int port) {
-        if (state != NetworkState::NOT_CONNECTED && state != NetworkState::CONNECTED && state !=NetworkState::RECONNECT) {
+        if (state != NetworkState::NOT_CONNECTED && state != NetworkState::CONNECTED &&
+            state != NetworkState::RECONNECT) {
             return false;
         }
         this->serverName = servername;
         this->serverPort = port;
         try {
             this->webSocketClient.emplace(servername, "/", port, "");
-            webSocketClient->receiveListener.subscribe( std::bind(&Network::onReceiveMessage, this, std::placeholders::_1));
+            webSocketClient->receiveListener.subscribe(
+                    std::bind(&Network::onReceiveMessage, this, std::placeholders::_1));
             webSocketClient->closeListener.subscribe(std::bind(&Network::onClose, this));
 
             state = (state == NetworkState::RECONNECT) ? NetworkState::RECONNECT : NetworkState::CONNECTED;
             model->clientState.isConnected = true;
             return true;
-        } catch (std::runtime_error& e) {
+        } catch (std::runtime_error &e) {
             // could not connect
             return false;
         }
     }
 
     void Network::onClose() {
-        if ( model->clientState.role == spy::network::RoleEnum::SPECTATOR) {
+        if (model->clientState.role == spy::network::RoleEnum::SPECTATOR) {
             // spectators are not remembered by server when connection is lost
             state = NetworkState::CONNECTED;
         } else {
@@ -227,7 +229,7 @@ namespace libclient {
         model = std::make_shared<Model>();
     }
 
-    bool Network::sendHello(const std::string& name, spy::network::RoleEnum role) {
+    bool Network::sendHello(const std::string &name, spy::network::RoleEnum role) {
         auto message = spy::network::messages::Hello(model->clientState.id.value(), name, role);
         if (!message.validate() || state != NetworkState::CONNECTED) {
             return false;
@@ -242,7 +244,8 @@ namespace libclient {
 
     bool Network::sendItemChoice(std::variant<spy::util::UUID, spy::gadget::GadgetEnum> choice) {
         auto message = spy::network::messages::ItemChoice(model->clientState.id.value(), std::move(choice));
-        if (!message.validate(model->clientState.role, model->gameState.offeredCharacters, model->gameState.offeredGadgets) || state != NetworkState::IN_ITEMCHOICE) {
+        if (!message.validate(model->clientState.role, model->gameState.offeredCharacters,
+                              model->gameState.offeredGadgets) || state != NetworkState::IN_ITEMCHOICE) {
             return false;
         }
         nlohmann::json j = message;
@@ -252,7 +255,8 @@ namespace libclient {
 
     bool Network::sendEquipmentChoice(std::map<spy::util::UUID, std::set<spy::gadget::GadgetEnum>> equipment) {
         auto message = spy::network::messages::EquipmentChoice(model->clientState.id.value(), std::move(equipment));
-        if (!message.validate(model->clientState.role, model->gameState.chosenCharacter, model->gameState.chosenGadget) || state != NetworkState::IN_EQUIPMENTCHOICE) {
+        if (!message.validate(model->clientState.role, model->gameState.chosenCharacter,
+                              model->gameState.chosenGadget) || state != NetworkState::IN_EQUIPMENTCHOICE) {
             return false;
         }
         nlohmann::json j = message;
@@ -260,9 +264,12 @@ namespace libclient {
         return true;
     }
 
-    bool Network::sendGameOperation(const std::shared_ptr<spy::gameplay::BaseOperation>& operation) {
+    bool Network::sendGameOperation(const std::shared_ptr<spy::gameplay::BaseOperation> &operation,
+                                    const spy::MatchConfig &config) {
         auto message = spy::network::messages::GameOperation(model->clientState.id.value(), operation);
-        if (!message.validate(model->clientState.role, model->gameState.state, model->clientState.activeCharacter)  || state != NetworkState::IN_GAME_ACTIVE) {
+        if (!message.validate(model->clientState.role, model->gameState.state, model->clientState.activeCharacter,
+                              config) ||
+            state != NetworkState::IN_GAME_ACTIVE) {
             return false;
         }
         nlohmann::json j = message;
@@ -272,7 +279,8 @@ namespace libclient {
 
     bool Network::sendGameLeave() {
         auto message = spy::network::messages::GameLeave(model->clientState.id.value());
-        if (!message.validate(model->clientState.role) || state == NetworkState::NOT_CONNECTED || state == NetworkState::CONNECTED || state == Network::SENT_HELLO) {
+        if (!message.validate(model->clientState.role) || state == NetworkState::NOT_CONNECTED ||
+            state == NetworkState::CONNECTED || state == Network::SENT_HELLO) {
             return false;
         }
         nlohmann::json j = message;
@@ -282,7 +290,9 @@ namespace libclient {
 
     bool Network::sendRequestGamePause(bool gamePause) {
         auto message = spy::network::messages::RequestGamePause(model->clientState.id.value(), gamePause);
-        if (!message.validate(model->clientState.role, model->clientState.gamePaused, model->clientState.serverEnforced) || (state != NetworkState::IN_GAME && state != NetworkState::IN_GAME_ACTIVE && state != NetworkState::PAUSE)) {
+        if (!message.validate(model->clientState.role, model->clientState.gamePaused,
+                              model->clientState.serverEnforced) ||
+            (state != NetworkState::IN_GAME && state != NetworkState::IN_GAME_ACTIVE && state != NetworkState::PAUSE)) {
             return false;
         }
         nlohmann::json j = message;
@@ -292,7 +302,8 @@ namespace libclient {
 
     bool Network::sendRequestMetaInformation(std::vector<spy::network::messages::MetaInformationKey> keys) {
         auto message = spy::network::messages::RequestMetaInformation(model->clientState.id.value(), std::move(keys));
-        if (!message.validate(model->clientState.role) || state == Network::NetworkState::NOT_CONNECTED || state == Network::NetworkState::CONNECTED || state == SENT_HELLO) {
+        if (!message.validate(model->clientState.role) || state == Network::NetworkState::NOT_CONNECTED ||
+            state == Network::NetworkState::CONNECTED || state == SENT_HELLO) {
             return false;
         }
         nlohmann::json j = message;
@@ -302,7 +313,8 @@ namespace libclient {
 
     bool Network::sendRequestReplayMessage() {
         auto message = spy::network::messages::RequestReplay(model->clientState.id.value());
-        if (!message.validate(model->clientState.role, model->gameState.hasReplay) || state != NetworkState::GAME_OVER) {
+        if (!message.validate(model->clientState.role, model->gameState.hasReplay) ||
+            state != NetworkState::GAME_OVER) {
             return false;
         }
         nlohmann::json j = message;
