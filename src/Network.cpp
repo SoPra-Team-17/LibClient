@@ -29,6 +29,7 @@
 #include <network/messages/Error.hpp>
 #include <network/messages/Strike.hpp>
 #include <network/messages/MetaInformation.hpp>
+#include <util/UUID.hpp>
 
 namespace libclient {
     Network::Network(std::shared_ptr<Callback> c, std::shared_ptr<Model> m) : callback(std::move(c)),
@@ -40,7 +41,7 @@ namespace libclient {
 
         model->clientState.debugMessage = mc.getDebugMessage();
 
-        if (model->clientState.id.has_value() && model->clientState.id.value() != mc.getPlayerId()) {
+        if (model->clientState.id.has_value() && model->clientState.id.value() != mc.getClientId()) {
             // received message that was not for this client
             callback->wrongDestination();
             return;
@@ -48,7 +49,7 @@ namespace libclient {
 
         switch (mc.getType()) {
             case spy::network::messages::MessageTypeEnum::HELLO_REPLY: {
-                model->clientState.id = mc.getPlayerId();
+                model->clientState.id = mc.getClientId();
                 auto m = json.get<spy::network::messages::HelloReply>();
                 model->clientState.sessionId = m.getSessionId();
                 model->gameState.level = m.getLevel();
@@ -230,7 +231,7 @@ namespace libclient {
     }
 
     bool Network::sendHello(const std::string &name, spy::network::RoleEnum role) {
-        auto message = spy::network::messages::Hello(model->clientState.id.value(), name, role);
+        auto message = spy::network::messages::Hello(spy::util::UUID(), name, role);
         if (!message.validate() || state != NetworkState::CONNECTED) {
             return false;
         }
