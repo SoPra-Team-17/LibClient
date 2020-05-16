@@ -84,8 +84,6 @@ namespace libclient {
              * function to handle connection lost
              */
             void onClose();
-
-            void sendRequestMatchConfig();
     };
 }
 
