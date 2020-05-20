@@ -194,8 +194,20 @@ namespace libclient {
             state != NetworkState::RECONNECT) {
             return false;
         }
+
+        if (state != NetworkState::NOT_CONNECTED) {
+            if (this->serverName != servername || this->serverPort != port) {
+                // connect to another server -> disconnect to current server
+                disconnect();
+            } else if (model->clientState.isConnected) {
+                // connect to same server and still connected
+                return true;
+            }
+        }
+
         this->serverName = servername;
         this->serverPort = port;
+
         try {
             this->webSocketClient.emplace(servername, "/", port, "");
             webSocketClient->receiveListener.subscribe(
@@ -212,12 +224,12 @@ namespace libclient {
     }
 
     void Network::onClose() {
-        if (model->clientState.role == spy::network::RoleEnum::SPECTATOR) {
-            // spectators are not remembered by server when connection is lost
-            state = NetworkState::CONNECTED;
+        if (model->clientState.id.has_value() && model->clientState.role != spy::network::RoleEnum::SPECTATOR) {
+            // Client is allowed to reconnect
+            state = NetworkState::RECONNECT;
+            model->clientState.isConnected = false;
         } else {
-            // if server already knows client RECONNECT (-> reconnect possible), else CONNECTED
-            state = model->clientState.id.has_value() ? NetworkState::RECONNECT : NetworkState::CONNECTED;
+            disconnect();
         }
         callback->connectionLost();
     }
