@@ -256,9 +256,12 @@ namespace libclient {
     }
 
     bool Network::sendItemChoice(std::variant<spy::util::UUID, spy::gadget::GadgetEnum> choice) {
+        if (state != NetworkState::IN_ITEMCHOICE) {
+            return false;
+        }
         auto message = spy::network::messages::ItemChoice(model->clientState.id.value(), std::move(choice));
         if (!message.validate(model->clientState.role, model->gameState.offeredCharacters,
-                              model->gameState.offeredGadgets) || state != NetworkState::IN_ITEMCHOICE) {
+                              model->gameState.offeredGadgets)) {
             return false;
         }
         nlohmann::json j = message;
@@ -267,9 +270,12 @@ namespace libclient {
     }
 
     bool Network::sendEquipmentChoice(std::map<spy::util::UUID, std::set<spy::gadget::GadgetEnum>> equipment) {
+        if (state != NetworkState::IN_EQUIPMENTCHOICE) {
+            return false;
+        }
         auto message = spy::network::messages::EquipmentChoice(model->clientState.id.value(), std::move(equipment));
         if (!message.validate(model->clientState.role, model->gameState.chosenCharacter,
-                              model->gameState.chosenGadget) || state != NetworkState::IN_EQUIPMENTCHOICE) {
+                              model->gameState.chosenGadget)) {
             return false;
         }
         nlohmann::json j = message;
@@ -279,10 +285,12 @@ namespace libclient {
 
     bool Network::sendGameOperation(const std::shared_ptr<spy::gameplay::BaseOperation> &operation,
                                     const spy::MatchConfig &config) {
+        if (state != NetworkState::IN_GAME_ACTIVE) {
+            return false;
+        }
         auto message = spy::network::messages::GameOperation(model->clientState.id.value(), operation);
         if (!message.validate(model->clientState.role, model->gameState.state, model->clientState.activeCharacter,
-                              config) ||
-            state != NetworkState::IN_GAME_ACTIVE) {
+                              config)) {
             return false;
         }
         nlohmann::json j = message;
@@ -291,9 +299,12 @@ namespace libclient {
     }
 
     bool Network::sendGameLeave() {
+        if (state == NetworkState::NOT_CONNECTED || state == NetworkState::CONNECTED ||
+            state == NetworkState::SENT_HELLO || state == NetworkState::RECONNECT) {
+            return false;
+        }
         auto message = spy::network::messages::GameLeave(model->clientState.id.value());
-        if (!message.validate(model->clientState.role) || state == NetworkState::NOT_CONNECTED ||
-            state == NetworkState::CONNECTED || state == Network::SENT_HELLO) {
+        if (!message.validate(model->clientState.role)) {
             return false;
         }
         nlohmann::json j = message;
@@ -302,10 +313,12 @@ namespace libclient {
     }
 
     bool Network::sendRequestGamePause(bool gamePause) {
+        if (state != NetworkState::IN_GAME && state != NetworkState::IN_GAME_ACTIVE && state != NetworkState::PAUSE) {
+            return false;
+        }
         auto message = spy::network::messages::RequestGamePause(model->clientState.id.value(), gamePause);
         if (!message.validate(model->clientState.role, model->clientState.gamePaused,
-                              model->clientState.serverEnforced) ||
-            (state != NetworkState::IN_GAME && state != NetworkState::IN_GAME_ACTIVE && state != NetworkState::PAUSE)) {
+                              model->clientState.serverEnforced)) {
             return false;
         }
         nlohmann::json j = message;
@@ -314,9 +327,12 @@ namespace libclient {
     }
 
     bool Network::sendRequestMetaInformation(std::vector<spy::network::messages::MetaInformationKey> keys) {
+        if (state == NetworkState::NOT_CONNECTED || state == NetworkState::CONNECTED ||
+            state == NetworkState::SENT_HELLO || state == NetworkState::RECONNECT) {
+            return false;
+        }
         auto message = spy::network::messages::RequestMetaInformation(model->clientState.id.value(), std::move(keys));
-        if (!message.validate(model->clientState.role) || state == Network::NetworkState::NOT_CONNECTED ||
-            state == Network::NetworkState::CONNECTED || state == SENT_HELLO) {
+        if (!message.validate(model->clientState.role)) {
             return false;
         }
         nlohmann::json j = message;
@@ -325,9 +341,11 @@ namespace libclient {
     }
 
     bool Network::sendRequestReplayMessage() {
+        if (state != NetworkState::GAME_OVER) {
+            return false;
+        }
         auto message = spy::network::messages::RequestReplay(model->clientState.id.value());
-        if (!message.validate(model->clientState.role, model->gameState.hasReplay) ||
-            state != NetworkState::GAME_OVER) {
+        if (!message.validate(model->clientState.role, model->gameState.hasReplay)) {
             return false;
         }
         nlohmann::json j = message;
@@ -336,8 +354,11 @@ namespace libclient {
     }
 
     bool Network::sendReconnect() {
+        if (state != NetworkState::RECONNECT) {
+            return false;
+        }
         auto message = spy::network::messages::Reconnect(model->clientState.id.value(), model->clientState.sessionId);
-        if (!message.validate(model->clientState.role) || state != NetworkState::RECONNECT) {
+        if (!message.validate(model->clientState.role)) {
             return false;
         }
         if (!connect(this->serverName, this->serverPort)) {
