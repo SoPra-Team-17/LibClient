@@ -150,8 +150,8 @@ namespace libclient {
         return model->clientState.debugMessage;
     }
 
-    LibClient::LibClient(std::shared_ptr<Callback> callback) : model(std::make_shared<Model>()),
-                                                               network(std::move(callback), model) {}
+    LibClient::LibClient(Callback* callback) : model(std::make_shared<Model>()),
+                                                               network(callback, model) {}
 
     bool LibClient::setName(const std::string &name) {
         if(network.getState() != Network::NetworkState::NOT_CONNECTED && network.getState() != Network::NetworkState::CONNECTED){

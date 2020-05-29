@@ -17,7 +17,7 @@ namespace libclient {
         private:
             std::shared_ptr<libclient::Model> model;
         public:
-            explicit LibClient(std::shared_ptr<Callback> callback);
+            explicit LibClient(Callback* callback);
 
             libclient::Network network;
 
