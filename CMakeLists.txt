@@ -26,6 +26,13 @@ add_subdirectory(extern/WebsocketCPP)
 
 option(LIBCLIENT_TESTS "Build the tests" ON)
 if (LIBCLIENT_TESTS)
+
+    # Do not install googletest
+    # Non-ideal solution, suggested by https://stackoverflow.com/a/35345933
+    # Replace install() to do-nothing macro.
+    macro(install)
+    endmacro()
+
     if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
         # Download and unpack googletest at configure time
         configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
@@ -51,4 +58,9 @@ if (LIBCLIENT_TESTS)
     enable_testing()
     include(GoogleTest)
     add_subdirectory(test)
+
+    # Restore original install() behavior.
+    macro(install)
+        _install(${ARGN})
+    endmacro()
 endif ()
