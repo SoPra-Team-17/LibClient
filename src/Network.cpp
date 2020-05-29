@@ -32,8 +32,7 @@
 #include <util/UUID.hpp>
 
 namespace libclient {
-    Network::Network(std::shared_ptr<Callback> c, std::shared_ptr<Model> m) : callback(std::move(c)),
-                                                                              model(std::move(m)) {}
+    Network::Network(libclient::Callback *c, std::shared_ptr<Model> m) : callback(c), model(std::move(m)) {}
 
     void Network::onReceiveMessage(const std::string &message) {
         auto json = nlohmann::json::parse(message);

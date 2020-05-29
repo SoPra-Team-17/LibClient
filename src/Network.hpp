@@ -37,7 +37,7 @@ namespace libclient {
                 PAUSE,
                 GAME_OVER
             };
-            Network(std::shared_ptr<libclient::Callback> c, std::shared_ptr<libclient::Model> m);
+            Network(libclient::Callback *c, std::shared_ptr<libclient::Model> m);
 
             [[nodiscard]] NetworkState getState() const;
 
@@ -65,7 +65,7 @@ namespace libclient {
             bool sendReconnect();
 
         private:      
-            std::shared_ptr<Callback> callback;
+            Callback *callback;
             std::shared_ptr<Model> model;
             std::optional<websocket::network::WebSocketClient> webSocketClient;
             NetworkState state = NetworkState::NOT_CONNECTED;
