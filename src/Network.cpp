@@ -55,6 +55,10 @@ namespace libclient {
                 model->gameState.settings = m.getSettings();
                 model->gameState.characterSettings = m.getCharacterSettings();
 
+                for (const auto& info: model->gameState.characterSettings) {
+                    model->aiState.unknownFaction[info.getCharacterId()];
+                }
+
                 state = NetworkState::WELCOMED;
                 callback->onHelloReply();
                 break;
@@ -89,6 +93,10 @@ namespace libclient {
                 model->gameState.chosenCharacter = m.getChosenCharacterIds();
                 model->gameState.chosenGadget = m.getChosenGadgets();
 
+                for (auto c: model->gameState.chosenCharacter) {
+                    model->aiState.addFaction(c, model->aiState.myFaction);
+                }
+
                 state = NetworkState::IN_EQUIPMENTCHOICE;
                 callback->onRequestEquipmentChoice();
                 break;
@@ -99,6 +107,7 @@ namespace libclient {
                 model->gameState.operations = m.getOperations();
                 model->gameState.state = m.getState();
                 model->gameState.isGameOver = m.getIsGameOver();
+                model->aiState.applySureInformation(model->gameState.state);
 
                 state = m.getIsGameOver() ? NetworkState::GAME_OVER : NetworkState::IN_GAME;
                 callback->onGameStatus();
@@ -277,6 +286,7 @@ namespace libclient {
                               model->gameState.chosenGadget)) {
             return false;
         }
+        model->gameState.equipmentMap = equipment;
         nlohmann::json j = message;
         webSocketClient->send(j.dump());
         return true;

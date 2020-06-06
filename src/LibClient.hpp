@@ -95,6 +95,10 @@ namespace libclient {
             bool setName(const std::string &name);
 
             bool setRole(const spy::network::RoleEnum &role);
+
+            bool setFaction(spy::util::UUID id, spy::character::FactionEnum faction);
+
+            std::optional<bool> amIPlayer1();
     };
 
 }

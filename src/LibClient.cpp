@@ -142,7 +142,8 @@ namespace libclient {
         return model->gameState.lastActiveCharacter;
     }
 
-    const std::map<spy::network::messages::MetaInformationKey, spy::network::messages::MetaInformation::Info> &LibClient::getInformation() const {
+    const std::map<spy::network::messages::MetaInformationKey, spy::network::messages::MetaInformation::Info> &
+    LibClient::getInformation() const {
         return model->clientState.information;
     }
 
@@ -150,11 +151,12 @@ namespace libclient {
         return model->clientState.debugMessage;
     }
 
-    LibClient::LibClient(Callback* callback) : model(std::make_shared<Model>()),
-                                                               network(callback, model) {}
+    LibClient::LibClient(Callback *callback) : model(std::make_shared<Model>()),
+                                               network(callback, model) {}
 
     bool LibClient::setName(const std::string &name) {
-        if(network.getState() != Network::NetworkState::NOT_CONNECTED && network.getState() != Network::NetworkState::CONNECTED){
+        if (network.getState() != Network::NetworkState::NOT_CONNECTED &&
+            network.getState() != Network::NetworkState::CONNECTED) {
             return false;
         }
         model->clientState.name = name;
@@ -162,10 +164,32 @@ namespace libclient {
     }
 
     bool LibClient::setRole(const spy::network::RoleEnum &role) {
-        if(network.getState() != Network::NetworkState::NOT_CONNECTED && network.getState() != Network::NetworkState::CONNECTED){
+        if (network.getState() != Network::NetworkState::NOT_CONNECTED &&
+            network.getState() != Network::NetworkState::CONNECTED) {
             return false;
         }
         model->clientState.role = role;
         return true;
+    }
+
+    bool LibClient::setFaction(spy::util::UUID id, spy::character::FactionEnum faction) {
+        using namespace spy::character;
+        if (faction == FactionEnum::INVALID ||
+            faction == (amIPlayer1() ? FactionEnum::PLAYER1 : FactionEnum::PLAYER2)) {
+            return false;
+        }
+
+        return model->aiState.addFaction(id, faction == FactionEnum::NEUTRAL ? model->aiState.npcFaction
+                                                                      : model->aiState.enemyFaction);
+    }
+
+    std::optional<bool> LibClient::amIPlayer1() {
+        if (network.getState() != Network::NetworkState::IN_GAME &&
+            network.getState() != Network::NetworkState::IN_GAME_ACTIVE &&
+            network.getState() != Network::NetworkState::PAUSE &&
+            network.getState() != Network::NetworkState::GAME_OVER) {
+            return std::nullopt;
+        }
+        return model->clientState.id.value() == model->clientState.playerOneId;
     }
 }
