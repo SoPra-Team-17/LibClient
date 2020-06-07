@@ -3,6 +3,7 @@
 //
 
 #include "AIState.hpp"
+#include <datatypes/gadgets/Cocktail.hpp>
 
 namespace libclient::model {
     void AIState::applySureInformation(spy::gameplay::State &s, spy::character::FactionEnum me) {
@@ -33,8 +34,25 @@ namespace libclient::model {
 
             // properties
             c.setProperties(properties[c.getCharacterId()]);
+        }
 
-            // TODO gadgets
+        // gadgets
+        for (auto &it : characterGadgets) {
+            auto c = s.getCharacters().getByUUID(it.second);
+            c->addGadget(it.first);
+        }
+        for (auto &it: cocktails) {
+            if (std::holds_alternative<spy::util::UUID>(it.first)) {
+                // character has cocktail
+                auto c = s.getCharacters().getByUUID(std::get<spy::util::UUID>(it.first));
+                auto cocktail = std::dynamic_pointer_cast<spy::gadget::Cocktail>(c->getGadget(spy::gadget::GadgetEnum::COCKTAIL).value());
+                cocktail->setIsPoisoned(it.second);
+            } else {
+                // cocktail is on playing field
+                auto cocktail = std::dynamic_pointer_cast<spy::gadget::Cocktail>(
+                        s.getMap().getField(std::get<spy::util::Point>(it.first)).getGadget().value());
+                cocktail->setIsPoisoned(it.second);
+            }
         }
     }
 
@@ -48,7 +66,8 @@ namespace libclient::model {
         return true;
     }
 
-    bool AIState::addGadget(const std::shared_ptr<spy::gadget::Gadget> &gadget, const std::optional<spy::util::UUID> &id) {
+    bool
+    AIState::addGadget(const std::shared_ptr<spy::gadget::Gadget> &gadget, const std::optional<spy::util::UUID> &id) {
         auto unknown = unknownGadgets.find(gadget);
 
         if (id.has_value()) {

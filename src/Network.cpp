@@ -119,15 +119,25 @@ namespace libclient {
                                                     : spy::character::FactionEnum::PLAYER2);
 
                 if (state == IN_EQUIPMENTCHOICE) {
-                    const auto &mo = model;
                     // first GameStatus message
-                    model->gameState.state.getMap().forAllFields([&mo](const spy::scenario::Field &field) {
-                        auto gad = field.getGadget();
-                        if (gad.has_value()) {
-                            mo->aiState.addGadget(std::make_shared<spy::gadget::Gadget>(gad.value()->getType()),
-                                                  std::nullopt);
+                    const auto &mo = model;
+                    auto map = model->gameState.state.getMap();
+
+                    for (auto y = 0U; y < map.getMap().size(); y++) {
+                        for (auto x = 0U; x < map.getMap().at(y).size(); x++) {
+                            auto field = (map.getField(x, y));
+                            auto gad = field.getGadget();
+                            if (gad.has_value()) {
+                                if (gad.value()->getType() == spy::gadget::GadgetEnum::COCKTAIL) {
+                                    spy::util::Point p{(int)x, (int)y};
+                                    mo->aiState.cocktails[p] = false;
+                                } else {
+                                    mo->aiState.addGadget(std::make_shared<spy::gadget::Gadget>(gad.value()->getType()),
+                                                          std::nullopt);
+                                }
+                            }
                         }
-                    });
+                    }
                 }
 
                 state = m.getIsGameOver() ? NetworkState::GAME_OVER : NetworkState::IN_GAME;
@@ -309,9 +319,9 @@ namespace libclient {
         }
 
         model->gameState.equipmentMap = equipment;
-        for (auto it = equipment.begin(); it != equipment.end(); it++) {
-            for (auto gadgetType: it->second) {
-                model->aiState.addGadget(std::make_shared<spy::gadget::Gadget>(gadgetType), it->first);
+        for (auto &it : equipment) {
+            for (auto gadgetType: it.second) {
+                model->aiState.addGadget(std::make_shared<spy::gadget::Gadget>(gadgetType), it.first);
             }
         }
 

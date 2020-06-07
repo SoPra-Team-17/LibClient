@@ -10,6 +10,7 @@
 #include <vector>
 #include <datatypes/character/FactionEnum.hpp>
 #include <datatypes/gameplay/State.hpp>
+#include <variant>
 
 namespace libclient::model {
     class AIState {
@@ -20,11 +21,11 @@ namespace libclient::model {
             std::vector<spy::util::UUID> enemyFaction; // set during game
             std::vector<spy::util::UUID> npcFaction; // set during game
 
-            // TODO what about Cocktails (Cocktails should be visible but what about poisoned???!!!)
-            // TODO set unknownGadgets, floorGadgets and characterGadgets during game
+            // TODO set cocktails, unknownGadgets, floorGadgets and characterGadgets during game
             std::unordered_map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, float>>> unknownGadgets; // initially set by HelloReply message
             std::unordered_map<std::shared_ptr<spy::gadget::Gadget>, spy::util::UUID> characterGadgets; // initially set by sendEquipmentChoice method
             std::vector<std::shared_ptr<spy::gadget::Gadget>> floorGadgets; // initially set by first GameStatus message
+            std::map<std::variant<spy::util::UUID, spy::util::Point>, bool> cocktails; // initially set by first GameStatus message
 
             // TODO set / remove property ClammyClothes during game
             std::map<spy::util::UUID, std::set<spy::character::PropertyEnum>> properties; // initially set by Hello Reply message
