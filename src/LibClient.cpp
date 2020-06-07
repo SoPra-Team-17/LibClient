@@ -173,7 +173,7 @@ namespace libclient {
     }
 
     bool LibClient::lastOpSuccessful() const {
-        return model->gameState.lastOpSuccessfull;
+        return model->gameState.lastOpSuccessful;
     }
 
     std::pair<bool, spy::util::UUID> LibClient::isEnemy() const {
