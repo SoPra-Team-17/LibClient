@@ -174,8 +174,13 @@ namespace libclient {
 
     bool LibClient::setFaction(spy::util::UUID id, spy::character::FactionEnum faction) {
         using namespace spy::character;
+
+        auto iAmPlayer1 = amIPlayer1();
+        if (!iAmPlayer1.has_value()) {
+            return false;
+        }
         if (faction == FactionEnum::INVALID ||
-            faction == (amIPlayer1() ? FactionEnum::PLAYER1 : FactionEnum::PLAYER2)) {
+            faction == (iAmPlayer1.value() ? FactionEnum::PLAYER1 : FactionEnum::PLAYER2)) {
             return false;
         }
 
@@ -190,7 +195,7 @@ namespace libclient {
             network.getState() != Network::NetworkState::GAME_OVER) {
             return std::nullopt;
         }
-        return model->clientState.amIPlayer1();
+        return model->clientState.amIPlayer1(model->clientState.role);
     }
 
     auto

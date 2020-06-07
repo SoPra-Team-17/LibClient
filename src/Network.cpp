@@ -114,9 +114,9 @@ namespace libclient {
                 model->gameState.state = m.getState();
                 model->gameState.isGameOver = m.getIsGameOver();
 
-                if (model->clientState.role == spy::network::RoleEnum::PLAYER) {
+                if (model->clientState.role != spy::network::RoleEnum::SPECTATOR) {
                     model->aiState.applySureInformation(model->gameState.state,
-                                                        model->clientState.amIPlayer1()
+                                                        model->clientState.amIPlayer1(model->clientState.role)
                                                         ? spy::character::FactionEnum::PLAYER1
                                                         : spy::character::FactionEnum::PLAYER2);
                 }
