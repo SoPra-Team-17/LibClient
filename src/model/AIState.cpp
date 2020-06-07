@@ -41,17 +41,17 @@ namespace libclient::model {
             auto c = s.getCharacters().getByUUID(it.second);
             c->addGadget(it.first);
         }
-        for (auto &it: cocktails) {
-            if (std::holds_alternative<spy::util::UUID>(it.first)) {
+        for (auto &it: poisonedCocktails) {
+            if (std::holds_alternative<spy::util::UUID>(it)) {
                 // character has cocktail
-                auto c = s.getCharacters().getByUUID(std::get<spy::util::UUID>(it.first));
+                auto c = s.getCharacters().getByUUID(std::get<spy::util::UUID>(it));
                 auto cocktail = std::dynamic_pointer_cast<spy::gadget::Cocktail>(c->getGadget(spy::gadget::GadgetEnum::COCKTAIL).value());
-                cocktail->setIsPoisoned(it.second);
+                cocktail->setIsPoisoned(true);
             } else {
                 // cocktail is on playing field
                 auto cocktail = std::dynamic_pointer_cast<spy::gadget::Cocktail>(
-                        s.getMap().getField(std::get<spy::util::Point>(it.first)).getGadget().value());
-                cocktail->setIsPoisoned(it.second);
+                        s.getMap().getField(std::get<spy::util::Point>(it)).getGadget().value());
+                cocktail->setIsPoisoned(true);
             }
         }
     }

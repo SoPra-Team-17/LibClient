@@ -128,10 +128,7 @@ namespace libclient {
                             auto field = (map.getField(x, y));
                             auto gad = field.getGadget();
                             if (gad.has_value()) {
-                                if (gad.value()->getType() == spy::gadget::GadgetEnum::COCKTAIL) {
-                                    spy::util::Point p{(int)x, (int)y};
-                                    mo->aiState.cocktails[p] = false;
-                                } else {
+                                if (gad.value()->getType() != spy::gadget::GadgetEnum::COCKTAIL) {
                                     mo->aiState.addGadget(std::make_shared<spy::gadget::Gadget>(gad.value()->getType()),
                                                           std::nullopt);
                                 }

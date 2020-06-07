@@ -25,7 +25,7 @@ namespace libclient::model {
             std::unordered_map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, float>>> unknownGadgets; // initially set by HelloReply message
             std::unordered_map<std::shared_ptr<spy::gadget::Gadget>, spy::util::UUID> characterGadgets; // initially set by sendEquipmentChoice method
             std::vector<std::shared_ptr<spy::gadget::Gadget>> floorGadgets; // initially set by first GameStatus message
-            std::map<std::variant<spy::util::UUID, spy::util::Point>, bool> cocktails; // initially set by first GameStatus message
+            std::vector<std::variant<spy::util::UUID, spy::util::Point>> poisonedCocktails; // initially no cocktails are poisoned
 
             // TODO set / remove property ClammyClothes during game
             std::map<spy::util::UUID, std::set<spy::character::PropertyEnum>> properties; // initially set by Hello Reply message
