@@ -42,7 +42,7 @@ namespace libclient::model {
              * @param r role of client
              * @return true if role is player1
              */
-            bool amIPlayer1(spy::network::RoleEnum r);
+            bool amIPlayer1();
     };
 }
 

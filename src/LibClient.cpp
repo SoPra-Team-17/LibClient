@@ -217,7 +217,7 @@ namespace libclient {
         if (model->clientState.role == spy::network::RoleEnum::SPECTATOR) {
             return std::nullopt;
         }
-        return model->clientState.amIPlayer1(model->clientState.role);
+        return model->clientState.amIPlayer1();
     }
 
     auto

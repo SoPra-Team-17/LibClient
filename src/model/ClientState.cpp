@@ -6,7 +6,7 @@
 
 namespace libclient::model {
 
-    bool ClientState::amIPlayer1(spy::network::RoleEnum r) {
+    bool ClientState::amIPlayer1() {
         return id.value() == playerOneId;
     }
 

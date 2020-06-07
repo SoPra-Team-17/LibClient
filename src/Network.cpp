@@ -117,7 +117,7 @@ namespace libclient {
 
                 if (model->clientState.role != spy::network::RoleEnum::SPECTATOR) {
                     model->aiState.applySureInformation(model->gameState.state,
-                                                        model->clientState.amIPlayer1(model->clientState.role)
+                                                        model->clientState.amIPlayer1()
                                                         ? spy::character::FactionEnum::PLAYER1
                                                         : spy::character::FactionEnum::PLAYER2);
                 }
