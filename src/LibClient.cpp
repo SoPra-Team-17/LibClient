@@ -172,7 +172,7 @@ namespace libclient {
         return true;
     }
 
-    bool LibClient::lastOpSuccessfull() const {
+    bool LibClient::lastOpSuccessful() const {
         return model->gameState.lastOpSuccessfull;
     }
 
