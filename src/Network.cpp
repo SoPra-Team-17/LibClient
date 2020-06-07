@@ -60,6 +60,7 @@ namespace libclient {
                     model->aiState.properties[info.getCharacterId()] = info.getFeatures();
                 }
 
+                // not nice but have to iterate over enum values
                 for (int gadgetType = 1; gadgetType < 22; gadgetType++) {
                     model->aiState.unknownGadgets[std::make_shared<spy::gadget::Gadget>(
                             spy::gadget::GadgetEnum(gadgetType))];
@@ -123,21 +124,7 @@ namespace libclient {
 
                 if (state == IN_EQUIPMENTCHOICE) {
                     // first GameStatus message
-                    const auto &mo = model;
-                    auto map = model->gameState.state.getMap();
-
-                    for (auto y = 0U; y < map.getMap().size(); y++) {
-                        for (auto x = 0U; x < map.getMap().at(y).size(); x++) {
-                            auto field = (map.getField(x, y));
-                            auto gad = field.getGadget();
-                            if (gad.has_value()) {
-                                if (gad.value()->getType() != spy::gadget::GadgetEnum::COCKTAIL) {
-                                    mo->aiState.addGadget(std::make_shared<spy::gadget::Gadget>(gad.value()->getType()),
-                                                          std::nullopt);
-                                }
-                            }
-                        }
-                    }
+                    onFirstGameStatus();
                 }
 
                 state = m.getIsGameOver() ? NetworkState::GAME_OVER : NetworkState::IN_GAME;
@@ -418,5 +405,23 @@ namespace libclient {
 
     Network::NetworkState Network::getState() const {
         return state;
+    }
+
+    void Network::onFirstGameStatus() {
+        const auto &mo = model;
+        auto map = model->gameState.state.getMap();
+
+        for (auto y = 0U; y < map.getMap().size(); y++) {
+            for (auto x = 0U; x < map.getMap().at(y).size(); x++) {
+                auto field = (map.getField(x, y));
+                auto gad = field.getGadget();
+                if (gad.has_value()) {
+                    if (gad.value()->getType() != spy::gadget::GadgetEnum::COCKTAIL) {
+                        mo->aiState.addGadget(std::make_shared<spy::gadget::Gadget>(gad.value()->getType()),
+                                              std::nullopt);
+                    }
+                }
+            }
+        }
     }
 }

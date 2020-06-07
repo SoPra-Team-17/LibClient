@@ -37,12 +37,12 @@ namespace libclient::model {
             std::map<spy::network::messages::MetaInformationKey, spy::network::messages::MetaInformation::Info> information; //set by MetaInformation message
             std::optional<std::string> debugMessage; //set by every received message
 
-            bool amIPlayer1(spy::network::RoleEnum r) {
-                if (r == spy::network::RoleEnum::SPECTATOR) {
-                    return true;
-                }
-                return id.value() == playerOneId;
-            }
+            /**
+             * check if client is player1
+             * @param r role of client
+             * @return true if role is player1
+             */
+            bool amIPlayer1(spy::network::RoleEnum r);
     };
 }
 

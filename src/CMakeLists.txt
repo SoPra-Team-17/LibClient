@@ -4,6 +4,8 @@ project(SopraClient)
 set(SOURCE
         Network.cpp
         model/AIState.cpp
+        model/ClientState.cpp
+        model/GameState.cpp
         LibClient.cpp
         )
 

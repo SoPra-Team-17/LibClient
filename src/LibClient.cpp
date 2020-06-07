@@ -175,17 +175,36 @@ namespace libclient {
     bool LibClient::setFaction(spy::util::UUID id, spy::character::FactionEnum faction) {
         using namespace spy::character;
 
-        auto iAmPlayer1 = amIPlayer1();
-        if (!iAmPlayer1.has_value()) {
-            return false;
-        }
-        if (faction == FactionEnum::INVALID ||
-            faction == (iAmPlayer1.value() ? FactionEnum::PLAYER1 : FactionEnum::PLAYER2)) {
-            return false;
-        }
+        if (model->clientState.role != spy::network::RoleEnum::SPECTATOR) {
+            auto iAmPlayer1 = amIPlayer1();
+            if (!iAmPlayer1.has_value()) {
+                return false;
+            }
+            if (faction == FactionEnum::INVALID ||
+                faction == (iAmPlayer1.value() ? FactionEnum::PLAYER1 : FactionEnum::PLAYER2)) {
+                return false;
+            }
 
-        return model->aiState.addFaction(id, faction == FactionEnum::NEUTRAL ? model->aiState.npcFaction
-                                                                             : model->aiState.enemyFaction);
+            return model->aiState.addFaction(id, faction == FactionEnum::NEUTRAL ? model->aiState.npcFaction
+                                                                                 : model->aiState.enemyFaction);
+        } else {
+            // client is spectator
+            std::vector<spy::util::UUID> factionList;
+            switch (faction) {
+                case spy::character::FactionEnum::NEUTRAL:
+                    factionList = model->aiState.npcFaction;
+                    break;
+                case spy::character::FactionEnum::PLAYER1:
+                    factionList = model->aiState.myFaction;
+                    break;
+                case spy::character::FactionEnum::PLAYER2:
+                    factionList = model->aiState.enemyFaction;
+                    break;
+                default:
+                    return false;
+            }
+            return model->aiState.addFaction(id, factionList);
+        }
     }
 
     std::optional<bool> LibClient::amIPlayer1() {
@@ -193,6 +212,9 @@ namespace libclient {
             network.getState() != Network::NetworkState::IN_GAME_ACTIVE &&
             network.getState() != Network::NetworkState::PAUSE &&
             network.getState() != Network::NetworkState::GAME_OVER) {
+            return std::nullopt;
+        }
+        if (model->clientState.role == spy::network::RoleEnum::SPECTATOR) {
             return std::nullopt;
         }
         return model->clientState.amIPlayer1(model->clientState.role);

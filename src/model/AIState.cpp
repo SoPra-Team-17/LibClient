@@ -7,7 +7,6 @@
 
 namespace libclient::model {
     void AIState::applySureInformation(spy::gameplay::State &s, spy::character::FactionEnum me) {
-        // factions
         using namespace spy::character;
 
         auto handleFaction = [](std::vector<spy::util::UUID> &list, FactionEnum faction, spy::character::Character &c) {
@@ -39,34 +38,37 @@ namespace libclient::model {
         }
 
         // gadgets
-        for (auto &it : characterGadgets) {
+        for (const auto &it : characterGadgets) {
             auto c = s.getCharacters().getByUUID(it.second);
             if (c->getFaction() != me && !c->hasGadget(it.first->getType())) {
                 c->addGadget(it.first);
             }
         }
-        for (auto &it: poisonedCocktails) {
+        for (const auto &it: poisonedCocktails) {
             if (std::holds_alternative<spy::util::UUID>(it)) {
                 // character has cocktail
                 auto c = s.getCharacters().getByUUID(std::get<spy::util::UUID>(it));
-                auto cocktail = std::dynamic_pointer_cast<spy::gadget::Cocktail>(c->getGadget(spy::gadget::GadgetEnum::COCKTAIL).value());
-                cocktail->setIsPoisoned(true);
+                auto cocktail = c->getGadget(spy::gadget::GadgetEnum::COCKTAIL);
+                if (cocktail.has_value()) {
+                    std::dynamic_pointer_cast<spy::gadget::Cocktail>(cocktail.value())->setIsPoisoned(true);
+                }
             } else {
                 // cocktail is on playing field
-                auto cocktail = std::dynamic_pointer_cast<spy::gadget::Cocktail>(
-                        s.getMap().getField(std::get<spy::util::Point>(it)).getGadget().value());
-                cocktail->setIsPoisoned(true);
+                auto cocktail = s.getMap().getField(std::get<spy::util::Point>(it)).getGadget();
+                if (cocktail.has_value()) {
+                    std::dynamic_pointer_cast<spy::gadget::Cocktail>(cocktail.value())->setIsPoisoned(true);
+                }
             }
         }
     }
 
     bool AIState::addFaction(spy::util::UUID &id, std::vector<spy::util::UUID> &factionList) {
-        auto charId = std::find(factionList.begin(), factionList.end(), id);
-        if (charId == factionList.end()) {
+        auto charId = unknownFaction.find(id);
+        if (charId == unknownFaction.end()) {
             return false;
         }
-        factionList.push_back(*charId);
-        unknownFaction.erase(*charId);
+        factionList.push_back(charId->first);
+        unknownFaction.erase(charId);
         return true;
     }
 
