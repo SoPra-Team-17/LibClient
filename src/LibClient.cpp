@@ -142,7 +142,8 @@ namespace libclient {
         return model->gameState.lastActiveCharacter;
     }
 
-    const std::map<spy::network::messages::MetaInformationKey, spy::network::messages::MetaInformation::Info> &LibClient::getInformation() const {
+    const std::map<spy::network::messages::MetaInformationKey, spy::network::messages::MetaInformation::Info> &
+    LibClient::getInformation() const {
         return model->clientState.information;
     }
 
@@ -150,11 +151,12 @@ namespace libclient {
         return model->clientState.debugMessage;
     }
 
-    LibClient::LibClient(Callback* callback) : model(std::make_shared<Model>()),
-                                                               network(callback, model) {}
+    LibClient::LibClient(Callback *callback) : model(std::make_shared<Model>()),
+                                               network(callback, model) {}
 
     bool LibClient::setName(const std::string &name) {
-        if(network.getState() != Network::NetworkState::NOT_CONNECTED && network.getState() != Network::NetworkState::CONNECTED){
+        if (network.getState() != Network::NetworkState::NOT_CONNECTED &&
+            network.getState() != Network::NetworkState::CONNECTED) {
             return false;
         }
         model->clientState.name = name;
@@ -162,10 +164,19 @@ namespace libclient {
     }
 
     bool LibClient::setRole(const spy::network::RoleEnum &role) {
-        if(network.getState() != Network::NetworkState::NOT_CONNECTED && network.getState() != Network::NetworkState::CONNECTED){
+        if (network.getState() != Network::NetworkState::NOT_CONNECTED &&
+            network.getState() != Network::NetworkState::CONNECTED) {
             return false;
         }
         model->clientState.role = role;
         return true;
+    }
+
+    bool LibClient::lastOpSuccessfull() const {
+        return model->gameState.lastOpSuccessfull;
+    }
+
+    std::pair<bool, spy::util::UUID> LibClient::isEnemy() const {
+        return model->gameState.isEnemy;
     }
 }

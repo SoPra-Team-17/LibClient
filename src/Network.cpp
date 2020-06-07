@@ -99,6 +99,7 @@ namespace libclient {
                 model->gameState.operations = m.getOperations();
                 model->gameState.state = m.getState();
                 model->gameState.isGameOver = m.getIsGameOver();
+                model->gameState.handleLastClientOperation();
 
                 state = m.getIsGameOver() ? NetworkState::GAME_OVER : NetworkState::IN_GAME;
                 callback->onGameStatus();
