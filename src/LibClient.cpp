@@ -106,7 +106,7 @@ namespace libclient {
         return model->gameState.chosenGadget;
     }
 
-    const std::map<spy::util::UUID, spy::gadget::GadgetEnum> &LibClient::getEquipmentMap() const {
+    const std::map<spy::util::UUID, std::set<spy::gadget::GadgetEnum>> &LibClient::getEquipmentMap() const {
         return model->gameState.equipmentMap;
     }
 
@@ -180,7 +180,7 @@ namespace libclient {
         }
 
         return model->aiState.addFaction(id, faction == FactionEnum::NEUTRAL ? model->aiState.npcFaction
-                                                                      : model->aiState.enemyFaction);
+                                                                             : model->aiState.enemyFaction);
     }
 
     std::optional<bool> LibClient::amIPlayer1() {
@@ -190,6 +190,28 @@ namespace libclient {
             network.getState() != Network::NetworkState::GAME_OVER) {
             return std::nullopt;
         }
-        return model->clientState.id.value() == model->clientState.playerOneId;
+        return model->clientState.amIPlayer1();
+    }
+
+    auto
+    LibClient::getUnknownFactionList() -> std::map<spy::util::UUID, std::vector<std::pair<spy::character::FactionEnum, float>>> {
+        return model->aiState.unknownFaction;
+    }
+
+    std::vector<spy::util::UUID> LibClient::getMyFactionList() {
+        return model->aiState.myFaction;
+    }
+
+    std::vector<spy::util::UUID> LibClient::getEnemyFactionList() {
+        return model->aiState.enemyFaction;
+    }
+
+    std::vector<spy::util::UUID> LibClient::getNpcFactionList() {
+        return model->aiState.npcFaction;
+    }
+
+    auto
+    LibClient::getUnknownGadgetsList() -> std::unordered_map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, float>>> {
+        return model->aiState.unknownGadgets;
     }
 }

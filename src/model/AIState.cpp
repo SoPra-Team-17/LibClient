@@ -19,6 +19,7 @@ namespace libclient::model {
         };
 
         for (auto &c: s.getCharacters()) {
+            // faction
             if (handleFaction(npcFaction, FactionEnum::NEUTRAL, c)) {
                 continue;
             }
@@ -29,9 +30,12 @@ namespace libclient::model {
                               c)) {
                 continue;
             }
-        }
 
-        // TODO gadgets
+            // properties
+            c.setProperties(properties[c.getCharacterId()]);
+
+            // TODO gadgets
+        }
     }
 
     bool AIState::addFaction(spy::util::UUID &id, std::vector<spy::util::UUID> &factionList) {
@@ -41,6 +45,44 @@ namespace libclient::model {
         }
         factionList.push_back(*charId);
         unknownFaction.erase(*charId);
+        return true;
+    }
+
+    bool AIState::addGadget(const std::shared_ptr<spy::gadget::Gadget> &gadget, const std::optional<spy::util::UUID> &id) {
+        auto unknown = unknownGadgets.find(gadget);
+
+        if (id.has_value()) {
+            // add Gadget to characterGadgets list
+            if (unknown == unknownGadgets.end()) {
+                auto floor = std::find(floorGadgets.begin(), floorGadgets.end(), gadget);
+                if (floor == floorGadgets.end()) {
+                    return false;
+                }
+                // from floorGadgets list to characterGadgets list
+                characterGadgets[gadget] = id.value();
+                floorGadgets.erase(floor);
+                return true;
+            }
+            // from unknownGadgets list to characterGadgets list
+            characterGadgets[gadget] = id.value();
+            unknownGadgets.erase(unknown);
+            return true;
+        }
+
+        // add Gadget to floorGadgets list
+        if (unknown == unknownGadgets.end()) {
+            auto character = characterGadgets.find(gadget);
+            if (character == characterGadgets.end()) {
+                return false;
+            }
+            // from characterGadgets list to floorGadgets list
+            floorGadgets.push_back(gadget);
+            characterGadgets.erase(character);
+            return true;
+        }
+        // from unknownGadgets list to floorGadgets list
+        floorGadgets.push_back(gadget);
+        unknownGadgets.erase(unknown);
         return true;
     }
 

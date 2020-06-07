@@ -26,7 +26,7 @@ namespace libclient::model {
             std::vector<spy::gadget::GadgetEnum> offeredGadgets; //set by RequestItemChoice message
             std::vector<spy::util::UUID> chosenCharacter; //set by RequestEquipmentChoice message
             std::vector<spy::gadget::GadgetEnum> chosenGadget; //set by RequestEquipmentChoice message
-            std::map<spy::util::UUID, spy::gadget::GadgetEnum> equipmentMap; // set by sendEquipmentChoice method
+            std::map<spy::util::UUID, std::set<spy::gadget::GadgetEnum>> equipmentMap; // set by sendEquipmentChoice method
             std::vector<std::shared_ptr<const spy::gameplay::BaseOperation>> operations; //set by GameStatus message
             spy::gameplay::State state; //set by GameStatus message
             bool isGameOver = false; //set by GameStatus message

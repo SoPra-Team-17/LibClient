@@ -14,23 +14,26 @@
 namespace libclient::model {
     class AIState {
         public:
-            std::map<spy::util::UUID, std::vector<std::pair<spy::character::FactionEnum, float>>> unknownFaction; // set by HelloReply message
+            // TODO set unknownFaction, enemyFaction and npcFaction during game
+            std::map<spy::util::UUID, std::vector<std::pair<spy::character::FactionEnum, float>>> unknownFaction; // initially set by HelloReply message
             std::vector<spy::util::UUID> myFaction; // set by RequestEquipmentChoice message
-            std::vector<spy::util::UUID> enemyFaction; // TODO
-            std::vector<spy::util::UUID> npcFaction; // TODO
+            std::vector<spy::util::UUID> enemyFaction; // set during game
+            std::vector<spy::util::UUID> npcFaction; // set during game
 
-            // TODO gadgets
-            //unknownGadgets; // TODO GadgetObject to vector of pair(UUID, float)
-            //floorGadget; // TODO GadgetObject to Point
-            //myGadgets; // TODO GadgetObject to UUID
-            //otherGadget; // TODO GadgetObject to UUID
-            // TODO helper to get GadgetObject by GadgetType -> no real map ! -> struct ?
+            // TODO what about Cocktails (Cocktails should be visible but what about poisoned???!!!)
+            // TODO set unknownGadgets, floorGadgets and characterGadgets during game
+            std::unordered_map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, float>>> unknownGadgets; // initially set by HelloReply message
+            std::unordered_map<std::shared_ptr<spy::gadget::Gadget>, spy::util::UUID> characterGadgets; // initially set by sendEquipmentChoice method
+            std::vector<std::shared_ptr<spy::gadget::Gadget>> floorGadgets; // initially set by first GameStatus message
 
-            // TODO getter for AI and Client
+            // TODO set / remove property ClammyClothes during game
+            std::map<spy::util::UUID, std::set<spy::character::PropertyEnum>> properties; // initially set by Hello Reply message
 
             void applySureInformation(spy::gameplay::State &s, spy::character::FactionEnum me); // done by GameStatus message
 
             bool addFaction(spy::util::UUID &id, std::vector<spy::util::UUID> &factionList);
+
+            bool addGadget(const std::shared_ptr<spy::gadget::Gadget> &gadget, const std::optional<spy::util::UUID> &id);
     };
 }
 

@@ -74,7 +74,7 @@ namespace libclient {
 
             [[nodiscard]] const std::vector<spy::gadget::GadgetEnum> &getChosenGadgets() const;
 
-            [[nodiscard]] const std::map<spy::util::UUID, spy::gadget::GadgetEnum> &getEquipmentMap() const;
+            [[nodiscard]] const std::map<spy::util::UUID, std::set<spy::gadget::GadgetEnum>>  &getEquipmentMap() const;
 
             [[nodiscard]] const std::vector<std::shared_ptr<const spy::gameplay::BaseOperation>> &getOperations() const;
 
@@ -99,6 +99,16 @@ namespace libclient {
             bool setFaction(spy::util::UUID id, spy::character::FactionEnum faction);
 
             std::optional<bool> amIPlayer1();
+
+            auto getUnknownFactionList() -> std::map<spy::util::UUID, std::vector<std::pair<spy::character::FactionEnum, float>>>;
+
+            std::vector<spy::util::UUID> getMyFactionList();
+
+            std::vector<spy::util::UUID> getEnemyFactionList();
+
+            std::vector<spy::util::UUID> getNpcFactionList();
+
+            auto getUnknownGadgetsList() -> std::unordered_map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, float>>>;
     };
 
 }

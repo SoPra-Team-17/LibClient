@@ -36,6 +36,10 @@ namespace libclient::model {
             std::string strikeReason; //set by Strike message
             std::map<spy::network::messages::MetaInformationKey, spy::network::messages::MetaInformation::Info> information; //set by MetaInformation message
             std::optional<std::string> debugMessage; //set by every received message
+
+            bool amIPlayer1() {
+                return id.value() == playerOneId;
+            }
     };
 }
 

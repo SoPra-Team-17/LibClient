@@ -55,8 +55,14 @@ namespace libclient {
                 model->gameState.settings = m.getSettings();
                 model->gameState.characterSettings = m.getCharacterSettings();
 
-                for (const auto& info: model->gameState.characterSettings) {
+                for (const auto &info: model->gameState.characterSettings) {
                     model->aiState.unknownFaction[info.getCharacterId()];
+                    model->aiState.properties[info.getCharacterId()] = info.getFeatures();
+                }
+
+                for (int gadgetType = 1; gadgetType < 22; gadgetType++) {
+                    model->aiState.unknownGadgets[std::make_shared<spy::gadget::Gadget>(
+                            spy::gadget::GadgetEnum(gadgetType))];
                 }
 
                 state = NetworkState::WELCOMED;
@@ -107,7 +113,22 @@ namespace libclient {
                 model->gameState.operations = m.getOperations();
                 model->gameState.state = m.getState();
                 model->gameState.isGameOver = m.getIsGameOver();
-                model->aiState.applySureInformation(model->gameState.state);
+                model->aiState.applySureInformation(model->gameState.state,
+                                                    model->clientState.amIPlayer1()
+                                                    ? spy::character::FactionEnum::PLAYER1
+                                                    : spy::character::FactionEnum::PLAYER2);
+
+                if (state == IN_EQUIPMENTCHOICE) {
+                    const auto &mo = model;
+                    // first GameStatus message
+                    model->gameState.state.getMap().forAllFields([&mo](const spy::scenario::Field &field) {
+                        auto gad = field.getGadget();
+                        if (gad.has_value()) {
+                            mo->aiState.addGadget(std::make_shared<spy::gadget::Gadget>(gad.value()->getType()),
+                                                  std::nullopt);
+                        }
+                    });
+                }
 
                 state = m.getIsGameOver() ? NetworkState::GAME_OVER : NetworkState::IN_GAME;
                 callback->onGameStatus();
@@ -281,12 +302,19 @@ namespace libclient {
         if (state != NetworkState::IN_EQUIPMENTCHOICE) {
             return false;
         }
-        auto message = spy::network::messages::EquipmentChoice(model->clientState.id.value(), std::move(equipment));
+        auto message = spy::network::messages::EquipmentChoice(model->clientState.id.value(), equipment);
         if (!message.validate(model->clientState.role, model->gameState.chosenCharacter,
                               model->gameState.chosenGadget)) {
             return false;
         }
+
         model->gameState.equipmentMap = equipment;
+        for (auto it = equipment.begin(); it != equipment.end(); it++) {
+            for (auto gadgetType: it->second) {
+                model->aiState.addGadget(std::make_shared<spy::gadget::Gadget>(gadgetType), it->first);
+            }
+        }
+
         nlohmann::json j = message;
         webSocketClient->send(j.dump());
         return true;
