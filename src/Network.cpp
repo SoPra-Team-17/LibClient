@@ -113,10 +113,13 @@ namespace libclient {
                 model->gameState.operations = m.getOperations();
                 model->gameState.state = m.getState();
                 model->gameState.isGameOver = m.getIsGameOver();
-                model->aiState.applySureInformation(model->gameState.state,
-                                                    model->clientState.amIPlayer1()
-                                                    ? spy::character::FactionEnum::PLAYER1
-                                                    : spy::character::FactionEnum::PLAYER2);
+
+                if (model->clientState.role == spy::network::RoleEnum::PLAYER) {
+                    model->aiState.applySureInformation(model->gameState.state,
+                                                        model->clientState.amIPlayer1()
+                                                        ? spy::character::FactionEnum::PLAYER1
+                                                        : spy::character::FactionEnum::PLAYER2);
+                }
 
                 if (state == IN_EQUIPMENTCHOICE) {
                     // first GameStatus message

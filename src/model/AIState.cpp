@@ -33,13 +33,17 @@ namespace libclient::model {
             }
 
             // properties
-            c.setProperties(properties[c.getCharacterId()]);
+            if (c.getFaction() != me) {
+                c.setProperties(properties[c.getCharacterId()]);
+            }
         }
 
         // gadgets
         for (auto &it : characterGadgets) {
             auto c = s.getCharacters().getByUUID(it.second);
-            c->addGadget(it.first);
+            if (c->getFaction() != me && !c->hasGadget(it.first->getType())) {
+                c->addGadget(it.first);
+            }
         }
         for (auto &it: poisonedCocktails) {
             if (std::holds_alternative<spy::util::UUID>(it)) {
