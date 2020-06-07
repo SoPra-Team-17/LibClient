@@ -35,7 +35,7 @@ namespace libclient::model {
             std::optional<spy::statistics::VictoryEnum> winningReason; //set by Statistics message
             bool hasReplay = false; //set by Statistics message
             spy::util::UUID lastActiveCharacter; //set by GameStatusMessage
-            bool lastOpSuccessfull = false; // set by GameStatusMessage
+            bool lastOpSuccessful = false; // set by GameStatusMessage
             std::pair<bool, spy::util::UUID> isEnemy;    // set by GameStatusMessage
 
             /**
