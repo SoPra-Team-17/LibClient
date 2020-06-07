@@ -45,7 +45,7 @@ void libclient::model::GameState::handleLastClientOperation() {
             return;
         }
 
-        this->lastOpSuccessfull = character_op->isSuccessful();
+        this->lastOpSuccessful = character_op->isSuccessful();
 
         // if observation was used, set pair of <isEnemy, UUID of observed char>
         if (character_op->getType() == OperationEnum::PROPERTY_ACTION) {
