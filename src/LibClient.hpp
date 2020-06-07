@@ -95,7 +95,7 @@ namespace libclient {
 
             [[nodiscard]] std::pair<bool, spy::util::UUID> isEnemy() const;
 
-            [[nodiscard]] bool lastOpSuccessfull() const;
+            [[nodiscard]] bool lastOpSuccessful() const;
 
             bool setName(const std::string &name);
 
