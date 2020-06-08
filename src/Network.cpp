@@ -55,6 +55,17 @@ namespace libclient {
                 model->gameState.settings = m.getSettings();
                 model->gameState.characterSettings = m.getCharacterSettings();
 
+                for (const auto &info: model->gameState.characterSettings) {
+                    model->aiState.unknownFaction[info.getCharacterId()];
+                    model->aiState.properties[info.getCharacterId()] = info.getFeatures();
+                }
+
+                // not nice but have to iterate over enum values
+                for (int gadgetType = 1; gadgetType < 22; gadgetType++) {
+                    model->aiState.unknownGadgets[std::make_shared<spy::gadget::Gadget>(
+                            spy::gadget::GadgetEnum(gadgetType))];
+                }
+
                 state = NetworkState::WELCOMED;
                 callback->onHelloReply();
                 break;
@@ -89,6 +100,10 @@ namespace libclient {
                 model->gameState.chosenCharacter = m.getChosenCharacterIds();
                 model->gameState.chosenGadget = m.getChosenGadgets();
 
+                for (const auto c: model->gameState.chosenCharacter) {
+                    model->aiState.addFaction(c, model->aiState.myFaction);
+                }
+
                 state = NetworkState::IN_EQUIPMENTCHOICE;
                 callback->onRequestEquipmentChoice();
                 break;
@@ -100,6 +115,18 @@ namespace libclient {
                 model->gameState.state = m.getState();
                 model->gameState.isGameOver = m.getIsGameOver();
                 model->gameState.handleLastClientOperation();
+
+                if (model->clientState.role != spy::network::RoleEnum::SPECTATOR) {
+                    model->aiState.applySureInformation(model->gameState.state,
+                                                        model->clientState.amIPlayer1()
+                                                        ? spy::character::FactionEnum::PLAYER1
+                                                        : spy::character::FactionEnum::PLAYER2);
+                }
+
+                if (state == IN_EQUIPMENTCHOICE) {
+                    // first GameStatus message
+                    onFirstGameStatus();
+                }
 
                 state = m.getIsGameOver() ? NetworkState::GAME_OVER : NetworkState::IN_GAME;
                 callback->onGameStatus();
@@ -273,11 +300,19 @@ namespace libclient {
         if (state != NetworkState::IN_EQUIPMENTCHOICE) {
             return false;
         }
-        auto message = spy::network::messages::EquipmentChoice(model->clientState.id.value(), std::move(equipment));
+        auto message = spy::network::messages::EquipmentChoice(model->clientState.id.value(), equipment);
         if (!message.validate(model->clientState.role, model->gameState.chosenCharacter,
                               model->gameState.chosenGadget)) {
             return false;
         }
+
+        model->gameState.equipmentMap = equipment;
+        for (auto &it : equipment) {
+            for (auto gadgetType: it.second) {
+                model->aiState.addGadget(std::make_shared<spy::gadget::Gadget>(gadgetType), it.first);
+            }
+        }
+
         nlohmann::json j = message;
         webSocketClient->send(j.dump());
         return true;
@@ -371,5 +406,23 @@ namespace libclient {
 
     Network::NetworkState Network::getState() const {
         return state;
+    }
+
+    void Network::onFirstGameStatus() {
+        const auto &mo = model;
+        auto map = model->gameState.state.getMap();
+
+        for (auto y = 0U; y < map.getMap().size(); y++) {
+            for (auto x = 0U; x < map.getMap().at(y).size(); x++) {
+                auto field = (map.getField(x, y));
+                auto gad = field.getGadget();
+                if (gad.has_value()) {
+                    if (gad.value()->getType() != spy::gadget::GadgetEnum::COCKTAIL) {
+                        mo->aiState.addGadget(std::make_shared<spy::gadget::Gadget>(gad.value()->getType()),
+                                              std::nullopt);
+                    }
+                }
+            }
+        }
     }
 }

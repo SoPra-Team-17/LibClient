@@ -118,7 +118,7 @@ namespace libclient {
         return model->gameState.chosenGadget;
     }
 
-    const std::map<spy::util::UUID, spy::gadget::GadgetEnum> &LibClient::getEquipmentMap() const {
+    const std::map<spy::util::UUID, std::set<spy::gadget::GadgetEnum>> &LibClient::getEquipmentMap() const {
         return model->gameState.equipmentMap;
     }
 
@@ -184,6 +184,76 @@ namespace libclient {
         return true;
     }
 
+    bool LibClient::setFaction(spy::util::UUID id, spy::character::FactionEnum faction) {
+        using namespace spy::character;
+
+        if (model->clientState.role != spy::network::RoleEnum::SPECTATOR) {
+            auto iAmPlayer1 = amIPlayer1();
+            if (!iAmPlayer1.has_value()) {
+                return false;
+            }
+            if (faction == FactionEnum::INVALID ||
+                faction == (iAmPlayer1.value() ? FactionEnum::PLAYER1 : FactionEnum::PLAYER2)) {
+                return false;
+            }
+
+            return model->aiState.addFaction(id, faction == FactionEnum::NEUTRAL ? model->aiState.npcFaction
+                                                                                 : model->aiState.enemyFaction);
+        } else {
+            // client is spectator
+            std::vector<spy::util::UUID> factionList;
+            switch (faction) {
+                case spy::character::FactionEnum::NEUTRAL:
+                    factionList = model->aiState.npcFaction;
+                    break;
+                case spy::character::FactionEnum::PLAYER1:
+                    factionList = model->aiState.myFaction;
+                    break;
+                case spy::character::FactionEnum::PLAYER2:
+                    factionList = model->aiState.enemyFaction;
+                    break;
+                default:
+                    return false;
+            }
+            return model->aiState.addFaction(id, factionList);
+        }
+    }
+
+    std::optional<bool> LibClient::amIPlayer1() {
+        if (network.getState() != Network::NetworkState::IN_GAME &&
+            network.getState() != Network::NetworkState::IN_GAME_ACTIVE &&
+            network.getState() != Network::NetworkState::PAUSE &&
+            network.getState() != Network::NetworkState::GAME_OVER) {
+            return std::nullopt;
+        }
+        if (model->clientState.role == spy::network::RoleEnum::SPECTATOR) {
+            return std::nullopt;
+        }
+        return model->clientState.amIPlayer1();
+    }
+
+    auto
+    LibClient::getUnknownFactionList() -> std::map<spy::util::UUID, std::vector<std::pair<spy::character::FactionEnum, float>>> {
+        return model->aiState.unknownFaction;
+    }
+
+    std::vector<spy::util::UUID> LibClient::getMyFactionList() {
+        return model->aiState.myFaction;
+    }
+
+    std::vector<spy::util::UUID> LibClient::getEnemyFactionList() {
+        return model->aiState.enemyFaction;
+    }
+
+    std::vector<spy::util::UUID> LibClient::getNpcFactionList() {
+        return model->aiState.npcFaction;
+    }
+
+    auto
+    LibClient::getUnknownGadgetsList() -> std::unordered_map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, float>>> {
+        return model->aiState.unknownGadgets;
+    }
+  
     std::string LibClient::operationToString(const std::shared_ptr<const spy::gameplay::BaseOperation> op) const {
         using spy::gameplay::OperationEnum;
 

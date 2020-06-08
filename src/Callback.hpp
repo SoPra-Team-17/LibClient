@@ -13,6 +13,7 @@ namespace libclient {
     /**
      * Client has to implement class that has Callback as parent.
      * This class has to implement all pure virtual methods declared in Callback.
+     * method naming pattern: onMessage() with Message being the type of Message received
      */
     class Callback {
         public:
@@ -44,6 +45,9 @@ namespace libclient {
 
             virtual void onReplay() = 0;
 
+            /**
+             * called when client looses connection to server
+             */
             virtual void connectionLost() = 0;
 
             /**

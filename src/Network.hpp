@@ -22,6 +22,10 @@
 
 namespace libclient {
 
+    /**
+     * implements Network interface for Clients
+     * method naming pattern: sendMessage(...) with Message being the type of Message to send
+     */
     class Network {
         public:
             enum NetworkState {
@@ -84,6 +88,11 @@ namespace libclient {
              * function to handle connection lost
              */
             void onClose();
+
+            /**
+             * sets fields in AIState initially
+             */
+            void onFirstGameStatus();
     };
 }
 

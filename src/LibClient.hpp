@@ -75,7 +75,7 @@ namespace libclient {
 
             [[nodiscard]] const std::vector<spy::gadget::GadgetEnum> &getChosenGadgets() const;
 
-            [[nodiscard]] const std::map<spy::util::UUID, spy::gadget::GadgetEnum> &getEquipmentMap() const;
+            [[nodiscard]] const std::map<spy::util::UUID, std::set<spy::gadget::GadgetEnum>>  &getEquipmentMap() const;
 
             [[nodiscard]] const std::vector<std::shared_ptr<const spy::gameplay::BaseOperation>> &getOperations() const;
 
@@ -93,13 +93,47 @@ namespace libclient {
 
             [[nodiscard]] const spy::util::UUID &getLastActiveCharacter() const;
 
+            /**
+             * set name of client
+             * @param name name of client to be sent to server
+             * @return true if setting worked (depends on network state)
+             */
+            bool setName(const std::string &name);
+      
             [[nodiscard]] std::optional<std::pair<bool, spy::util::UUID>> isEnemy() const;
 
             [[nodiscard]] bool lastOpSuccessful() const;
 
-            bool setName(const std::string &name);
-
+            /**
+             * set role of client
+             * @param role role of client to be sent to server
+             * @return true if setting worked (depends on network state)
+             */
             bool setRole(const spy::network::RoleEnum &role);
+
+            /**
+             * checks if client is player1
+             * @return nullopt for spectator or if state is not valid
+             */
+            [[nodiscard]] std::optional<bool> amIPlayer1();
+      
+            /**
+             * @brief sets Faction of given character
+             * @param id id of the client to set faction
+             * @param facrion faction to be set to characer
+             * @return true if setting was successfull (depends on network state and client role)
+             */
+            bool setFaction(spy::util::UUID id, spy::character::FactionEnum faction);
+
+            [[nodiscard]] auto getUnknownFactionList() -> std::map<spy::util::UUID, std::vector<std::pair<spy::character::FactionEnum, float>>>;
+
+            [[nodiscard]] std::vector<spy::util::UUID> getMyFactionList();
+
+            [[nodiscard]] std::vector<spy::util::UUID> getEnemyFactionList();
+
+            [[nodiscard]] std::vector<spy::util::UUID> getNpcFactionList();
+
+            [[nodiscard]] auto getUnknownGadgetsList() -> std::unordered_map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, float>>>;
 
             /**
              * @brief       creates information string about an operation

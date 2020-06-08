@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 project(SopraClient)
 
 set(SOURCE
-        model/Model.cpp
         Network.cpp
+        model/AIState.cpp
         model/ClientState.cpp
         model/GameState.cpp
         LibClient.cpp

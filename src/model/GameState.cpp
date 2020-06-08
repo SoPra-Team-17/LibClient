@@ -1,9 +1,6 @@
-/**
- * @file    GameState.cpp
- * @author  Marco
- * @date    14.04.2020 (creation)
- * @brief   Implementation of GameState
- */
+//
+// Created by Carolin on 07.06.2020.
+//
 
 #include "GameState.hpp"
 #include "datatypes/gameplay/OperationEnum.hpp"
