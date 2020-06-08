@@ -22,6 +22,10 @@
 
 namespace libclient {
 
+    /**
+     * implements Network interface for Clients
+     * method naming pattern: sendMessage(...) with Message being the type of Message to send
+     */
     class Network {
         public:
             enum NetworkState {

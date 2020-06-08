@@ -92,12 +92,26 @@ namespace libclient {
       
             [[nodiscard]] const spy::util::UUID &getLastActiveCharacter() const;
 
+            /**
+             * set name of client
+             * @param name name of client to be sent to server
+             * @return true if setting worked (depends on network state)
+             */
             bool setName(const std::string &name);
 
+            /**
+             * set role of client
+             * @param role role of client to be sent to server
+             * @return true if setting worked (depends on network state)
+             */
             bool setRole(const spy::network::RoleEnum &role);
 
             bool setFaction(spy::util::UUID id, spy::character::FactionEnum faction);
 
+            /**
+             * checks if client is player1
+             * @return nullopt for spectator or if state is not valid
+             */
             std::optional<bool> amIPlayer1();
 
             auto getUnknownFactionList() -> std::map<spy::util::UUID, std::vector<std::pair<spy::character::FactionEnum, float>>>;
