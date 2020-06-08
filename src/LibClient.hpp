@@ -17,13 +17,13 @@ namespace libclient {
         private:
             std::shared_ptr<libclient::Model> model;
         public:
-            explicit LibClient(Callback* callback);
+            explicit LibClient(Callback *callback);
 
             libclient::Network network;
 
 
             [[nodiscard]] const std::optional<spy::util::UUID> &getId() const;
-      
+
             [[nodiscard]] const std::string &getName() const;
 
             [[nodiscard]] bool isConnected() const;
@@ -55,8 +55,9 @@ namespace libclient {
             [[nodiscard]] const unsigned int &getStrikeMax() const;
 
             [[nodiscard]] const std::string &getStrikeReason() const;
-      
-            [[nodiscard]] const std::map<spy::network::messages::MetaInformationKey, spy::network::messages::MetaInformation::Info> &getInformation() const;
+
+            [[nodiscard]] const std::map<spy::network::messages::MetaInformationKey, spy::network::messages::MetaInformation::Info> &
+            getInformation() const;
 
             [[nodiscard]] const std::optional<std::string> &getDebugMessage() const;
 
@@ -87,14 +88,22 @@ namespace libclient {
             [[nodiscard]] const std::optional<spy::statistics::Statistics> &getStatistics() const;
 
             [[nodiscard]] const std::optional<spy::statistics::VictoryEnum> &getWinningReason() const;
-      
+
             [[nodiscard]] bool hasReplay() const;
-      
+
             [[nodiscard]] const spy::util::UUID &getLastActiveCharacter() const;
 
             bool setName(const std::string &name);
 
             bool setRole(const spy::network::RoleEnum &role);
+
+            /**
+             * @brief       creates information string about an operation
+             * @notes       client wants to display information about a operation, but can't pointer cast
+             * @param op    operation, from which info is extracted
+             * @return      std::string containing info
+             */
+            [[nodiscard]] std::string operationToString(const std::shared_ptr<spy::gameplay::BaseOperation> &op) const;
     };
 
 }
