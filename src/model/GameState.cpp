@@ -55,11 +55,14 @@ void libclient::model::GameState::handleLastClientOperation() {
             if (property_op->getUsedProperty() != spy::character::PropertyEnum::OBSERVATION) {
                 return;
             }
-            this->isEnemy->first = property_op->getIsEnemy().value();
-            this->isEnemy->second = spy::util::GameLogicUtils::findInCharacterSetByCoordinates(
-                    this->state.getCharacters(), property_op->getTarget())->getCharacterId();
-        }
 
+            if (property_op->getIsEnemy().has_value()) {
+                bool enemy = property_op->getIsEnemy().value();
+                spy::util::UUID id = spy::util::GameLogicUtils::findInCharacterSetByCoordinates(state.getCharacters(),
+                                                                                                property_op->getTarget())->getCharacterId();
+                this->isEnemy = std::pair<bool, spy::util::UUID>(enemy, id);
+            }
+        }
     }
 
 }
