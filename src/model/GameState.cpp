@@ -46,6 +46,7 @@ void libclient::model::GameState::handleLastClientOperation() {
         }
 
         this->lastOpSuccessful = character_op->isSuccessful();
+        this->isEnemy = std::nullopt;
 
         // if observation was used, set pair of <isEnemy, UUID of observed char>
         if (character_op->getType() == OperationEnum::PROPERTY_ACTION) {
@@ -54,9 +55,8 @@ void libclient::model::GameState::handleLastClientOperation() {
             if (property_op->getUsedProperty() != spy::character::PropertyEnum::OBSERVATION) {
                 return;
             }
-
-            this->isEnemy.first = property_op->getIsEnemy().value();
-            this->isEnemy.second = spy::util::GameLogicUtils::findInCharacterSetByCoordinates(
+            this->isEnemy->first = property_op->getIsEnemy().value();
+            this->isEnemy->second = spy::util::GameLogicUtils::findInCharacterSetByCoordinates(
                     this->state.getCharacters(), property_op->getTarget())->getCharacterId();
         }
 
