@@ -17,13 +17,13 @@ namespace libclient {
         private:
             std::shared_ptr<libclient::Model> model;
         public:
-            explicit LibClient(Callback* callback);
+            explicit LibClient(Callback *callback);
 
             libclient::Network network;
 
 
             [[nodiscard]] const std::optional<spy::util::UUID> &getId() const;
-      
+
             [[nodiscard]] const std::string &getName() const;
 
             [[nodiscard]] bool isConnected() const;
@@ -55,8 +55,9 @@ namespace libclient {
             [[nodiscard]] const unsigned int &getStrikeMax() const;
 
             [[nodiscard]] const std::string &getStrikeReason() const;
-      
-            [[nodiscard]] const std::map<spy::network::messages::MetaInformationKey, spy::network::messages::MetaInformation::Info> &getInformation() const;
+
+            [[nodiscard]] const std::map<spy::network::messages::MetaInformationKey, spy::network::messages::MetaInformation::Info> &
+            getInformation() const;
 
             [[nodiscard]] const std::optional<std::string> &getDebugMessage() const;
 
@@ -87,9 +88,9 @@ namespace libclient {
             [[nodiscard]] const std::optional<spy::statistics::Statistics> &getStatistics() const;
 
             [[nodiscard]] const std::optional<spy::statistics::VictoryEnum> &getWinningReason() const;
-      
+
             [[nodiscard]] bool hasReplay() const;
-      
+
             [[nodiscard]] const spy::util::UUID &getLastActiveCharacter() const;
 
             /**
@@ -98,6 +99,10 @@ namespace libclient {
              * @return true if setting worked (depends on network state)
              */
             bool setName(const std::string &name);
+      
+            [[nodiscard]] std::optional<std::pair<bool, spy::util::UUID>> isEnemy() const;
+
+            [[nodiscard]] bool lastOpSuccessful() const;
 
             /**
              * set role of client
@@ -106,23 +111,37 @@ namespace libclient {
              */
             bool setRole(const spy::network::RoleEnum &role);
 
-            bool setFaction(spy::util::UUID id, spy::character::FactionEnum faction);
-
             /**
              * checks if client is player1
              * @return nullopt for spectator or if state is not valid
              */
-            std::optional<bool> amIPlayer1();
+            [[nodiscard]] std::optional<bool> amIPlayer1();
+      
+            /**
+             * @brief sets Faction of given character
+             * @param id id of the client to set faction
+             * @param facrion faction to be set to characer
+             * @return true if setting was successfull (depends on network state and client role)
+             */
+            bool setFaction(spy::util::UUID id, spy::character::FactionEnum faction);
 
-            auto getUnknownFactionList() -> std::map<spy::util::UUID, std::vector<std::pair<spy::character::FactionEnum, float>>>;
+            [[nodiscard]] auto getUnknownFactionList() -> std::map<spy::util::UUID, std::vector<std::pair<spy::character::FactionEnum, float>>>;
 
-            std::vector<spy::util::UUID> getMyFactionList();
+            [[nodiscard]] std::vector<spy::util::UUID> getMyFactionList();
 
-            std::vector<spy::util::UUID> getEnemyFactionList();
+            [[nodiscard]] std::vector<spy::util::UUID> getEnemyFactionList();
 
-            std::vector<spy::util::UUID> getNpcFactionList();
+            [[nodiscard]] std::vector<spy::util::UUID> getNpcFactionList();
 
-            auto getUnknownGadgetsList() -> std::unordered_map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, float>>>;
+            [[nodiscard]] auto getUnknownGadgetsList() -> std::unordered_map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, float>>>;
+
+            /**
+             * @brief       creates information string about an operation
+             * @notes       client wants to display information about a operation, but can't pointer cast
+             * @param op    operation, from which info is extracted
+             * @return      std::string containing info
+             */
+            [[nodiscard]] std::string operationToString(const std::shared_ptr<const spy::gameplay::BaseOperation> op) const;
     };
 
 }

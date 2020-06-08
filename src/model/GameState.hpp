@@ -35,6 +35,15 @@ namespace libclient::model {
             std::optional<spy::statistics::VictoryEnum> winningReason; //set by Statistics message
             bool hasReplay = false; //set by Statistics message
             spy::util::UUID lastActiveCharacter; //set by GameStatusMessage
+            bool lastOpSuccessful = false; // set by GameStatusMessage
+            std::optional<std::pair<bool, spy::util::UUID>> isEnemy;    // set by GameStatusMessage
+
+            /**
+             * @brief   Helper function for client, to check if the last operation by the client was successfull
+             * @note    To determine success a dynamic ptr cast is needed, which I wasn't able to achieve through cppyy
+             * @author  Marco Deuscher
+             */
+            void handleLastClientOperation();
     };
 
 }

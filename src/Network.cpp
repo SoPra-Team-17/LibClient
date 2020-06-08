@@ -114,6 +114,7 @@ namespace libclient {
                 model->gameState.operations = m.getOperations();
                 model->gameState.state = m.getState();
                 model->gameState.isGameOver = m.getIsGameOver();
+                model->gameState.handleLastClientOperation();
 
                 if (model->clientState.role != spy::network::RoleEnum::SPECTATOR) {
                     model->aiState.applySureInformation(model->gameState.state,
