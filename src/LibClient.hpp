@@ -100,6 +100,14 @@ namespace libclient {
             bool setName(const std::string &name);
 
             bool setRole(const spy::network::RoleEnum &role);
+
+            /**
+             * @brief       creates information string about an operation
+             * @notes       client wants to display information about a operation, but can't pointer cast
+             * @param op    operation, from which info is extracted
+             * @return      std::string containing info
+             */
+            [[nodiscard]] std::string operationToString(const std::shared_ptr<const spy::gameplay::BaseOperation> op) const;
     };
 
 }
