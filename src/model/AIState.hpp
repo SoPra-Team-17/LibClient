@@ -45,7 +45,7 @@ namespace libclient::model {
              * @param factionList list that character should be moved to
              * @return true if method was successful
              */
-            bool addFaction(spy::util::UUID &id, std::vector<spy::util::UUID> &factionList);
+            bool addFaction(const spy::util::UUID &id, std::vector<spy::util::UUID> &factionList);
 
             /**
              * moves gadget from unkownGadgets list to characterGadgets or floorGadgets

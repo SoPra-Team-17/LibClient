@@ -100,7 +100,7 @@ namespace libclient {
                 model->gameState.chosenCharacter = m.getChosenCharacterIds();
                 model->gameState.chosenGadget = m.getChosenGadgets();
 
-                for (auto c: model->gameState.chosenCharacter) {
+                for (const auto c: model->gameState.chosenCharacter) {
                     model->aiState.addFaction(c, model->aiState.myFaction);
                 }
 

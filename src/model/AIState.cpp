@@ -62,7 +62,7 @@ namespace libclient::model {
         }
     }
 
-    bool AIState::addFaction(spy::util::UUID &id, std::vector<spy::util::UUID> &factionList) {
+    bool AIState::addFaction(const spy::util::UUID &id, std::vector<spy::util::UUID> &factionList) {
         auto charId = unknownFaction.find(id);
         if (charId == unknownFaction.end()) {
             return false;
