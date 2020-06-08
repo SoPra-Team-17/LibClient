@@ -184,7 +184,7 @@ namespace libclient {
         return true;
     }
 
-    std::string LibClient::operationToString(const std::shared_ptr<spy::gameplay::BaseOperation> &op) const {
+    std::string LibClient::operationToString(const std::shared_ptr<const spy::gameplay::BaseOperation> op) const {
         using spy::gameplay::OperationEnum;
 
         std::string operationString;
