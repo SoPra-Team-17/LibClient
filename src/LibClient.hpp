@@ -107,7 +107,7 @@ namespace libclient {
              * @param op    operation, from which info is extracted
              * @return      std::string containing info
              */
-            [[nodiscard]] std::string operationToString(const std::shared_ptr<spy::gameplay::BaseOperation> &op) const;
+            [[nodiscard]] std::string operationToString(const std::shared_ptr<const spy::gameplay::BaseOperation> op) const;
     };
 
 }

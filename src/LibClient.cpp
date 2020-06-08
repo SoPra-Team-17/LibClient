@@ -201,7 +201,7 @@ namespace libclient {
                                      operationType == OperationEnum::CAT_ACTION or
                                      operationType == OperationEnum::JANITOR_ACTION);
         if (isCharacterAction) {
-            auto characterOperation = std::dynamic_pointer_cast<spy::gameplay::CharacterOperation>(op);
+            auto characterOperation = std::dynamic_pointer_cast<const spy::gameplay::CharacterOperation>(op);
             auto executingCharInfo = std::find_if(characterInformation.begin(), characterInformation.end(),
                                                   [characterOperation](const spy::character::CharacterInformation &ci) {
                                                       return characterOperation->getCharacterId() ==
@@ -215,7 +215,7 @@ namespace libclient {
             case OperationEnum::INVALID:
                 break;
             case OperationEnum::GADGET_ACTION: {
-                auto gadgetOperation = std::dynamic_pointer_cast<spy::gameplay::GadgetAction>(op);
+                auto gadgetOperation = std::dynamic_pointer_cast<const spy::gameplay::GadgetAction>(op);
 
                 auto gadgetType = gadgetOperation->getGadget();
                 nlohmann::json gadgetTypeJson = gadgetType;
@@ -231,7 +231,7 @@ namespace libclient {
                 break;
             }
             case OperationEnum::SPY_ACTION: {
-                auto spyOperation = std::dynamic_pointer_cast<spy::gameplay::SpyAction>(op);
+                auto spyOperation = std::dynamic_pointer_cast<const spy::gameplay::SpyAction>(op);
 
                 auto targetCoords = spyOperation->getTarget();
 
@@ -241,7 +241,7 @@ namespace libclient {
                 break;
             }
             case OperationEnum::GAMBLE_ACTION: {
-                auto gambleOperation = std::dynamic_pointer_cast<spy::gameplay::GambleAction>(op);
+                auto gambleOperation = std::dynamic_pointer_cast<const spy::gameplay::GambleAction>(op);
 
                 auto targetCoords = gambleOperation->getTarget();
 
@@ -251,7 +251,7 @@ namespace libclient {
                 break;
             }
             case OperationEnum::PROPERTY_ACTION: {
-                auto propertyOperation = std::dynamic_pointer_cast<spy::gameplay::PropertyAction>(op);
+                auto propertyOperation = std::dynamic_pointer_cast<const spy::gameplay::PropertyAction>(op);
 
                 nlohmann::json propertyJson = propertyOperation->getUsedProperty();
                 std::string propertyString = propertyJson.dump();
@@ -268,7 +268,7 @@ namespace libclient {
                 break;
             }
             case OperationEnum::MOVEMENT: {
-                auto movementOperation = std::dynamic_pointer_cast<spy::gameplay::Movement>(op);
+                auto movementOperation = std::dynamic_pointer_cast<const spy::gameplay::Movement>(op);
 
                 auto from = movementOperation->getFrom();
                 auto to = movementOperation->getTarget();
@@ -279,21 +279,21 @@ namespace libclient {
                 break;
             }
             case OperationEnum::CAT_ACTION: {
-                auto catOperation = std::dynamic_pointer_cast<spy::gameplay::CatAction>(op);
+                auto catOperation = std::dynamic_pointer_cast<const spy::gameplay::CatAction>(op);
 
                 operationString = "Cat. op on x=" + std::to_string(catOperation->getTarget().x) + " y=" +
                                   std::to_string(catOperation->getTarget().y);
                 break;
             }
             case OperationEnum::JANITOR_ACTION: {
-                auto janitorOperation = std::dynamic_pointer_cast<spy::gameplay::JanitorAction>(op);
+                auto janitorOperation = std::dynamic_pointer_cast<const spy::gameplay::JanitorAction>(op);
 
                 operationString = "Janitor op on x=" + std::to_string(janitorOperation->getTarget().x) + " y=" +
                                   std::to_string(janitorOperation->getTarget().y);
                 break;
             }
             case OperationEnum::EXFILTRATION: {
-                auto exfiltrationOperation = std::dynamic_pointer_cast<spy::gameplay::Exfiltration>(op);
+                auto exfiltrationOperation = std::dynamic_pointer_cast<const spy::gameplay::Exfiltration>(op);
 
                 auto from = exfiltrationOperation->getFrom();
                 auto to = exfiltrationOperation->getTarget();
@@ -305,7 +305,7 @@ namespace libclient {
                 break;
             }
             case OperationEnum::RETIRE: {
-                auto retireOperation = std::dynamic_pointer_cast<spy::gameplay::RetireAction>(op);
+                auto retireOperation = std::dynamic_pointer_cast<const spy::gameplay::RetireAction>(op);
 
                 auto target = retireOperation->getTarget();
 
