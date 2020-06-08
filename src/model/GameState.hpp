@@ -36,7 +36,7 @@ namespace libclient::model {
             bool hasReplay = false; //set by Statistics message
             spy::util::UUID lastActiveCharacter; //set by GameStatusMessage
             bool lastOpSuccessful = false; // set by GameStatusMessage
-            std::pair<bool, spy::util::UUID> isEnemy;    // set by GameStatusMessage
+            std::optional<std::pair<bool, spy::util::UUID>> isEnemy;    // set by GameStatusMessage
 
             /**
              * @brief   Helper function for client, to check if the last operation by the client was successfull

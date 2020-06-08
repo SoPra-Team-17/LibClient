@@ -93,7 +93,7 @@ namespace libclient {
 
             [[nodiscard]] const spy::util::UUID &getLastActiveCharacter() const;
 
-            [[nodiscard]] std::pair<bool, spy::util::UUID> isEnemy() const;
+            [[nodiscard]] std::optional<std::pair<bool, spy::util::UUID>> isEnemy() const;
 
             [[nodiscard]] bool lastOpSuccessful() const;
 
