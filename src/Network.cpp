@@ -134,7 +134,7 @@ namespace libclient {
                     }
                 }
 
-                model->aiState.processOperationList(m.getOperations());
+                model->aiState.processOperationList(m.getOperations(), model->gameState.state);
 
                 if (model->clientState.role != spy::network::RoleEnum::SPECTATOR) {
                     model->aiState.applySureInformation(model->gameState.state,

@@ -6,6 +6,7 @@
 #include <datatypes/gadgets/Cocktail.hpp>
 #include <datatypes/gameplay/PropertyAction.hpp>
 #include <datatypes/gameplay/SpyAction.hpp>
+#include <util/GameLogicUtils.hpp>
 
 namespace libclient::model {
     void AIState::applySureInformation(spy::gameplay::State &s, spy::character::FactionEnum me) {
@@ -87,7 +88,8 @@ namespace libclient::model {
         return addGadgetToFloor(gadget);
     }
 
-    bool AIState::addGadgetToCharacter(const std::shared_ptr<spy::gadget::Gadget> &gadget, const std::optional<spy::util::UUID> &id) {
+    bool AIState::addGadgetToCharacter(const std::shared_ptr<spy::gadget::Gadget> &gadget,
+                                       const std::optional<spy::util::UUID> &id) {
         auto unknown = unknownGadgets.find(gadget);
 
         if (unknown == unknownGadgets.end()) {
@@ -125,36 +127,66 @@ namespace libclient::model {
         return true;
     }
 
-    void AIState::processOperationList(const std::vector<std::shared_ptr<const spy::gameplay::BaseOperation> > &operationList) {
+    void AIState::processOperationList(
+            const std::vector<std::shared_ptr<const spy::gameplay::BaseOperation> > &operationList,
+            const spy::gameplay::State &s) {
         for (const auto &op: operationList) {
-            processOperation(op);
+            processOperation(op, s);
         }
     }
 
-    void AIState::processOperation(std::shared_ptr<const spy::gameplay::BaseOperation> operation) {
+    void AIState::processOperation(std::shared_ptr<const spy::gameplay::BaseOperation> operation,
+                                   const spy::gameplay::State &s) {
         switch (operation->getType()) {
             case spy::gameplay::OperationEnum::GADGET_ACTION: {
                 auto op = std::dynamic_pointer_cast<const spy::gameplay::GadgetAction>(operation);
-                processGadgetAction(op);
+                processGadgetAction(op, s);
                 break;
             }
             case spy::gameplay::OperationEnum::SPY_ACTION: {
                 auto op = std::dynamic_pointer_cast<const spy::gameplay::SpyAction>(operation);
-                // TODO: spy on me -> executor is enemy, spy successful -> target is npc
-                // TODO: spy not successful -> prob that target is enemy
-                // TODO: spy on safe -> prop to now have diamond collar
+
+                auto targetChar = spy::util::GameLogicUtils::findInCharacterSetByCoordinates(s.getCharacters(),
+                                                                                             op->getTarget());
+                if (targetChar != s.getCharacters().end()) { // spy on person
+                    // spy on me -> executor is enemy
+                    bool isTargetCharMyFaction =
+                            std::find(myFaction.begin(), myFaction.end(), targetChar) != myFaction.end();
+                    if (isTargetCharMyFaction) {
+                        addFaction(targetChar->getCharacterId(), enemyFaction);
+                    }
+
+                    // spy successful -> target is npc
+                    if (op->isSuccessful()) {
+                        addFaction(targetChar->getCharacterId(), npcFaction);
+                    }
+
+                    // TODO: spy not successful -> target is enemy with prob
+
+                } else { // spy on safe
+                    // TODO: spy on safe -> executor has diamond collar with prob
+                }
+
                 break;
-        }
+            }
             case spy::gameplay::OperationEnum::PROPERTY_ACTION: {
                 auto op = std::dynamic_pointer_cast<const spy::gameplay::PropertyAction>(operation);
+
                 if (op->getUsedProperty() == spy::character::PropertyEnum::OBSERVATION) {
-                    // TODO: faction of target (but take pocket littler into account and success prob)
+                    // TODO: faction of target (but take pocket littler into account and success prob) with prob
                 }
+
                 break;
             }
             case spy::gameplay::OperationEnum::MOVEMENT: {
                 auto op = std::dynamic_pointer_cast<const spy::gameplay::Movement>(operation);
-                // TODO: collect gadget
+
+                // collect gadget if gadget is on target field
+                auto gadget = s.getMap().getField(op->getTarget()).getGadget();
+                if (gadget.has_value()) {
+                    addGadgetToCharacter(gadget.value(), op->getCharacterId());
+                }
+
                 break;
             }
             default:
@@ -163,7 +195,8 @@ namespace libclient::model {
         }
     }
 
-    void AIState::processGadgetAction(std::shared_ptr<const spy::gameplay::GadgetAction> action) {
+    void AIState::processGadgetAction(std::shared_ptr<const spy::gameplay::GadgetAction> action,
+                                      const spy::gameplay::State &s) {
         switch (action->getGadget()) {
             // TODO: source char has gadget
             case spy::gadget::GadgetEnum::HAIRDRYER:

@@ -15,8 +15,8 @@
 
 namespace libclient::model {
     class AIState {
-            // TODO: count hp of characters to check for exfiltration (might find out who has Anti Seuchen Schnabelmaske and take into account)
-            // TODO: track who uses actions against which persons (probs for faction groups)
+            // TODO (optional): count hp of characters to check for exfiltration (might find out who has AntiPlagueMask and take into account)
+            // TODO (optional): track who uses actions against which persons (probs for faction groups)
 
             // TODO: track which safes where opened with which key (remember opened safes and reset searched saves on new key) --> structure needed (on spy)
 
@@ -62,7 +62,7 @@ namespace libclient::model {
              * processes given operations into state lists/maps/...
              * @param operationList list of operations to be processed
              */
-            void processOperationList(const std::vector<std::shared_ptr<const spy::gameplay::BaseOperation>> &operationList); // done by GameStatus message
+            void processOperationList(const std::vector<std::shared_ptr<const spy::gameplay::BaseOperation>> &operationList, const spy::gameplay::State &s); // done by GameStatus message
 
         private:
             /**
@@ -84,13 +84,13 @@ namespace libclient::model {
              * processes single operation into state lists/maps/...
              * @param operation operation to be processed
              */
-            void processOperation(std::shared_ptr<const spy::gameplay::BaseOperation> operation);
+            void processOperation(std::shared_ptr<const spy::gameplay::BaseOperation> operation, const spy::gameplay::State &s);
 
             /**
              * processes single gadget action into state lists/maps/...
              * @param action gaget action to be processed
              */
-            void processGadgetAction(std::shared_ptr<const spy::gameplay::GadgetAction> action);
+            void processGadgetAction(std::shared_ptr<const spy::gameplay::GadgetAction> action, const spy::gameplay::State &s);
     };
 }
 
