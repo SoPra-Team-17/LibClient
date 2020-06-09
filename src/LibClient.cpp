@@ -201,11 +201,8 @@ namespace libclient {
                                                                                  : model->aiState.enemyFaction);
         } else {
             // client is spectator
-            std::vector<spy::util::UUID> factionList;
+            std::vector<spy::util::UUID> &factionList = model->aiState.npcFaction;
             switch (faction) {
-                case spy::character::FactionEnum::NEUTRAL:
-                    factionList = model->aiState.npcFaction;
-                    break;
                 case spy::character::FactionEnum::PLAYER1:
                     factionList = model->aiState.myFaction;
                     break;
