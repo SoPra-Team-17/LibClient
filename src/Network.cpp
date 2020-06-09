@@ -114,11 +114,28 @@ namespace libclient {
                 for (const auto &op: m.getOperations()) {
                     model->gameState.operations.push_back(op->clone());
                 }
-                model->gameState.state = m.getState();
+                model->gameState.handleLastClientOperation(m.getState());
                 model->gameState.isGameOver = m.getIsGameOver();
 
-                model->gameState.handleLastClientOperation();
+                // update AIState for each operation
+                if (model->clientState.role != spy::network::RoleEnum::SPECTATOR) {
+                    auto myFaction = model->clientState.amIPlayer1() ? spy::character::FactionEnum::PLAYER1
+                                                                     : spy::character::FactionEnum::PLAYER2;
+                    for (const auto &op: m.getOperations()) {
+                        model->aiState.processOperation(op, model->gameState.state);
+                        model->aiState.applySureInformation(model->gameState.state, myFaction);
+                    }
+                }
 
+                // set current state and merge AIState into
+                model->gameState.state = m.getState();
+                if (model->clientState.role != spy::network::RoleEnum::SPECTATOR) {
+                    auto myFaction = model->clientState.amIPlayer1() ? spy::character::FactionEnum::PLAYER1
+                                                                     : spy::character::FactionEnum::PLAYER2;
+                    model->aiState.applySureInformation(model->gameState.state, myFaction);
+                }
+
+                // check for gadgets that are on the floor
                 const auto &mo = model;
                 auto map = model->gameState.state.getMap();
                 for (auto y = 0U; y < map.getMap().size(); y++) {
@@ -132,15 +149,6 @@ namespace libclient {
                             }
                         }
                     }
-                }
-
-                model->aiState.processOperationList(m.getOperations(), model->gameState.state);
-
-                if (model->clientState.role != spy::network::RoleEnum::SPECTATOR) {
-                    model->aiState.applySureInformation(model->gameState.state,
-                                                        model->clientState.amIPlayer1()
-                                                        ? spy::character::FactionEnum::PLAYER1
-                                                        : spy::character::FactionEnum::PLAYER2);
                 }
 
                 state = m.getIsGameOver() ? NetworkState::GAME_OVER : NetworkState::IN_GAME;

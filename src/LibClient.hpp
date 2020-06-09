@@ -127,13 +127,13 @@ namespace libclient {
 
             [[nodiscard]] auto getUnknownFactionList() -> std::map<spy::util::UUID, std::vector<std::pair<spy::character::FactionEnum, float>>>;
 
-            [[nodiscard]] std::vector<spy::util::UUID> getMyFactionList();
+            [[nodiscard]] std::set<spy::util::UUID> getMyFactionList();
 
-            [[nodiscard]] std::vector<spy::util::UUID> getEnemyFactionList();
+            [[nodiscard]] std::set<spy::util::UUID> getEnemyFactionList();
 
-            [[nodiscard]] std::vector<spy::util::UUID> getNpcFactionList();
+            [[nodiscard]] std::set<spy::util::UUID> getNpcFactionList();
 
-            [[nodiscard]] auto getUnknownGadgetsList() -> std::unordered_map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, float>>>;
+            [[nodiscard]] auto getUnknownGadgetsList() -> std::map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, float>>>;
 
             /**
              * @brief       creates information string about an operation

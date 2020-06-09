@@ -12,7 +12,7 @@ namespace libclient::model {
     void AIState::applySureInformation(spy::gameplay::State &s, spy::character::FactionEnum me) {
         using namespace spy::character;
 
-        auto handleFaction = [](std::vector<spy::util::UUID> &list, FactionEnum faction, spy::character::Character &c) {
+        auto handleFaction = [](std::set<spy::util::UUID> &list, FactionEnum faction, spy::character::Character &c) {
             auto it = std::find(list.begin(), list.end(), c.getCharacterId());
             if (it != list.end()) {
                 c.setFaction(faction);
@@ -63,14 +63,19 @@ namespace libclient::model {
                 }
             }
         }
+
+        // inverted roulette
+        if (posOfInvertedRoulette.has_value()) {
+            s.getMap().getField(posOfInvertedRoulette.value()).isInverted() = true;
+        }
     }
 
-    bool AIState::addFaction(const spy::util::UUID &id, std::vector<spy::util::UUID> &factionList) {
+    bool AIState::addFaction(const spy::util::UUID &id, std::set<spy::util::UUID> &factionList) {
         auto charId = unknownFaction.find(id);
         if (charId == unknownFaction.end()) {
             return false;
         }
-        factionList.push_back(charId->first);
+        factionList.insert(charId->first);
         unknownFaction.erase(charId);
         return true;
     }
@@ -81,15 +86,14 @@ namespace libclient::model {
 
         if (id.has_value()) {
             // add Gadget to characterGadgets list
-            return addGadgetToCharacter(gadget, id);
+            return addGadgetToCharacter(gadget, id.value());
         }
 
         // add Gadget to floorGadgets list
         return addGadgetToFloor(gadget);
     }
 
-    bool AIState::addGadgetToCharacter(const std::shared_ptr<spy::gadget::Gadget> &gadget,
-                                       const std::optional<spy::util::UUID> &id) {
+    bool AIState::addGadgetToCharacter(const std::shared_ptr<spy::gadget::Gadget> &gadget, const spy::util::UUID &id) {
         auto unknown = unknownGadgets.find(gadget);
 
         if (unknown == unknownGadgets.end()) {
@@ -98,12 +102,12 @@ namespace libclient::model {
                 return false;
             }
             // from floorGadgets list to characterGadgets list
-            characterGadgets[gadget] = id.value();
+            characterGadgets[gadget] = id;
             floorGadgets.erase(floor);
             return true;
         }
         // from unknownGadgets list to characterGadgets list
-        characterGadgets[gadget] = id.value();
+        characterGadgets[gadget] = id;
         unknownGadgets.erase(unknown);
         return true;
     }
@@ -117,22 +121,14 @@ namespace libclient::model {
                 return false;
             }
             // from characterGadgets list to floorGadgets list
-            floorGadgets.push_back(gadget);
+            floorGadgets.insert(gadget);
             characterGadgets.erase(character);
             return true;
         }
         // from unknownGadgets list to floorGadgets list
-        floorGadgets.push_back(gadget);
+        floorGadgets.insert(gadget);
         unknownGadgets.erase(unknown);
         return true;
-    }
-
-    void AIState::processOperationList(
-            const std::vector<std::shared_ptr<const spy::gameplay::BaseOperation> > &operationList,
-            const spy::gameplay::State &s) {
-        for (const auto &op: operationList) {
-            processOperation(op, s);
-        }
     }
 
     void AIState::processOperation(std::shared_ptr<const spy::gameplay::BaseOperation> operation,
@@ -148,11 +144,15 @@ namespace libclient::model {
 
                 auto targetChar = spy::util::GameLogicUtils::findInCharacterSetByCoordinates(s.getCharacters(),
                                                                                              op->getTarget());
+
+                auto sourceChar = s.getCharacters().findByUUID(op->getCharacterId());
                 if (targetChar != s.getCharacters().end()) { // spy on person
                     // spy on me -> executor is enemy
                     bool isTargetCharMyFaction =
-                            std::find(myFaction.begin(), myFaction.end(), targetChar) != myFaction.end();
-                    if (isTargetCharMyFaction) {
+                            std::find(myFaction.begin(), myFaction.end(), targetChar->getCharacterId()) != myFaction.end();
+                    bool isSourceCharMyFaction =
+                            std::find(myFaction.begin(), myFaction.end(), sourceChar->getCharacterId()) != myFaction.end();
+                    if (isTargetCharMyFaction && !isSourceCharMyFaction) {
                         addFaction(targetChar->getCharacterId(), enemyFaction);
                     }
 
@@ -161,10 +161,10 @@ namespace libclient::model {
                         addFaction(targetChar->getCharacterId(), npcFaction);
                     }
 
-                    // TODO: spy not successful -> target is enemy with prob
+                    // TODO prob: spy not successful -> target is enemy with prob
 
                 } else { // spy on safe
-                    // TODO: spy on safe -> executor has diamond collar with prob
+                    // TODO prob: spy on safe -> executor has diamond collar with prob
                 }
 
                 break;
@@ -173,7 +173,7 @@ namespace libclient::model {
                 auto op = std::dynamic_pointer_cast<const spy::gameplay::PropertyAction>(operation);
 
                 if (op->getUsedProperty() == spy::character::PropertyEnum::OBSERVATION) {
-                    // TODO: faction of target (but take pocket littler into account and success prob) with prob
+                    // TODO prob: faction of target (but take pocket littler into account and success prob) with prob
                 }
 
                 break;
@@ -197,69 +197,175 @@ namespace libclient::model {
 
     void AIState::processGadgetAction(std::shared_ptr<const spy::gameplay::GadgetAction> action,
                                       const spy::gameplay::State &s) {
+        auto gadget = std::make_shared<spy::gadget::Gadget>(action->getGadget());
+        auto targetChar = spy::util::GameLogicUtils::findInCharacterSetByCoordinates(s.getCharacters(),
+                                                                                     action->getTarget());
+        auto sourceChar = s.getCharacters().findByUUID(action->getCharacterId());
+        auto targetField = s.getMap().getField(action->getTarget());
+
+        // executing character has gadget
+        addGadgetToCharacter(gadget, action->getCharacterId());
+
         switch (action->getGadget()) {
-            // TODO: source char has gadget
             case spy::gadget::GadgetEnum::HAIRDRYER:
-                // TODO: remove property clammy clothes of target
+                // remove property clammy clothes from target character
+                properties.at(targetChar->getCharacterId()).erase(spy::character::PropertyEnum::CLAMMY_CLOTHES);
                 break;
             case spy::gadget::GadgetEnum::MOLEDIE:
-                // TODO: npc gets rid of this in turn (but could also be enemy trying to tarn as npc)
-                // TODO: calc who now has moledie may with prob
+                // TODO (prob): calc who now has moledie may with prob
                 break;
             case spy::gadget::GadgetEnum::TECHNICOLOUR_PRISM:
-                // TODO: inverts target (--> variable needed)
-                // TODO: after usage erase
+                // invert roulette table
+                posOfInvertedRoulette = action->getTarget();
+
+                // after usage: disappear
+                characterGadgets.erase(gadget);
                 break;
             case spy::gadget::GadgetEnum::BOWLER_BLADE:
-                // TODO: if not successful target has MAGENTIC_WATCH (prob of success, honey, babysitter) with prob
+                // TODO prob: if not successful target has MAGENTIC_WATCH (prob of success, honey, babysitter) with prob
                 break;
             case spy::gadget::GadgetEnum::POISON_PILLS:
-                // TODO: target cocktail poisoned
-                // TODO: after usage mod usagesLeft or erase
+                // cocktail at target is poisoned
+                if (targetChar != s.getCharacters().end()) { // character holds cocktail
+                    poisonedCocktails.insert(targetChar->getCharacterId());
+                } else { // cocktail is on bar table
+                    poisonedCocktails.insert(action->getTarget());
+                }
+
+                // after usage: modify usagesLeft
+                modifyUsagesLeft(characterGadgets.find(gadget)->first);
+
                 break;
             case spy::gadget::GadgetEnum::LASER_COMPACT:
-                // TODO: if done on poisoned cocktail -> remove from list
+                // if done on poisoned cocktail -> remove from poisonedCocktails list
+                if (action->isSuccessful()) {
+                    if (targetChar != s.getCharacters().end()) { // character holds cocktail
+                        poisonedCocktails.erase(targetChar->getCharacterId());
+                    } else { // cocktail is on bar table
+                        poisonedCocktails.erase(action->getTarget());
+                    }
+                }
                 break;
             case spy::gadget::GadgetEnum::ROCKET_PEN:
-                // TODO: after usage erase
+                // after usage: disappear
+                characterGadgets.erase(gadget);
                 break;
             case spy::gadget::GadgetEnum::GAS_GLOSS:
-                // TODO: after usage erase
+                // after usage: disappear
+                characterGadgets.erase(gadget);
                 break;
             case spy::gadget::GadgetEnum::MOTHBALL_POUCH:
-                // TODO: after usage mod usagesLeft or erase
+                // after usage: modify usagesLeft
+                modifyUsagesLeft(characterGadgets.find(gadget)->first);
                 break;
             case spy::gadget::GadgetEnum::FOG_TIN:
-                // TODO: after usage erase
+                // after usage: disappear
+                characterGadgets.erase(gadget);
                 break;
             case spy::gadget::GadgetEnum::GRAPPLE:
-                // TODO: add grappled gadget to character
+                // add gadget hit by grapple to executing character
+                if (action->isSuccessful()) {
+                    addGadgetToCharacter(
+                            std::make_shared<spy::gadget::Gadget>(targetField.getGadget().value()->getType()),
+                            action->getCharacterId());
+                }
                 break;
             case spy::gadget::GadgetEnum::WIRETAP_WITH_EARPLUGS:
-                // TODO: after usage erase
+                // after usage: disappear
+                characterGadgets.erase(gadget);
                 break;
             case spy::gadget::GadgetEnum::JETPACK:
-                // TODO: after usage erase
+                // after usage: disappear
+                characterGadgets.erase(gadget);
                 break;
             case spy::gadget::GadgetEnum::CHICKEN_FEED:
-                // TODO: not working -> target is npc, working -> target is enemy
-                // TODO: after usage erase
+                // not working -> target is np, working -> target is enemy
+                if (action->isSuccessful()) {
+                    addFaction(targetChar->getCharacterId(), enemyFaction);
+                } else if (getFaction(sourceChar->getCharacterId()) != getFaction(targetChar->getCharacterId())) {
+                    addFaction(targetChar->getCharacterId(), npcFaction);
+                }
+
+                // after usage: disappear
+                characterGadgets.erase(gadget);
+
                 break;
             case spy::gadget::GadgetEnum::NUGGET:
-                // TODO: not working -> target is enemy, working -> target was npc and now joins my faction
-                // TODO: after usage move to enemy (not working) or erase (working)
-                // TODO: if working: add npc to chosen characters for Client
+                // not working -> target is enemy, working -> target was npc and now joins my faction
+                // after usage: not working -> move to target character, working -> disappear
+                if (action->isSuccessful()) {
+                    addFaction(targetChar->getCharacterId(), npcFaction);
+                    npcFaction.erase(targetChar->getCharacterId());
+                    myFaction.insert(targetChar->getCharacterId());
+
+                    characterGadgets.erase(gadget);
+                } else {
+                    if (getFaction(sourceChar->getCharacterId()) != getFaction(targetChar->getCharacterId())) {
+                        addFaction(targetChar->getCharacterId(), enemyFaction);
+                    }
+                    characterGadgets[gadget] = targetChar->getCharacterId();
+                }
                 break;
             case spy::gadget::GadgetEnum::MIRROR_OF_WILDERNESS:
-                // TODO: after working usage erase
+                // after usage: not same faction and working -> disappear
+                if (getFaction(sourceChar->getCharacterId()) != getFaction(targetChar->getCharacterId()) &&
+                    action->isSuccessful()) {
+                    characterGadgets.erase(gadget);
+                }
                 break;
-            case spy::gadget::GadgetEnum::COCKTAIL:
-                // TODO: add property clammy clothes
-                // TODO: if poisoned cocktail is drunk -> remove from list
+            case spy::gadget::GadgetEnum::COCKTAIL: {
+                bool pour = targetChar != s.getCharacters().end();
+                bool drink = sourceChar->getCoordinates().value() == action->getTarget();
+
+                // poured or drunk -> remove from poisonedCocktails list
+                if (pour || drink) {
+                    poisonedCocktails.erase(action->getCharacterId());
+                }
+
+                // successfully poured -> add property clammy clothes to target
+                if (pour && action->isSuccessful()) {
+                    properties.at(targetChar->getCharacterId()).insert(spy::character::PropertyEnum::CLAMMY_CLOTHES);
+                }
+
+                // taken from bar table and poisoned -> update poisonedCocktails
+                if (!pour && !drink) {
+                    if (poisonedCocktails.erase(action->getTarget()) > 0) {
+                        // cocktail from bar table is poisoned
+                        poisonedCocktails.insert(action->getCharacterId());
+                    }
+                }
+
                 break;
+            }
             default:
                 // no additional info can be gained
                 break;
+        }
+    }
+
+    spy::character::FactionEnum AIState::getFaction(const spy::util::UUID &id) {
+        auto isInList = [&id](std::set<spy::util::UUID> &list) {
+            auto it = std::find(list.begin(), list.end(), id);
+            return it != list.end();
+        };
+
+        if (isInList(npcFaction)) {
+            return spy::character::FactionEnum::NEUTRAL;
+        }
+        if (isInList(myFaction)) {
+            return spy::character::FactionEnum::PLAYER1;
+        }
+        if (isInList(enemyFaction)) {
+            return spy::character::FactionEnum::PLAYER2;
+        }
+        return spy::character::FactionEnum::INVALID;
+
+    }
+
+    void AIState::modifyUsagesLeft(const std::shared_ptr<spy::gadget::Gadget> &gad) {
+        gad->setUsagesLeft(gad->getUsagesLeft().value() - 1);
+        if (gad->getUsagesLeft() == 0) {
+            characterGadgets.erase(gad);
         }
     }
 

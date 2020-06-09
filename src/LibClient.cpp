@@ -201,11 +201,8 @@ namespace libclient {
                                                                                  : model->aiState.enemyFaction);
         } else {
             // client is spectator
-            std::vector<spy::util::UUID> factionList;
+            std::set<spy::util::UUID> &factionList = model->aiState.npcFaction;
             switch (faction) {
-                case spy::character::FactionEnum::NEUTRAL:
-                    factionList = model->aiState.npcFaction;
-                    break;
                 case spy::character::FactionEnum::PLAYER1:
                     factionList = model->aiState.myFaction;
                     break;
@@ -237,20 +234,20 @@ namespace libclient {
         return model->aiState.unknownFaction;
     }
 
-    std::vector<spy::util::UUID> LibClient::getMyFactionList() {
+    std::set<spy::util::UUID> LibClient::getMyFactionList() {
         return model->aiState.myFaction;
     }
 
-    std::vector<spy::util::UUID> LibClient::getEnemyFactionList() {
+    std::set<spy::util::UUID> LibClient::getEnemyFactionList() {
         return model->aiState.enemyFaction;
     }
 
-    std::vector<spy::util::UUID> LibClient::getNpcFactionList() {
+    std::set<spy::util::UUID> LibClient::getNpcFactionList() {
         return model->aiState.npcFaction;
     }
 
     auto
-    LibClient::getUnknownGadgetsList() -> std::unordered_map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, float>>> {
+    LibClient::getUnknownGadgetsList() -> std::map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, float>>> {
         return model->aiState.unknownGadgets;
     }
   

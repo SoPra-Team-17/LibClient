@@ -9,7 +9,7 @@
 #include "datatypes/character/PropertyEnum.hpp"
 #include "util/GameLogicUtils.hpp"
 
-void libclient::model::GameState::handleLastClientOperation() {
+void libclient::model::GameState::handleLastClientOperation(const spy::gameplay::State &s) {
     using spy::gameplay::OperationEnum;
     const auto &operations_vec = this->operations;
 
@@ -55,9 +55,19 @@ void libclient::model::GameState::handleLastClientOperation() {
 
             if (property_op->getIsEnemy().has_value()) {
                 bool enemy = property_op->getIsEnemy().value();
-                spy::util::UUID id = spy::util::GameLogicUtils::findInCharacterSetByCoordinates(state.getCharacters(),
+                spy::util::UUID id = spy::util::GameLogicUtils::findInCharacterSetByCoordinates(s.getCharacters(),
                                                                                                 property_op->getTarget())->getCharacterId();
                 this->isEnemy = std::pair<bool, spy::util::UUID>(enemy, id);
+            }
+        }
+
+        // if nugget was used successfully, add target to chosenCharacter
+        if (character_op->getType() == OperationEnum::GADGET_ACTION) {
+            const auto gadget_op = std::dynamic_pointer_cast<const spy::gameplay::GadgetAction>(character_op);
+            if (gadget_op->getGadget() == spy::gadget::GadgetEnum::NUGGET && gadget_op->isSuccessful()) {
+                auto targetChar = spy::util::GameLogicUtils::findInCharacterSetByCoordinates(s.getCharacters(),
+                                                                                             gadget_op->getTarget());
+                chosenCharacter.push_back(targetChar->getCharacterId());
             }
         }
     }
