@@ -111,22 +111,26 @@ namespace libclient {
             case spy::network::messages::MessageTypeEnum::GAME_STATUS: {
                 auto m = json.get<spy::network::messages::GameStatus>();
                 model->gameState.lastActiveCharacter = m.getActiveCharacterId();
-                model->gameState.operations.insert(model->gameState.operations.end(), m.getOperations().begin(),
-                                                   m.getOperations().end());
+                for (const auto &op: m.getOperations()) {
+                    model->gameState.operations.push_back(op->clone());
+                }
                 model->gameState.state = m.getState();
                 model->gameState.isGameOver = m.getIsGameOver();
+
                 model->gameState.handleLastClientOperation();
+
+                if (state == IN_EQUIPMENTCHOICE) {
+                    // first GameStatus message
+                    onFirstGameStatus();
+                }
+
+                model->aiState.processOperationList(m.getOperations());
 
                 if (model->clientState.role != spy::network::RoleEnum::SPECTATOR) {
                     model->aiState.applySureInformation(model->gameState.state,
                                                         model->clientState.amIPlayer1()
                                                         ? spy::character::FactionEnum::PLAYER1
                                                         : spy::character::FactionEnum::PLAYER2);
-                }
-
-                if (state == IN_EQUIPMENTCHOICE) {
-                    // first GameStatus message
-                    onFirstGameStatus();
                 }
 
                 state = m.getIsGameOver() ? NetworkState::GAME_OVER : NetworkState::IN_GAME;
