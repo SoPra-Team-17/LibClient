@@ -111,4 +111,30 @@ namespace libclient::model {
         return true;
     }
 
+    void AIState::processOperationList(const std::vector<std::shared_ptr<const spy::gameplay::BaseOperation>> &operationList) {
+        for (auto &op: operationList) {
+            processOperation(op);
+        }
+    }
+
+    void AIState::processOperation(std::shared_ptr<const spy::gameplay::BaseOperation> operation) {
+        switch (operation->getType()) {
+            case spy::gameplay::OperationEnum::GADGET_ACTION:
+                // TODO
+                break;
+            case spy::gameplay::OperationEnum::SPY_ACTION:
+                // TODO
+                break;
+            case spy::gameplay::OperationEnum::PROPERTY_ACTION:
+                // TODO
+                break;
+            case spy::gameplay::OperationEnum::MOVEMENT:
+                // TODO
+                break;
+            default:
+                // no additional info can be gained
+                break;
+        }
+    }
+
 }

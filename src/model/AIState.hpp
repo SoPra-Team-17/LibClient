@@ -54,6 +54,15 @@ namespace libclient::model {
              * @return true if method was successful
              */
             bool addGadget(const std::shared_ptr<spy::gadget::Gadget> &gadget, const std::optional<spy::util::UUID> &id);
+
+            /**
+             * processes given operations into state lists/maps/...
+             * @param operationList list of operations to be processed
+             */
+            void processOperationList(const std::vector<std::shared_ptr<const spy::gameplay::BaseOperation>> &operationList); // done by GameStatus message
+
+        private:
+            void processOperation(std::shared_ptr<const spy::gameplay::BaseOperation> operation);
     };
 }
 
