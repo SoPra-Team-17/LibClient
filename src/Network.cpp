@@ -218,7 +218,7 @@ namespace libclient {
 
     bool Network::connect(const std::string &servername, int port) {
         if (state != NetworkState::NOT_CONNECTED && state != NetworkState::CONNECTED &&
-            state != NetworkState::RECONNECT) {
+            state != NetworkState::RECONNECT && state != NetworkState::GAME_OVER) {
             return false;
         }
 
@@ -296,7 +296,7 @@ namespace libclient {
         return true;
     }
 
-    bool Network::sendEquipmentChoice(std::map<spy::util::UUID, std::set<spy::gadget::GadgetEnum>> equipment) {
+    bool Network::sendEquipmentChoice(const std::map<spy::util::UUID, std::set<spy::gadget::GadgetEnum>> &equipment) {
         if (state != NetworkState::IN_EQUIPMENTCHOICE) {
             return false;
         }

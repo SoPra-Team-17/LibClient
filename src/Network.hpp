@@ -53,7 +53,7 @@ namespace libclient {
 
             bool sendItemChoice(std::variant<spy::util::UUID, spy::gadget::GadgetEnum> choice);
 
-            bool sendEquipmentChoice(std::map<spy::util::UUID, std::set<spy::gadget::GadgetEnum>> equipment);
+            bool sendEquipmentChoice(const std::map<spy::util::UUID, std::set<spy::gadget::GadgetEnum>> &equipment);
 
             bool sendGameOperation(const std::shared_ptr<spy::gameplay::BaseOperation>& operation,
                                    const spy::MatchConfig &config);
