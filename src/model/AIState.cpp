@@ -4,6 +4,8 @@
 
 #include "AIState.hpp"
 #include <datatypes/gadgets/Cocktail.hpp>
+#include <datatypes/gameplay/PropertyAction.hpp>
+#include <datatypes/gameplay/SpyAction.hpp>
 
 namespace libclient::model {
     void AIState::applySureInformation(spy::gameplay::State &s, spy::character::FactionEnum me) {
@@ -74,27 +76,39 @@ namespace libclient::model {
 
     bool
     AIState::addGadget(const std::shared_ptr<spy::gadget::Gadget> &gadget, const std::optional<spy::util::UUID> &id) {
-        auto unknown = unknownGadgets.find(gadget);
+
 
         if (id.has_value()) {
             // add Gadget to characterGadgets list
-            if (unknown == unknownGadgets.end()) {
-                auto floor = std::find(floorGadgets.begin(), floorGadgets.end(), gadget);
-                if (floor == floorGadgets.end()) {
-                    return false;
-                }
-                // from floorGadgets list to characterGadgets list
-                characterGadgets[gadget] = id.value();
-                floorGadgets.erase(floor);
-                return true;
-            }
-            // from unknownGadgets list to characterGadgets list
-            characterGadgets[gadget] = id.value();
-            unknownGadgets.erase(unknown);
-            return true;
+            return addGadgetToCharacter(gadget, id);
         }
 
         // add Gadget to floorGadgets list
+        return addGadgetToFloor(gadget);
+    }
+
+    bool AIState::addGadgetToCharacter(const std::shared_ptr<spy::gadget::Gadget> &gadget, const std::optional<spy::util::UUID> &id) {
+        auto unknown = unknownGadgets.find(gadget);
+
+        if (unknown == unknownGadgets.end()) {
+            auto floor = std::find(floorGadgets.begin(), floorGadgets.end(), gadget);
+            if (floor == floorGadgets.end()) {
+                return false;
+            }
+            // from floorGadgets list to characterGadgets list
+            characterGadgets[gadget] = id.value();
+            floorGadgets.erase(floor);
+            return true;
+        }
+        // from unknownGadgets list to characterGadgets list
+        characterGadgets[gadget] = id.value();
+        unknownGadgets.erase(unknown);
+        return true;
+    }
+
+    bool AIState::addGadgetToFloor(const std::shared_ptr<spy::gadget::Gadget> &gadget) {
+        auto unknown = unknownGadgets.find(gadget);
+
         if (unknown == unknownGadgets.end()) {
             auto character = characterGadgets.find(gadget);
             if (character == characterGadgets.end()) {
@@ -111,25 +125,104 @@ namespace libclient::model {
         return true;
     }
 
-    void AIState::processOperationList(const std::vector<std::shared_ptr<const spy::gameplay::BaseOperation>> &operationList) {
-        for (auto &op: operationList) {
+    void AIState::processOperationList(const std::vector<std::shared_ptr<const spy::gameplay::BaseOperation> > &operationList) {
+        for (const auto &op: operationList) {
             processOperation(op);
         }
     }
 
     void AIState::processOperation(std::shared_ptr<const spy::gameplay::BaseOperation> operation) {
         switch (operation->getType()) {
-            case spy::gameplay::OperationEnum::GADGET_ACTION:
-                // TODO
+            case spy::gameplay::OperationEnum::GADGET_ACTION: {
+                auto op = std::dynamic_pointer_cast<const spy::gameplay::GadgetAction>(operation);
+                processGadgetAction(op);
                 break;
-            case spy::gameplay::OperationEnum::SPY_ACTION:
-                // TODO
+            }
+            case spy::gameplay::OperationEnum::SPY_ACTION: {
+                auto op = std::dynamic_pointer_cast<const spy::gameplay::SpyAction>(operation);
+                // TODO: spy on me -> executor is enemy, spy successful -> target is npc
+                // TODO: spy not successful -> prob that target is enemy
+                // TODO: spy on safe -> prop to now have diamond collar
                 break;
-            case spy::gameplay::OperationEnum::PROPERTY_ACTION:
-                // TODO
+        }
+            case spy::gameplay::OperationEnum::PROPERTY_ACTION: {
+                auto op = std::dynamic_pointer_cast<const spy::gameplay::PropertyAction>(operation);
+                if (op->getUsedProperty() == spy::character::PropertyEnum::OBSERVATION) {
+                    // TODO: faction of target (but take pocket littler into account and success prob)
+                }
                 break;
-            case spy::gameplay::OperationEnum::MOVEMENT:
-                // TODO
+            }
+            case spy::gameplay::OperationEnum::MOVEMENT: {
+                auto op = std::dynamic_pointer_cast<const spy::gameplay::Movement>(operation);
+                // TODO: collect gadget
+                break;
+            }
+            default:
+                // no additional info can be gained
+                break;
+        }
+    }
+
+    void AIState::processGadgetAction(std::shared_ptr<const spy::gameplay::GadgetAction> action) {
+        switch (action->getGadget()) {
+            // TODO: source char has gadget
+            case spy::gadget::GadgetEnum::HAIRDRYER:
+                // TODO: remove property clammy clothes of target
+                break;
+            case spy::gadget::GadgetEnum::MOLEDIE:
+                // TODO: npc gets rid of this in turn (but could also be enemy trying to tarn as npc)
+                // TODO: calc who now has moledie may with prob
+                break;
+            case spy::gadget::GadgetEnum::TECHNICOLOUR_PRISM:
+                // TODO: inverts target (--> variable needed)
+                // TODO: after usage erase
+                break;
+            case spy::gadget::GadgetEnum::BOWLER_BLADE:
+                // TODO: if not successful target has MAGENTIC_WATCH (prob of success, honey, babysitter) with prob
+                break;
+            case spy::gadget::GadgetEnum::POISON_PILLS:
+                // TODO: target cocktail poisoned
+                // TODO: after usage mod usagesLeft or erase
+                break;
+            case spy::gadget::GadgetEnum::LASER_COMPACT:
+                // TODO: if done on poisoned cocktail -> remove from list
+                break;
+            case spy::gadget::GadgetEnum::ROCKET_PEN:
+                // TODO: after usage erase
+                break;
+            case spy::gadget::GadgetEnum::GAS_GLOSS:
+                // TODO: after usage erase
+                break;
+            case spy::gadget::GadgetEnum::MOTHBALL_POUCH:
+                // TODO: after usage mod usagesLeft or erase
+                break;
+            case spy::gadget::GadgetEnum::FOG_TIN:
+                // TODO: after usage erase
+                break;
+            case spy::gadget::GadgetEnum::GRAPPLE:
+                // TODO: add grappled gadget to character
+                break;
+            case spy::gadget::GadgetEnum::WIRETAP_WITH_EARPLUGS:
+                // TODO: after usage erase
+                break;
+            case spy::gadget::GadgetEnum::JETPACK:
+                // TODO: after usage erase
+                break;
+            case spy::gadget::GadgetEnum::CHICKEN_FEED:
+                // TODO: not working -> target is npc, working -> target is enemy
+                // TODO: after usage erase
+                break;
+            case spy::gadget::GadgetEnum::NUGGET:
+                // TODO: not working -> target is enemy, working -> target was npc and now joins my faction
+                // TODO: after usage move to enemy (not working) or erase (working)
+                // TODO: if working: add npc to chosen characters for Client
+                break;
+            case spy::gadget::GadgetEnum::MIRROR_OF_WILDERNESS:
+                // TODO: after working usage erase
+                break;
+            case spy::gadget::GadgetEnum::COCKTAIL:
+                // TODO: add property clammy clothes
+                // TODO: if poisoned cocktail is drunk -> remove from list
                 break;
             default:
                 // no additional info can be gained

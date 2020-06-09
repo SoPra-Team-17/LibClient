@@ -119,9 +119,19 @@ namespace libclient {
 
                 model->gameState.handleLastClientOperation();
 
-                if (state == IN_EQUIPMENTCHOICE) {
-                    // first GameStatus message
-                    onFirstGameStatus();
+                const auto &mo = model;
+                auto map = model->gameState.state.getMap();
+                for (auto y = 0U; y < map.getMap().size(); y++) {
+                    for (auto x = 0U; x < map.getMap().at(y).size(); x++) {
+                        auto field = (map.getField(x, y));
+                        auto gad = field.getGadget();
+                        if (gad.has_value()) {
+                            if (gad.value()->getType() != spy::gadget::GadgetEnum::COCKTAIL) {
+                                mo->aiState.addGadget(std::make_shared<spy::gadget::Gadget>(gad.value()->getType()),
+                                                      std::nullopt);
+                            }
+                        }
+                    }
                 }
 
                 model->aiState.processOperationList(m.getOperations());
@@ -411,23 +421,5 @@ namespace libclient {
 
     Network::NetworkState Network::getState() const {
         return state;
-    }
-
-    void Network::onFirstGameStatus() {
-        const auto &mo = model;
-        auto map = model->gameState.state.getMap();
-
-        for (auto y = 0U; y < map.getMap().size(); y++) {
-            for (auto x = 0U; x < map.getMap().at(y).size(); x++) {
-                auto field = (map.getField(x, y));
-                auto gad = field.getGadget();
-                if (gad.has_value()) {
-                    if (gad.value()->getType() != spy::gadget::GadgetEnum::COCKTAIL) {
-                        mo->aiState.addGadget(std::make_shared<spy::gadget::Gadget>(gad.value()->getType()),
-                                              std::nullopt);
-                    }
-                }
-            }
-        }
     }
 }
