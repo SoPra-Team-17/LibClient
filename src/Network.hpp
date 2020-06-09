@@ -41,12 +41,22 @@ namespace libclient {
                 PAUSE,
                 GAME_OVER
             };
+            
             Network(libclient::Callback *c, std::shared_ptr<libclient::Model> m);
 
             [[nodiscard]] NetworkState getState() const;
 
+            /**
+             * connect to specified server (possible in following states: NOT_CONNECTED, CONNECTED, RECONNECT, GAME_OVER)
+             * @param servername name or ip of server
+             * @param port port of server
+             * @return true if connect was successful (depends on NetworkState, ...)
+             */
             bool connect(const std::string &servername, int port);
 
+            /**
+             * disconnect to server, model is reset (can be called any time, e.g. to force connect method to work)
+             */
             void disconnect();
       
             bool sendHello(const std::string& name, spy::network::RoleEnum role);
