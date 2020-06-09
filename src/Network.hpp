@@ -55,7 +55,7 @@ namespace libclient {
             bool connect(const std::string &servername, int port);
 
             /**
-             * disconnect to server, model is reset (can be called any time, e.g. to force connect method to work)
+             * disconnect from server, model is reset (can be called any time, e.g. to force connect method to work)
              */
             void disconnect();
       
