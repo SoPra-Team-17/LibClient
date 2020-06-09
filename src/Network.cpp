@@ -111,7 +111,8 @@ namespace libclient {
             case spy::network::messages::MessageTypeEnum::GAME_STATUS: {
                 auto m = json.get<spy::network::messages::GameStatus>();
                 model->gameState.lastActiveCharacter = m.getActiveCharacterId();
-                model->gameState.operations = m.getOperations();
+                model->gameState.operations.insert(model->gameState.operations.end(), m.getOperations().begin(),
+                                                   m.getOperations().end());
                 model->gameState.state = m.getState();
                 model->gameState.isGameOver = m.getIsGameOver();
                 model->gameState.handleLastClientOperation();
