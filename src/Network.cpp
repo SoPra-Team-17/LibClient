@@ -142,11 +142,8 @@ namespace libclient {
                     for (auto x = 0U; x < map.getMap().at(y).size(); x++) {
                         auto field = (map.getField(x, y));
                         auto gad = field.getGadget();
-                        if (gad.has_value()) {
-                            if (gad.value()->getType() != spy::gadget::GadgetEnum::COCKTAIL) {
-                                mo->aiState.addGadget(std::make_shared<spy::gadget::Gadget>(gad.value()->getType()),
-                                                      std::nullopt);
-                            }
+                        if (gad.has_value() && gad.value()->getType() != spy::gadget::GadgetEnum::COCKTAIL) {
+                            mo->aiState.addGadget(gad.value()->getType(), std::nullopt);
                         }
                     }
                 }
@@ -332,7 +329,7 @@ namespace libclient {
         model->gameState.equipmentMap = equipment;
         for (auto &it : equipment) {
             for (auto gadgetType: it.second) {
-                model->aiState.addGadget(std::make_shared<spy::gadget::Gadget>(gadgetType), it.first);
+                model->aiState.addGadget(gadgetType, it.first);
             }
         }
 

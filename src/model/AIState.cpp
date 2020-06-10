@@ -81,8 +81,8 @@ namespace libclient::model {
     }
 
     bool
-    AIState::addGadget(const std::shared_ptr<spy::gadget::Gadget> &gadget, const std::optional<spy::util::UUID> &id) {
-
+    AIState::addGadget(spy::gadget::GadgetEnum gadgetType, const std::optional<spy::util::UUID> &id) {
+        auto gadget = std::make_shared<spy::gadget::Gadget>(gadgetType);
 
         if (id.has_value()) {
             // add Gadget to characterGadgets list
@@ -93,40 +93,41 @@ namespace libclient::model {
         return addGadgetToFloor(gadget);
     }
 
-    bool AIState::addGadgetToCharacter(const std::shared_ptr<spy::gadget::Gadget> &gadget, const spy::util::UUID &id) {
-        auto unknown = unknownGadgets.find(gadget);
+    bool
+    AIState::addGadgetToCharacter(const std::shared_ptr<spy::gadget::Gadget> &gadgetType, const spy::util::UUID &id) {
+        auto unknown = unknownGadgets.find(gadgetType);
 
         if (unknown == unknownGadgets.end()) {
-            auto floor = std::find(floorGadgets.begin(), floorGadgets.end(), gadget);
+            auto floor = std::find(floorGadgets.begin(), floorGadgets.end(), gadgetType);
             if (floor == floorGadgets.end()) {
                 return false;
             }
             // from floorGadgets list to characterGadgets list
-            characterGadgets[gadget] = id;
+            characterGadgets[*floor] = id;
             floorGadgets.erase(floor);
             return true;
         }
         // from unknownGadgets list to characterGadgets list
-        characterGadgets[gadget] = id;
+        characterGadgets[unknown->first] = id;
         unknownGadgets.erase(unknown);
         return true;
     }
 
-    bool AIState::addGadgetToFloor(const std::shared_ptr<spy::gadget::Gadget> &gadget) {
-        auto unknown = unknownGadgets.find(gadget);
+    bool AIState::addGadgetToFloor(const std::shared_ptr<spy::gadget::Gadget> &gadgetType) {
+        auto unknown = unknownGadgets.find(gadgetType);
 
         if (unknown == unknownGadgets.end()) {
-            auto character = characterGadgets.find(gadget);
+            auto character = characterGadgets.find(gadgetType);
             if (character == characterGadgets.end()) {
                 return false;
             }
             // from characterGadgets list to floorGadgets list
-            floorGadgets.insert(gadget);
+            floorGadgets.insert(character->first);
             characterGadgets.erase(character);
             return true;
         }
         // from unknownGadgets list to floorGadgets list
-        floorGadgets.insert(gadget);
+        floorGadgets.insert(unknown->first);
         unknownGadgets.erase(unknown);
         return true;
     }
@@ -149,9 +150,11 @@ namespace libclient::model {
                 if (targetChar != s.getCharacters().end()) { // spy on person
                     // spy on me -> executor is enemy
                     bool isTargetCharMyFaction =
-                            std::find(myFaction.begin(), myFaction.end(), targetChar->getCharacterId()) != myFaction.end();
+                            std::find(myFaction.begin(), myFaction.end(), targetChar->getCharacterId()) !=
+                            myFaction.end();
                     bool isSourceCharMyFaction =
-                            std::find(myFaction.begin(), myFaction.end(), sourceChar->getCharacterId()) != myFaction.end();
+                            std::find(myFaction.begin(), myFaction.end(), sourceChar->getCharacterId()) !=
+                            myFaction.end();
                     if (isTargetCharMyFaction && !isSourceCharMyFaction) {
                         addFaction(targetChar->getCharacterId(), enemyFaction);
                     }
@@ -227,9 +230,9 @@ namespace libclient::model {
             case spy::gadget::GadgetEnum::POISON_PILLS:
                 // cocktail at target is poisoned
                 if (targetChar != s.getCharacters().end()) { // character holds cocktail
-                    poisonedCocktails.insert(targetChar->getCharacterId());
+                    poisonedCocktails.push_back(targetChar->getCharacterId());
                 } else { // cocktail is on bar table
-                    poisonedCocktails.insert(action->getTarget());
+                    poisonedCocktails.push_back(action->getTarget());
                 }
 
                 // after usage: modify usagesLeft
@@ -240,9 +243,13 @@ namespace libclient::model {
                 // if done on poisoned cocktail -> remove from poisonedCocktails list
                 if (action->isSuccessful()) {
                     if (targetChar != s.getCharacters().end()) { // character holds cocktail
-                        poisonedCocktails.erase(targetChar->getCharacterId());
+                        poisonedCocktails.erase(std::remove(poisonedCocktails.begin(), poisonedCocktails.end(),
+                                                            std::variant<spy::util::UUID, spy::util::Point>(
+                                                                    targetChar->getCharacterId())));
                     } else { // cocktail is on bar table
-                        poisonedCocktails.erase(action->getTarget());
+                        poisonedCocktails.erase(
+                                std::remove(poisonedCocktails.begin(), poisonedCocktails.end(),
+                                            std::variant<spy::util::UUID, spy::util::Point>(action->getTarget())));
                     }
                 }
                 break;
@@ -319,7 +326,9 @@ namespace libclient::model {
 
                 // poured or drunk -> remove from poisonedCocktails list
                 if (pour || drink) {
-                    poisonedCocktails.erase(action->getCharacterId());
+                    poisonedCocktails.erase(
+                            std::remove(poisonedCocktails.begin(), poisonedCocktails.end(),
+                                        std::variant<spy::util::UUID, spy::util::Point>(action->getCharacterId())));
                 }
 
                 // successfully poured -> add property clammy clothes to target
@@ -329,9 +338,12 @@ namespace libclient::model {
 
                 // taken from bar table and poisoned -> update poisonedCocktails
                 if (!pour && !drink) {
-                    if (poisonedCocktails.erase(action->getTarget()) > 0) {
+                    auto cocktail = std::remove(poisonedCocktails.begin(), poisonedCocktails.end(),
+                                                std::variant<spy::util::UUID, spy::util::Point>(action->getTarget()));
+                    if (cocktail != poisonedCocktails.end()) {
                         // cocktail from bar table is poisoned
-                        poisonedCocktails.insert(action->getCharacterId());
+                        poisonedCocktails.erase(cocktail);
+                        poisonedCocktails.push_back(action->getCharacterId());
                     }
                 }
 

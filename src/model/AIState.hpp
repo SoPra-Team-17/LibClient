@@ -12,6 +12,7 @@
 #include <datatypes/gameplay/State.hpp>
 #include <variant>
 #include <datatypes/gameplay/GadgetAction.hpp>
+#include <util/OrderUtils.hpp>
 
 namespace libclient::model {
     class AIState {
@@ -29,10 +30,10 @@ namespace libclient::model {
             std::set<spy::util::UUID> npcFaction; // set during game
 
             // float is percentage to show how sure one is
-            std::map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, float>>> unknownGadgets; // initially set by HelloReply message
-            std::map<std::shared_ptr<spy::gadget::Gadget>, spy::util::UUID> characterGadgets; // initially set by sendEquipmentChoice method
-            std::set<std::shared_ptr<spy::gadget::Gadget>> floorGadgets; // set by GameStatus message (but not if removed from floor)
-            std::set<std::variant<spy::util::UUID, spy::util::Point>> poisonedCocktails; // initially no cocktails are poisoned
+            std::map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, float>>, util::cmpGadgetPtr> unknownGadgets; // initially set by HelloReply message
+            std::map<std::shared_ptr<spy::gadget::Gadget>, spy::util::UUID, util::cmpGadgetPtr> characterGadgets; // initially set by sendEquipmentChoice method
+            std::set<std::shared_ptr<spy::gadget::Gadget>, util::cmpGadgetPtr> floorGadgets; // set by GameStatus message (but not if removed from floor)
+            std::vector<std::variant<spy::util::UUID, spy::util::Point>> poisonedCocktails; // initially no cocktails are poisoned
 
             std::map<spy::util::UUID, std::set<spy::character::PropertyEnum>> properties; // initially set by Hello Reply message
 
@@ -43,7 +44,8 @@ namespace libclient::model {
              * @param s current state
              * @param me FactionEnum of my faction
              */
-            void applySureInformation(spy::gameplay::State &s, spy::character::FactionEnum me); // done by GameStatus message
+            void
+            applySureInformation(spy::gameplay::State &s, spy::character::FactionEnum me); // done by GameStatus message
 
             /**
              * moves character id from unknownFaction list to specified faction list
@@ -55,39 +57,42 @@ namespace libclient::model {
 
             /**
              * moves gadget to characterGadgets or floorGadgets if not already in list
-             * @param gadget gadget to be set
+             * @param gadgetType type of gadget to be set
              * @param id id of character to move to, if not given gadget is moved to floor
              * @return true if method was successful
              */
-            bool addGadget(const std::shared_ptr<spy::gadget::Gadget> &gadget, const std::optional<spy::util::UUID> &id);
+            bool addGadget(spy::gadget::GadgetEnum gadgetType, const std::optional<spy::util::UUID> &id);
 
             /**
             * processes single operation into state lists/maps/...
             * @param operation operation to be processed
             */
-            void processOperation(std::shared_ptr<const spy::gameplay::BaseOperation> operation, const spy::gameplay::State &s); // done by GameStatus message
+            void processOperation(std::shared_ptr<const spy::gameplay::BaseOperation> operation,
+                                  const spy::gameplay::State &s); // done by GameStatus message
 
         private:
             /**
              * moves gadget to characterGadgets list
-             * @param gadget gadget to be added to character
+             * @param gadgetType gadget representing type to be added to character
              * @param id id of character to move to
              * @return true if method was successful
              */
-            bool addGadgetToCharacter(const std::shared_ptr<spy::gadget::Gadget> &gadget, const spy::util::UUID &id);
+            bool
+            addGadgetToCharacter(const std::shared_ptr<spy::gadget::Gadget> &gadgetType, const spy::util::UUID &id);
 
             /**
              * moves gadget to floorGadgets list
-             * @param gadget gadget to be added to floor
+             * @param gadgetType gadget representing type to be added to floor
              * @return true if method was successful
              */
-            bool addGadgetToFloor(const std::shared_ptr<spy::gadget::Gadget> &gadget);
+            bool addGadgetToFloor(const std::shared_ptr<spy::gadget::Gadget> &gadgetType);
 
             /**
              * processes single gadget action into state lists/maps/...
              * @param action gaget action to be processed
              */
-            void processGadgetAction(std::shared_ptr<const spy::gameplay::GadgetAction> action, const spy::gameplay::State &s);
+            void processGadgetAction(std::shared_ptr<const spy::gameplay::GadgetAction> action,
+                                     const spy::gameplay::State &s);
 
             /**
              * get faction of character according to AIState

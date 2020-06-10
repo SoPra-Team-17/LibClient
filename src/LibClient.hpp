@@ -75,7 +75,7 @@ namespace libclient {
 
             [[nodiscard]] const std::vector<spy::gadget::GadgetEnum> &getChosenGadgets() const;
 
-            [[nodiscard]] const std::map<spy::util::UUID, std::set<spy::gadget::GadgetEnum>>  &getEquipmentMap() const;
+            [[nodiscard]] const std::map<spy::util::UUID, std::set<spy::gadget::GadgetEnum>> &getEquipmentMap() const;
 
             [[nodiscard]] const std::vector<std::shared_ptr<const spy::gameplay::BaseOperation>> &getOperations() const;
 
@@ -99,7 +99,7 @@ namespace libclient {
              * @return true if setting worked (depends on network state)
              */
             bool setName(const std::string &name);
-      
+
             [[nodiscard]] std::optional<std::pair<bool, spy::util::UUID>> isEnemy() const;
 
             [[nodiscard]] bool lastOpSuccessful() const;
@@ -116,7 +116,7 @@ namespace libclient {
              * @return nullopt for spectator or if state is not valid
              */
             [[nodiscard]] std::optional<bool> amIPlayer1();
-      
+
             /**
              * @brief sets Faction of given character
              * @param id id of the client to set faction
@@ -125,7 +125,8 @@ namespace libclient {
              */
             bool setFaction(spy::util::UUID id, spy::character::FactionEnum faction);
 
-            [[nodiscard]] auto getUnknownFactionList() -> std::map<spy::util::UUID, std::vector<std::pair<spy::character::FactionEnum, float>>>;
+            [[nodiscard]] auto
+            getUnknownFactionList() -> std::map<spy::util::UUID, std::vector<std::pair<spy::character::FactionEnum, float>>>;
 
             [[nodiscard]] std::set<spy::util::UUID> getMyFactionList();
 
@@ -133,7 +134,8 @@ namespace libclient {
 
             [[nodiscard]] std::set<spy::util::UUID> getNpcFactionList();
 
-            [[nodiscard]] auto getUnknownGadgetsList() -> std::map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, float>>>;
+            [[nodiscard]] auto
+            getUnknownGadgetsList() -> std::map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, float>>, util::cmpGadgetPtr>;
 
             /**
              * @brief       creates information string about an operation
@@ -141,7 +143,8 @@ namespace libclient {
              * @param op    operation, from which info is extracted
              * @return      std::string containing info
              */
-            [[nodiscard]] std::string operationToString(const std::shared_ptr<const spy::gameplay::BaseOperation> op) const;
+            [[nodiscard]] std::string
+            operationToString(const std::shared_ptr<const spy::gameplay::BaseOperation> op) const;
     };
 
 }

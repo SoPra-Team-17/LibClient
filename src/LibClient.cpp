@@ -4,6 +4,7 @@
  * @date    14.04.2020 (creation)
  * @brief   Implementation of LibClient
  */
+
 #include "LibClient.hpp"
 
 #include <utility>
@@ -247,10 +248,10 @@ namespace libclient {
     }
 
     auto
-    LibClient::getUnknownGadgetsList() -> std::map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, float>>> {
+    LibClient::getUnknownGadgetsList() -> std::map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, float>>, util::cmpGadgetPtr> {
         return model->aiState.unknownGadgets;
     }
-  
+
     std::string LibClient::operationToString(const std::shared_ptr<const spy::gameplay::BaseOperation> op) const {
         using spy::gameplay::OperationEnum;
 
