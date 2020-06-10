@@ -111,6 +111,8 @@ namespace libclient {
             case spy::network::messages::MessageTypeEnum::GAME_STATUS: {
                 auto m = json.get<spy::network::messages::GameStatus>();
                 model->gameState.lastActiveCharacter = m.getActiveCharacterId();
+                model->gameState.operations.reserve(m.getOperations().size());
+                model->gameState.operations.reserve(model->gameState.operations.size() + m.getOperations().size());
                 for (const auto &op: m.getOperations()) {
                     model->gameState.operations.push_back(op->clone());
                 }
@@ -427,4 +429,5 @@ namespace libclient {
     Network::NetworkState Network::getState() const {
         return state;
     }
+
 }
