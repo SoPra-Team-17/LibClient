@@ -122,7 +122,7 @@ namespace libclient {
                     auto myFaction = model->clientState.amIPlayer1() ? spy::character::FactionEnum::PLAYER1
                                                                      : spy::character::FactionEnum::PLAYER2;
                     for (const auto &op: m.getOperations()) {
-                        model->aiState.processOperation(op, model->gameState.state);
+                        model->aiState.processOperation(op, model->gameState.state, model->gameState.settings, myFaction);
                         model->aiState.applySureInformation(model->gameState.state, myFaction);
                     }
                 }

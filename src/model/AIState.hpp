@@ -13,24 +13,23 @@
 #include <variant>
 #include <datatypes/gameplay/GadgetAction.hpp>
 #include <util/OrderUtils.hpp>
+#include <datatypes/matchconfig/MatchConfig.hpp>
 
 namespace libclient::model {
     class AIState {
-            // TODO (optional): count hp of characters to check for exfiltration (might find out who has AntiPlagueMask and take into account)
-            // TODO (optional): track who uses actions against which persons (probs for faction groups)
-
-            // TODO: if character gets not rid of moledie in turn -> character is enemy, gets rid -> is npc (but could also be enemy trying to tarn as npc) with prob --> structure needed
-            // TODO: track which safes where opened with which key (remember opened safes and reset searched saves on new key) --> structure needed (on spy)
+            // TODO (optional): count hp of characters to check for exfiltration (might find out who has AntiPlagueMask and take into account) -> more variables needed
+            // TODO (optional): track who uses actions against which persons (probs for faction groups) -> more variables needed
+            // TODO (optional): character got rid of moledie -> is npc (but could also be enemy trying to tarn as npc) with prob -> more variables needed
 
         public:
-            // float is percentage to show how sure one is
-            std::map<spy::util::UUID, std::vector<std::pair<spy::character::FactionEnum, float>>> unknownFaction; // initially set by HelloReply message
+            // double is percentage to show how sure one is
+            std::map<spy::util::UUID, std::vector<std::pair<spy::character::FactionEnum, double>>> unknownFaction; // initially set by HelloReply message
             std::set<spy::util::UUID> myFaction; // set by RequestEquipmentChoice message
             std::set<spy::util::UUID> enemyFaction; // set during game
             std::set<spy::util::UUID> npcFaction; // set during game
 
-            // float is percentage to show how sure one is
-            std::map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, float>>, util::cmpGadgetPtr> unknownGadgets; // initially set by HelloReply message
+            // double is percentage to show how sure one is
+            std::map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, double>>, util::cmpGadgetPtr> unknownGadgets; // initially set by HelloReply message
             std::map<std::shared_ptr<spy::gadget::Gadget>, spy::util::UUID, util::cmpGadgetPtr> characterGadgets; // initially set by sendEquipmentChoice method
             std::set<std::shared_ptr<spy::gadget::Gadget>, util::cmpGadgetPtr> floorGadgets; // set by GameStatus message (but not if removed from floor)
             std::vector<std::variant<spy::util::UUID, spy::util::Point>> poisonedCocktails; // initially no cocktails are poisoned
@@ -38,6 +37,15 @@ namespace libclient::model {
             std::map<spy::util::UUID, std::set<spy::character::PropertyEnum>> properties; // initially set by Hello Reply message
 
             std::optional<spy::util::Point> posOfInvertedRoulette;
+
+            spy::util::UUID lastCharTurn;
+            bool gotRidOfMoleDie = false;
+
+            std::set<int> openedSafes;
+            // from safe to numberOfSafeCombinations when tried to open
+            std::map<int, int> triedSafes;
+            std::set<int> safeComibnations;
+            std::set<int> openedSafesTotal;
 
             /**
              * applies all lists without "unknown" in name to current state
@@ -66,9 +74,12 @@ namespace libclient::model {
             /**
             * processes single operation into state lists/maps/...
             * @param operation operation to be processed
+            * @param s state without operation applied
+            * @param config match config
             */
             void processOperation(std::shared_ptr<const spy::gameplay::BaseOperation> operation,
-                                  const spy::gameplay::State &s); // done by GameStatus message
+                                  const spy::gameplay::State &s, const spy::MatchConfig &config,
+                                  spy::character::FactionEnum me); // done by GameStatus message
 
         private:
             /**
@@ -89,10 +100,12 @@ namespace libclient::model {
 
             /**
              * processes single gadget action into state lists/maps/...
-             * @param action gaget action to be processed
+             * @param action gadget action to be processed
+            * @param s state without gadget action applied
+            * @param config match config
              */
             void processGadgetAction(std::shared_ptr<const spy::gameplay::GadgetAction> action,
-                                     const spy::gameplay::State &s);
+                                     const spy::gameplay::State &s, const spy::MatchConfig &config);
 
             /**
              * get faction of character according to AIState
@@ -102,6 +115,14 @@ namespace libclient::model {
             spy::character::FactionEnum getFaction(const spy::util::UUID &id);
 
             void modifyUsagesLeft(const std::shared_ptr<spy::gadget::Gadget> &gad);
+
+            std::optional<double> hasCharacterGadget(const spy::util::UUID &id, spy::gadget::GadgetEnum type);
+
+            bool hasCharacterProperty(const spy::util::UUID &id, spy::character::PropertyEnum prop);
+
+            void push_back_toUnknownGadgets(std::shared_ptr<spy::gadget::Gadget> key, const spy::util::UUID &val, double certainty);
+
+            void push_back_toUnknownFaction(const spy::util::UUID &key, spy::character::FactionEnum val, double certainty);
     };
 }
 

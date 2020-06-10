@@ -231,7 +231,7 @@ namespace libclient {
     }
 
     auto
-    LibClient::getUnknownFactionList() -> std::map<spy::util::UUID, std::vector<std::pair<spy::character::FactionEnum, float>>> {
+    LibClient::getUnknownFactionList() -> std::map<spy::util::UUID, std::vector<std::pair<spy::character::FactionEnum, double>>> {
         return model->aiState.unknownFaction;
     }
 
@@ -248,7 +248,7 @@ namespace libclient {
     }
 
     auto
-    LibClient::getUnknownGadgetsList() -> std::map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, float>>, util::cmpGadgetPtr> {
+    LibClient::getUnknownGadgetsList() -> std::map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, double>>, util::cmpGadgetPtr> {
         return model->aiState.unknownGadgets;
     }
 

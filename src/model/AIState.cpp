@@ -8,6 +8,7 @@
 #include <datatypes/gameplay/SpyAction.hpp>
 #include <util/GameLogicUtils.hpp>
 
+
 namespace libclient::model {
     void AIState::applySureInformation(spy::gameplay::State &s, spy::character::FactionEnum me) {
         using namespace spy::character;
@@ -37,6 +38,15 @@ namespace libclient::model {
             // properties
             if (c.getFaction() != me) {
                 c.setProperties(properties[c.getCharacterId()]);
+            }
+        }
+
+        // apply characterGadgets from state
+        auto copyCharacterGadgets = characterGadgets;
+        for (const auto &it : copyCharacterGadgets) {
+            auto c = s.getCharacters().getByUUID(it.second);
+            for (auto gad: c->getGadgets()) {
+                addGadgetToCharacter(gad, c->getCharacterId());
             }
         }
 
@@ -98,9 +108,15 @@ namespace libclient::model {
         auto unknown = unknownGadgets.find(gadgetType);
 
         if (unknown == unknownGadgets.end()) {
-            auto floor = std::find(floorGadgets.begin(), floorGadgets.end(), gadgetType);
+            auto floor = floorGadgets.find(gadgetType);
             if (floor == floorGadgets.end()) {
-                return false;
+                auto character = characterGadgets.find(gadgetType);
+                if (character == characterGadgets.end()) {
+                    return false;
+                }
+                // from characterGadgets list to characterGadgets list
+                character->second = id;
+                return true;
             }
             // from floorGadgets list to characterGadgets list
             characterGadgets[*floor] = id;
@@ -119,7 +135,8 @@ namespace libclient::model {
         if (unknown == unknownGadgets.end()) {
             auto character = characterGadgets.find(gadgetType);
             if (character == characterGadgets.end()) {
-                return false;
+                auto floor = floorGadgets.find(gadgetType);
+                return floor != floorGadgets.end(); // from floorGadgets list to floorGadgets list
             }
             // from characterGadgets list to floorGadgets list
             floorGadgets.insert(character->first);
@@ -133,11 +150,39 @@ namespace libclient::model {
     }
 
     void AIState::processOperation(std::shared_ptr<const spy::gameplay::BaseOperation> operation,
-                                   const spy::gameplay::State &s) {
+                                   const spy::gameplay::State &s, const spy::MatchConfig &config,
+                                   spy::character::FactionEnum me) {
+        // check for getting rid of MOLEDIE
+        auto opType = operation->getType();
+        if (opType != spy::gameplay::OperationEnum::CAT_ACTION &&
+            opType != spy::gameplay::OperationEnum::JANITOR_ACTION &&
+            opType != spy::gameplay::OperationEnum::EXFILTRATION) {
+            auto op = std::dynamic_pointer_cast<const spy::gameplay::CharacterOperation>(operation);
+            if (op->getCharacterId() != lastCharTurn) {
+                // next characters turn
+
+                // character got not rid of MOLEDIE in turn -> character is enemy (take prob of having moledie into account)
+                if (!gotRidOfMoleDie) {
+                    auto probHasMoleDie = hasCharacterGadget(lastCharTurn, spy::gadget::GadgetEnum::MOLEDIE);
+                    if (probHasMoleDie.has_value()) {
+                        if (probHasMoleDie.value() == 1) {
+                            addFaction(lastCharTurn, enemyFaction);
+                        } else if (probHasMoleDie.value() != 0) {
+                            push_back_toUnknownFaction(lastCharTurn, spy::character::FactionEnum::NEUTRAL,
+                                                       probHasMoleDie.value());
+                        }
+                    }
+                }
+
+                lastCharTurn = op->getCharacterId();
+                gotRidOfMoleDie = false;
+            }
+        }
+
         switch (operation->getType()) {
             case spy::gameplay::OperationEnum::GADGET_ACTION: {
                 auto op = std::dynamic_pointer_cast<const spy::gameplay::GadgetAction>(operation);
-                processGadgetAction(op, s);
+                processGadgetAction(op, s, config);
                 break;
             }
             case spy::gameplay::OperationEnum::SPY_ACTION: {
@@ -145,29 +190,81 @@ namespace libclient::model {
 
                 auto targetChar = spy::util::GameLogicUtils::findInCharacterSetByCoordinates(s.getCharacters(),
                                                                                              op->getTarget());
-
                 auto sourceChar = s.getCharacters().findByUUID(op->getCharacterId());
+                bool isSourceCharMyFaction =
+                        std::find(myFaction.begin(), myFaction.end(), sourceChar->getCharacterId()) !=
+                        myFaction.end();
+
                 if (targetChar != s.getCharacters().end()) { // spy on person
                     // spy on me -> executor is enemy
                     bool isTargetCharMyFaction =
                             std::find(myFaction.begin(), myFaction.end(), targetChar->getCharacterId()) !=
-                            myFaction.end();
-                    bool isSourceCharMyFaction =
-                            std::find(myFaction.begin(), myFaction.end(), sourceChar->getCharacterId()) !=
                             myFaction.end();
                     if (isTargetCharMyFaction && !isSourceCharMyFaction) {
                         addFaction(targetChar->getCharacterId(), enemyFaction);
                     }
 
                     // spy successful -> target is npc
-                    if (op->isSuccessful()) {
+                    if (op->isSuccessful() && isSourceCharMyFaction) {
                         addFaction(targetChar->getCharacterId(), npcFaction);
                     }
 
-                    // TODO prob: spy not successful -> target is enemy with prob
+                    // spy not successful -> target is enemy with prob
+                    if (!op->isSuccessful() && isSourceCharMyFaction && config.getSpySuccessChance() != 0) {
+                        push_back_toUnknownFaction(targetChar->getCharacterId(),
+                                                   me == spy::character::FactionEnum::PLAYER1
+                                                   ? spy::character::FactionEnum::PLAYER2
+                                                   : spy::character::FactionEnum::PLAYER1,
+                                                   config.getSpySuccessChance());
+                    }
+
+                    // track safe combinations Client has
+                    if (isSourceCharMyFaction && op->isSuccessful()) {
+                        for (int comb: s.getMySafeCombinations()) {
+                            safeComibnations.insert(comb);
+                        }
+                    }
 
                 } else { // spy on safe
-                    // TODO prob: spy on safe -> executor has diamond collar with prob
+                    auto safeIndex = s.getMap().getField(op->getTarget()).getSafeIndex().value();
+
+                    // track which safes are opened by Client
+                    if (isSourceCharMyFaction) {
+                        if (op->isSuccessful()) {
+                            openedSafes.insert(safeIndex);
+                            openedSafesTotal.insert(safeIndex);
+                            triedSafes.erase(safeIndex);
+                        } else {
+                            triedSafes.insert(std::pair<int, int>(safeIndex, safeComibnations.size()));
+                        }
+                    }
+
+                    // executor has diamond collar with prob
+                    if (!isSourceCharMyFaction && op->isSuccessful() &&
+                        std::find(openedSafesTotal.begin(), openedSafesTotal.end(), safeIndex) !=
+                        openedSafesTotal.end()) { // safe was not opened before
+                        openedSafesTotal.insert(safeIndex);
+
+                        unsigned int maxSafeIndex = 1;
+                        auto m = s.getMap();
+                        for (auto y = 0U; y < m.getMap().size(); y++) {
+                            for (auto x = 0U; x < m.getMap().at(y).size(); x++) {
+                                const spy::scenario::Field f = m.getField(x, y);
+                                if (f.getFieldState() == spy::scenario::FieldStateEnum::SAFE
+                                    && f.getSafeIndex().value() > maxSafeIndex) {
+                                    maxSafeIndex = f.getSafeIndex().value();
+                                }
+                            }
+                        }
+
+                        auto gad = std::make_shared<spy::gadget::Gadget>(spy::gadget::GadgetEnum::DIAMOND_COLLAR);
+                        if (maxSafeIndex == 1) {
+                            addGadgetToCharacter(gad, op->getCharacterId());
+                        } else { // maxSafeIndex is always >= 1
+                            double prob = 1 / maxSafeIndex;
+                            push_back_toUnknownGadgets(gad, op->getCharacterId(), prob);
+                        }
+                    }
                 }
 
                 break;
@@ -176,7 +273,29 @@ namespace libclient::model {
                 auto op = std::dynamic_pointer_cast<const spy::gameplay::PropertyAction>(operation);
 
                 if (op->getUsedProperty() == spy::character::PropertyEnum::OBSERVATION) {
-                    // TODO prob: faction of target (but take pocket littler into account and success prob) with prob
+
+                    // isEnemy -> target character faction is enemy, not isEnemy -> target char is npc (take pocketlitter into account)
+                    if (op->isSuccessful()) {
+                        auto targetChar = spy::util::GameLogicUtils::findInCharacterSetByCoordinates(
+                                s.getCharacters(),
+                                op->getTarget());
+                        if (op->getIsEnemy()) {
+                            addFaction(targetChar->getCharacterId(), enemyFaction);
+                        } else {
+                            auto probHasCharacterPocketLitter = hasCharacterGadget(op->getCharacterId(),
+                                                                                   spy::gadget::GadgetEnum::POCKET_LITTER);
+                            if (probHasCharacterPocketLitter.has_value()) {
+                                if (probHasCharacterPocketLitter == 0) {
+                                    addFaction(targetChar->getCharacterId(), npcFaction);
+                                } else if (probHasCharacterPocketLitter.value() != 1) {
+                                    push_back_toUnknownFaction(targetChar->getCharacterId(),
+                                                               spy::character::FactionEnum::NEUTRAL,
+                                                               1 - probHasCharacterPocketLitter.value());
+                                }
+                            }
+                        }
+                    }
+
                 }
 
                 break;
@@ -199,7 +318,7 @@ namespace libclient::model {
     }
 
     void AIState::processGadgetAction(std::shared_ptr<const spy::gameplay::GadgetAction> action,
-                                      const spy::gameplay::State &s) {
+                                      const spy::gameplay::State &s, const spy::MatchConfig &config) {
         auto gadget = std::make_shared<spy::gadget::Gadget>(action->getGadget());
         auto targetChar = spy::util::GameLogicUtils::findInCharacterSetByCoordinates(s.getCharacters(),
                                                                                      action->getTarget());
@@ -215,7 +334,42 @@ namespace libclient::model {
                 properties.at(targetChar->getCharacterId()).erase(spy::character::PropertyEnum::CLAMMY_CLOTHES);
                 break;
             case spy::gadget::GadgetEnum::MOLEDIE:
-                // TODO (prob): calc who now has moledie may with prob
+                // track getting rid of MOLEDIE
+                gotRidOfMoleDie = true;
+
+                // after usage: target is character -> target owns moledie (take honey trap into account)
+                //              target is floor -> bowler blade is owned by closest character to target point
+                if (targetChar != s.getCharacters().end()) { // target is character
+                    if (!hasCharacterProperty(targetChar->getCharacterId(), spy::character::PropertyEnum::HONEY_TRAP)) {
+                        addGadgetToCharacter(gadget, targetChar->getCharacterId());
+                    } else {
+                        characterGadgets.erase(gadget);
+                        double prob = 1 - config.getHoneyTrapSuccessChance();
+                        if (prob == 1) { // honeyTrapSuccessChange is 0
+                            addGadgetToCharacter(gadget, targetChar->getCharacterId());
+                        } else if (prob != 0) {
+                            push_back_toUnknownGadgets(gadget, targetChar->getCharacterId(), prob);
+                        }
+                    }
+                } else { // target is floor
+                    auto closestPoints = spy::util::GameLogicUtils::getCharacterNearFields(s, action->getTarget());
+                    if (closestPoints.size() == 1) {
+                        // clear where moledie goes
+                        auto closestPerson = spy::util::GameLogicUtils::findInCharacterSetByCoordinates(
+                                s.getCharacters(), closestPoints[0]);
+                        addGadgetToCharacter(gadget, closestPerson->getCharacterId());
+                    } else {
+                        // unclear where moledie goes
+                        double prob = 1 / closestPoints.size();
+                        characterGadgets.erase(gadget);
+                        for (auto p: closestPoints) {
+                            auto person = spy::util::GameLogicUtils::findInCharacterSetByCoordinates(s.getCharacters(),
+                                                                                                     p);
+                            push_back_toUnknownGadgets(gadget, person->getCharacterId(), prob);
+                        }
+                    }
+                }
+
                 break;
             case spy::gadget::GadgetEnum::TECHNICOLOUR_PRISM:
                 // invert roulette table
@@ -225,14 +379,29 @@ namespace libclient::model {
                 characterGadgets.erase(gadget);
                 break;
             case spy::gadget::GadgetEnum::BOWLER_BLADE:
-                // TODO prob: if not successful target has MAGENTIC_WATCH (prob of success, honey, babysitter) with prob
+                // not working -> target has MAGENTIC_WATCH (take into account: prob of success) with prob
+                if (!action->isSuccessful()) {
+                    auto probHasMagenticWatch = hasCharacterGadget(targetChar->getCharacterId(), spy::gadget::GadgetEnum::MAGNETIC_WATCH);
+                    if (probHasMagenticWatch.has_value()) {
+                        if (probHasMagenticWatch.value() != 0 && probHasMagenticWatch.value() != 1) {
+                            int numBabysitter = spy::util::GameLogicUtils::babysitterNumber(s, action);
+                            double prob = 1 - (config.getBowlerBladeHitChance() * (std::pow(1 - config.getBabysitterSuccessChance(), numBabysitter)));
+                            if (prob != 0 && prob != 1) {
+                                push_back_toUnknownGadgets(gadget, targetChar->getCharacterId(), prob);
+                            }
+                        }
+                    }
+                }
+
+                // after usage: bowler blade is on floor
+                addGadgetToFloor(gadget);
                 break;
             case spy::gadget::GadgetEnum::POISON_PILLS:
                 // cocktail at target is poisoned
                 if (targetChar != s.getCharacters().end()) { // character holds cocktail
-                    poisonedCocktails.push_back(targetChar->getCharacterId());
+                    poisonedCocktails.emplace_back(targetChar->getCharacterId());
                 } else { // cocktail is on bar table
-                    poisonedCocktails.push_back(action->getTarget());
+                    poisonedCocktails.emplace_back(action->getTarget());
                 }
 
                 // after usage: modify usagesLeft
@@ -343,7 +512,7 @@ namespace libclient::model {
                     if (cocktail != poisonedCocktails.end()) {
                         // cocktail from bar table is poisoned
                         poisonedCocktails.erase(cocktail);
-                        poisonedCocktails.push_back(action->getCharacterId());
+                        poisonedCocktails.emplace_back(action->getCharacterId());
                     }
                 }
 
@@ -378,6 +547,73 @@ namespace libclient::model {
         gad->setUsagesLeft(gad->getUsagesLeft().value() - 1);
         if (gad->getUsagesLeft() == 0) {
             characterGadgets.erase(gad);
+        }
+    }
+
+    std::optional<double> AIState::hasCharacterGadget(const spy::util::UUID &id, spy::gadget::GadgetEnum type) {
+        auto gad = std::make_shared<spy::gadget::Gadget>(type);
+
+        auto charGad = characterGadgets.find(gad);
+        if (charGad != characterGadgets.end()) {
+            return charGad->second == id ? 1 : 0;
+        }
+
+        auto floorGad = floorGadgets.find(gad);
+        if (floorGad != floorGadgets.end()) {
+            return 0;
+        }
+
+        auto unknownGad = unknownGadgets.find(gad);
+        if (unknownGad != unknownGadgets.end() && !unknownGad->second.empty()) {
+            auto b = std::find_if(unknownGad->second.begin(), unknownGad->second.end(), [&id](const std::pair<spy::util::UUID, double> &p) {
+                return p.first == id;
+            });
+            if (b != unknownGad->second.end()) {
+                return b->second;
+            }
+        }
+
+        return std::nullopt;
+    }
+
+    bool AIState::hasCharacterProperty(const spy::util::UUID &id, spy::character::PropertyEnum prop) {
+        auto p = std::find(properties[id].begin(), properties[id].end(), prop);
+        return p != properties[id].end();
+    }
+
+    void
+    AIState::push_back_toUnknownFaction(const spy::util::UUID &key, spy::character::FactionEnum val, double certainty) {
+        auto keyInMap = unknownFaction.find(key);
+        if (keyInMap != unknownFaction.end()) {
+            // faction of character with id key is unknown
+            auto valInMap = std::find_if(keyInMap->second.begin(), keyInMap->second.end(),
+                                         [&val](const std::pair<spy::character::FactionEnum, double> &p) {
+                                             return p.first == val;
+                                         });
+            if (valInMap != keyInMap->second.end()) {
+                // certainty for value already in map
+                valInMap->second = (valInMap->second + certainty) / 2;
+            } else {
+                unknownFaction[key].push_back(std::pair<spy::character::FactionEnum, double>(val, certainty));
+            }
+        }
+    }
+
+    void AIState::push_back_toUnknownGadgets(std::shared_ptr<spy::gadget::Gadget> key, const spy::util::UUID &val,
+                                             double certainty) {
+        auto keyInMap = unknownGadgets.find(key);
+        if (keyInMap != unknownGadgets.end()) {
+            // gadget location is unknown
+            auto valInMap = std::find_if(keyInMap->second.begin(), keyInMap->second.end(),
+                                         [&val](const std::pair<spy::util::UUID, double> &p) {
+                                             return p.first == val;
+                                         });
+            if (valInMap != keyInMap->second.end()) {
+                // certainty for value already in map
+                valInMap->second = (valInMap->second + certainty) / 2;
+            } else {
+                unknownGadgets[key].push_back(std::pair<spy::util::UUID, double>(val, certainty));
+            }
         }
     }
 
