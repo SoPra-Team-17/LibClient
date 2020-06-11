@@ -224,15 +224,21 @@ namespace libclient {
         }
     }
 
-    bool Network::reconnectPlayerAfterCrash(const std::string &servername, int port, std::string clientName,
-                                            spy::util::UUID clientId, spy::util::UUID sessionId) {
+    bool Network::reconnectPlayerAfterCrash(const std::string &servername, int port, const std::string &clientName,
+                                            const spy::util::UUID &clientId, const spy::util::UUID &sessionId,
+                                            const spy::util::UUID &playerOneId, const spy::util::UUID &playerTwoId,
+                                            const std::string &playerOneName, const std::string &playerTwoName) {
         // save params
         this->serverName = servername;
         this->serverPort = port;
         model->clientState.role = spy::network::RoleEnum::PLAYER;
-        model->clientState.name = std::move(clientName);
+        model->clientState.name = clientName;
         model->clientState.id = clientId;
         model->clientState.sessionId = sessionId;
+        model->clientState.playerOneId = playerOneId;
+        model->clientState.playerTwoId = playerTwoId;
+        model->clientState.playerOneName = playerOneName;
+        model->clientState.playerTwoName = playerTwoName;
 
         // start reconnect procedure
         state = NetworkState::RECONNECT;

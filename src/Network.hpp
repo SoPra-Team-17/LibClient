@@ -53,10 +53,18 @@ namespace libclient {
              * @param clientName name of client / player
              * @param clientId id client had before crash
              * @param sessionId id of session client was in before crash
+             * @param playerOneId id of player one
+             * @param playerTwoId id of player two
+             * @param playerOneName name of player one
+             * @param playerTwoName name of player two
              * @return true if reconnect message could be sent
              */
-            bool reconnectPlayerAfterCrash(const std::string &servername, int port, std::string clientName,
-                                           spy::util::UUID clientId, spy::util::UUID sessionId);
+            bool reconnectPlayerAfterCrash(const std::string &servername, int port, const std::string &clientName,
+                                           const spy::util::UUID &clientId, const spy::util::UUID &sessionId,
+                                           const spy::util::UUID &playerOneId = {},
+                                           const spy::util::UUID &playerTwoId = {},
+                                           const std::string &playerOneName = {},
+                                           const std::string &playerTwoName = {});
 
             /**
              * connect to specified server (possible in following states: NOT_CONNECTED, CONNECTED, RECONNECT, GAME_OVER)
