@@ -30,6 +30,7 @@
 #include <network/messages/Strike.hpp>
 #include <network/messages/MetaInformation.hpp>
 #include <util/UUID.hpp>
+#include <utility>
 
 namespace libclient {
     Network::Network(libclient::Callback *c, std::shared_ptr<Model> m) : callback(c), model(std::move(m)) {}
@@ -238,13 +239,39 @@ namespace libclient {
         }
     }
 
+    bool Network::reconnectPlayerAfterCrash(const std::string &servername,
+                                            int port,
+                                            const std::string &clientName,
+                                            const spy::util::UUID &clientId,
+                                            const spy::util::UUID &sessionId,
+                                            const spy::util::UUID &playerOneId,
+                                            const spy::util::UUID &playerTwoId,
+                                            const std::string &playerOneName,
+                                            const std::string &playerTwoName) {
+        // save params
+        this->serverName = servername;
+        this->serverPort = port;
+        model->clientState.role = spy::network::RoleEnum::PLAYER;
+        model->clientState.name = clientName;
+        model->clientState.id = clientId;
+        model->clientState.sessionId = sessionId;
+        model->clientState.playerOneId = playerOneId;
+        model->clientState.playerTwoId = playerTwoId;
+        model->clientState.playerOneName = playerOneName;
+        model->clientState.playerTwoName = playerTwoName;
+
+        // start reconnect procedure
+        state = NetworkState::RECONNECT;
+        return sendReconnect();
+    }
+
     bool Network::connect(const std::string &servername, int port) {
         if (state != NetworkState::NOT_CONNECTED && state != NetworkState::CONNECTED &&
             state != NetworkState::RECONNECT && state != NetworkState::GAME_OVER) {
             return false;
         }
 
-        if (state != NetworkState::NOT_CONNECTED) {
+        if (state != NetworkState::NOT_CONNECTED && state != NetworkState::GAME_OVER) {
             if (this->serverName != servername || this->serverPort != port) {
                 // connect to another server -> disconnect to current server
                 disconnect();
