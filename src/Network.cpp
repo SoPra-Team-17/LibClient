@@ -30,6 +30,7 @@
 #include <network/messages/Strike.hpp>
 #include <network/messages/MetaInformation.hpp>
 #include <util/UUID.hpp>
+#include <utility>
 
 namespace libclient {
     Network::Network(libclient::Callback *c, std::shared_ptr<Model> m) : callback(c), model(std::move(m)) {}
@@ -221,6 +222,21 @@ namespace libclient {
                 callback->wrongDestination();
                 break;
         }
+    }
+
+    bool Network::reconnectPlayerAfterCrash(const std::string &servername, int port, std::string clientName,
+                                            spy::util::UUID clientId, spy::util::UUID sessionId) {
+        // save params
+        this->serverName = servername;
+        this->serverPort = port;
+        model->clientState.role = spy::network::RoleEnum::PLAYER;
+        model->clientState.name = std::move(clientName);
+        model->clientState.id = clientId;
+        model->clientState.sessionId = sessionId;
+
+        // start reconnect procedure
+        state = NetworkState::RECONNECT;
+        return sendReconnect();
     }
 
     bool Network::connect(const std::string &servername, int port) {

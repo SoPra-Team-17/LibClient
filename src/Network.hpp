@@ -41,10 +41,22 @@ namespace libclient {
                 PAUSE,
                 GAME_OVER
             };
-            
+
             Network(libclient::Callback *c, std::shared_ptr<libclient::Model> m);
 
             [[nodiscard]] NetworkState getState() const;
+
+            /**
+             * reconnect after Client in role PLAYER crashed (!! model is reset -> clients job to get info if needed !!)
+             * @param servername name or ip of server
+             * @param port port of server
+             * @param clientName name of client / player
+             * @param clientId id client had before crash
+             * @param sessionId id of session client was in before crash
+             * @return true if reconnect message could be sent
+             */
+            bool reconnectPlayerAfterCrash(const std::string &servername, int port, std::string clientName,
+                                           spy::util::UUID clientId, spy::util::UUID sessionId);
 
             /**
              * connect to specified server (possible in following states: NOT_CONNECTED, CONNECTED, RECONNECT, GAME_OVER)
@@ -58,14 +70,14 @@ namespace libclient {
              * disconnect from server, model is reset (can be called any time, e.g. to force connect method to work)
              */
             void disconnect();
-      
-            bool sendHello(const std::string& name, spy::network::RoleEnum role);
+
+            bool sendHello(const std::string &name, spy::network::RoleEnum role);
 
             bool sendItemChoice(std::variant<spy::util::UUID, spy::gadget::GadgetEnum> choice);
 
             bool sendEquipmentChoice(const std::map<spy::util::UUID, std::set<spy::gadget::GadgetEnum>> &equipment);
 
-            bool sendGameOperation(const std::shared_ptr<spy::gameplay::BaseOperation>& operation,
+            bool sendGameOperation(const std::shared_ptr<spy::gameplay::BaseOperation> &operation,
                                    const spy::MatchConfig &config);
 
             bool sendGameLeave();
@@ -78,7 +90,7 @@ namespace libclient {
 
             bool sendReconnect();
 
-        private:      
+        private:
             Callback *callback;
             std::shared_ptr<Model> model;
             std::optional<websocket::network::WebSocketClient> webSocketClient;
@@ -92,7 +104,7 @@ namespace libclient {
              * function to handle received messages
              * @param message std::string received message from server
              */
-            void onReceiveMessage(const std::string& message);
+            void onReceiveMessage(const std::string &message);
 
             /**
              * function to handle connection lost
