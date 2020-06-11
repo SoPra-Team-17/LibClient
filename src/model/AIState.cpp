@@ -45,7 +45,7 @@ namespace libclient::model {
         auto copyCharacterGadgets = characterGadgets;
         for (const auto &it : copyCharacterGadgets) {
             auto c = s.getCharacters().getByUUID(it.second);
-            for (auto gad: c->getGadgets()) {
+            for (const auto &gad: c->getGadgets()) {
                 addGadgetToCharacter(gad, c->getCharacterId());
             }
         }
@@ -191,15 +191,11 @@ namespace libclient::model {
                 auto targetChar = spy::util::GameLogicUtils::findInCharacterSetByCoordinates(s.getCharacters(),
                                                                                              op->getTarget());
                 auto sourceChar = s.getCharacters().findByUUID(op->getCharacterId());
-                bool isSourceCharMyFaction =
-                        std::find(myFaction.begin(), myFaction.end(), sourceChar->getCharacterId()) !=
-                        myFaction.end();
+                bool isSourceCharMyFaction = myFaction.find(sourceChar->getCharacterId()) != myFaction.end();
 
                 if (targetChar != s.getCharacters().end()) { // spy on person
                     // spy on me -> executor is enemy
-                    bool isTargetCharMyFaction =
-                            std::find(myFaction.begin(), myFaction.end(), targetChar->getCharacterId()) !=
-                            myFaction.end();
+                    bool isTargetCharMyFaction = myFaction.find(targetChar->getCharacterId()) != myFaction.end();
                     if (isTargetCharMyFaction && !isSourceCharMyFaction) {
                         addFaction(targetChar->getCharacterId(), enemyFaction);
                     }
@@ -226,7 +222,7 @@ namespace libclient::model {
                     }
 
                 } else { // spy on safe
-                    auto safeIndex = s.getMap().getField(op->getTarget()).getSafeIndex().value();
+                    unsigned int safeIndex = op->getTarget().y + op->getTarget().x * s.getMap().getNumberOfRows();
 
                     // track which safes are opened by Client
                     if (isSourceCharMyFaction) {
@@ -245,23 +241,22 @@ namespace libclient::model {
                         openedSafesTotal.end()) { // safe was not opened before
                         openedSafesTotal.insert(safeIndex);
 
-                        unsigned int maxSafeIndex = 1;
+                        unsigned int numOfSafes = 1;
                         auto m = s.getMap();
                         for (auto y = 0U; y < m.getMap().size(); y++) {
                             for (auto x = 0U; x < m.getMap().at(y).size(); x++) {
                                 const spy::scenario::Field f = m.getField(x, y);
-                                if (f.getFieldState() == spy::scenario::FieldStateEnum::SAFE
-                                    && f.getSafeIndex().value() > maxSafeIndex) {
-                                    maxSafeIndex = f.getSafeIndex().value();
+                                if (f.getFieldState() == spy::scenario::FieldStateEnum::SAFE) {
+                                    numOfSafes += 1;
                                 }
                             }
                         }
 
                         auto gad = std::make_shared<spy::gadget::Gadget>(spy::gadget::GadgetEnum::DIAMOND_COLLAR);
-                        if (maxSafeIndex == 1) {
+                        if (numOfSafes == 1) {
                             addGadgetToCharacter(gad, op->getCharacterId());
                         } else { // maxSafeIndex is always >= 1
-                            double prob = 1 / maxSafeIndex;
+                            double prob = 1 / numOfSafes;
                             push_back_toUnknownGadgets(gad, op->getCharacterId(), prob);
                         }
                     }
@@ -381,11 +376,13 @@ namespace libclient::model {
             case spy::gadget::GadgetEnum::BOWLER_BLADE:
                 // not working -> target has MAGENTIC_WATCH (take into account: prob of success) with prob
                 if (!action->isSuccessful()) {
-                    auto probHasMagenticWatch = hasCharacterGadget(targetChar->getCharacterId(), spy::gadget::GadgetEnum::MAGNETIC_WATCH);
+                    auto probHasMagenticWatch = hasCharacterGadget(targetChar->getCharacterId(),
+                                                                   spy::gadget::GadgetEnum::MAGNETIC_WATCH);
                     if (probHasMagenticWatch.has_value()) {
                         if (probHasMagenticWatch.value() != 0 && probHasMagenticWatch.value() != 1) {
                             int numBabysitter = spy::util::GameLogicUtils::babysitterNumber(s, action);
-                            double prob = 1 - (config.getBowlerBladeHitChance() * (std::pow(1 - config.getBabysitterSuccessChance(), numBabysitter)));
+                            double prob = 1 - (config.getBowlerBladeHitChance() *
+                                               (std::pow(1 - config.getBabysitterSuccessChance(), numBabysitter)));
                             if (prob != 0 && prob != 1) {
                                 push_back_toUnknownGadgets(gadget, targetChar->getCharacterId(), prob);
                             }
@@ -472,7 +469,37 @@ namespace libclient::model {
                 if (action->isSuccessful()) {
                     addFaction(targetChar->getCharacterId(), npcFaction);
                     npcFaction.erase(targetChar->getCharacterId());
-                    myFaction.insert(targetChar->getCharacterId());
+                    // npc goes to my faction
+                    bool isSourceCharMyFaction = myFaction.find(sourceChar->getCharacterId()) != myFaction.end();
+                    if (isSourceCharMyFaction) {
+                        myFaction.insert(targetChar->getCharacterId());
+                    } else {
+                        // npc goes to enemy faction
+                        bool isSourceCharEnemyFaction =
+                                enemyFaction.find(sourceChar->getCharacterId()) != enemyFaction.end();
+                        if (isSourceCharEnemyFaction) {
+                            enemyFaction.insert(targetChar->getCharacterId());
+                        } else {
+                            // npc stays in its faction
+                            bool isSourceCharNpcFaction = npcFaction.find(sourceChar->getCharacterId()) !=
+                                                          npcFaction.end();
+                            if (isSourceCharNpcFaction) {
+                                npcFaction.insert(targetChar->getCharacterId());
+                            } else {
+                                // faction of source character is unknown
+                                auto sourceFactionList = unknownFaction.find(sourceChar->getCharacterId());
+                                if (sourceFactionList != unknownFaction.end()) {
+                                    for (auto prob: sourceFactionList->second) {
+                                        double certainty =
+                                                std::accumulate(prob.second.begin(), prob.second.end(), 0.0) /
+                                                prob.second.size();
+                                        auto faction = prob.first;
+                                        push_back_toUnknownFaction(targetChar->getCharacterId(), faction, certainty);
+                                    }
+                                }
+                            }
+                        }
+                    }
 
                     characterGadgets.erase(gadget);
                 } else {
@@ -565,11 +592,12 @@ namespace libclient::model {
 
         auto unknownGad = unknownGadgets.find(gad);
         if (unknownGad != unknownGadgets.end() && !unknownGad->second.empty()) {
-            auto b = std::find_if(unknownGad->second.begin(), unknownGad->second.end(), [&id](const std::pair<spy::util::UUID, double> &p) {
-                return p.first == id;
-            });
+            auto b = std::find_if(unknownGad->second.begin(), unknownGad->second.end(),
+                                  [&id](const std::pair<spy::util::UUID, double> &p) {
+                                      return p.first == id;
+                                  });
             if (b != unknownGad->second.end()) {
-                return b->second;
+                return std::accumulate(b->second.begin(), b->second.end(), 0.0) / b->second.size();
             }
         }
 
@@ -592,9 +620,10 @@ namespace libclient::model {
                                          });
             if (valInMap != keyInMap->second.end()) {
                 // certainty for value already in map
-                valInMap->second = (valInMap->second + certainty) / 2;
+                valInMap->second.push_back(certainty);
             } else {
-                unknownFaction[key].push_back(std::pair<spy::character::FactionEnum, double>(val, certainty));
+                unknownFaction[key].push_back(
+                        std::pair<spy::character::FactionEnum, std::vector<double>>(val, {certainty}));
             }
         }
     }
@@ -610,9 +639,9 @@ namespace libclient::model {
                                          });
             if (valInMap != keyInMap->second.end()) {
                 // certainty for value already in map
-                valInMap->second = (valInMap->second + certainty) / 2;
+                valInMap->second.push_back(certainty);
             } else {
-                unknownGadgets[key].push_back(std::pair<spy::util::UUID, double>(val, certainty));
+                unknownGadgets[key].push_back(std::pair<spy::util::UUID, std::vector<double>>(val, {certainty}));
             }
         }
     }

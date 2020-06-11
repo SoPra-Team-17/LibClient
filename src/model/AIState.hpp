@@ -23,13 +23,13 @@ namespace libclient::model {
 
         public:
             // double is percentage to show how sure one is
-            std::map<spy::util::UUID, std::vector<std::pair<spy::character::FactionEnum, double>>> unknownFaction; // initially set by HelloReply message
+            std::map<spy::util::UUID, std::vector<std::pair<spy::character::FactionEnum, std::vector<double>>>> unknownFaction; // initially set by HelloReply message
             std::set<spy::util::UUID> myFaction; // set by RequestEquipmentChoice message
             std::set<spy::util::UUID> enemyFaction; // set during game
             std::set<spy::util::UUID> npcFaction; // set during game
 
             // double is percentage to show how sure one is
-            std::map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, double>>, util::cmpGadgetPtr> unknownGadgets; // initially set by HelloReply message
+            std::map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, std::vector<double>>>, util::cmpGadgetPtr> unknownGadgets; // initially set by HelloReply message
             std::map<std::shared_ptr<spy::gadget::Gadget>, spy::util::UUID, util::cmpGadgetPtr> characterGadgets; // initially set by sendEquipmentChoice method
             std::set<std::shared_ptr<spy::gadget::Gadget>, util::cmpGadgetPtr> floorGadgets; // set by GameStatus message (but not if removed from floor)
             std::vector<std::variant<spy::util::UUID, spy::util::Point>> poisonedCocktails; // initially no cocktails are poisoned
@@ -41,11 +41,11 @@ namespace libclient::model {
             spy::util::UUID lastCharTurn;
             bool gotRidOfMoleDie = false;
 
-            std::set<int> openedSafes;
+            std::set<unsigned int> openedSafes;
             // from safe to numberOfSafeCombinations when tried to open
-            std::map<int, int> triedSafes;
-            std::set<int> safeComibnations;
-            std::set<int> openedSafesTotal;
+            std::map<unsigned int, int> triedSafes;
+            std::set<unsigned int> safeComibnations;
+            std::set<unsigned int> openedSafesTotal;
 
             /**
              * applies all lists without "unknown" in name to current state
@@ -84,7 +84,7 @@ namespace libclient::model {
         private:
             /**
              * moves gadget to characterGadgets list
-             * @param gadgetType gadget representing type to be added to character
+             * @param gadgetType gadget representing type to be added to character (do not add this gadget but gadget from other list)
              * @param id id of character to move to
              * @return true if method was successful
              */
@@ -93,7 +93,7 @@ namespace libclient::model {
 
             /**
              * moves gadget to floorGadgets list
-             * @param gadgetType gadget representing type to be added to floor
+             * @param gadgetType gadget representing type to be added to floor (do not add this gadget but gadget from other list)
              * @return true if method was successful
              */
             bool addGadgetToFloor(const std::shared_ptr<spy::gadget::Gadget> &gadgetType);

@@ -132,11 +132,6 @@ namespace libclient {
 
                 // set current state and merge AIState into
                 model->gameState.state = m.getState();
-                if (model->clientState.role != spy::network::RoleEnum::SPECTATOR) {
-                    auto myFaction = model->clientState.amIPlayer1() ? spy::character::FactionEnum::PLAYER1
-                                                                     : spy::character::FactionEnum::PLAYER2;
-                    model->aiState.applySureInformation(model->gameState.state, myFaction);
-                }
 
                 // check for gadgets that are on the floor
                 const auto &mo = model;
@@ -149,6 +144,12 @@ namespace libclient {
                             mo->aiState.addGadget(gad.value()->getType(), std::nullopt);
                         }
                     }
+                }
+
+                if (model->clientState.role != spy::network::RoleEnum::SPECTATOR) {
+                    auto myFaction = model->clientState.amIPlayer1() ? spy::character::FactionEnum::PLAYER1
+                                                                     : spy::character::FactionEnum::PLAYER2;
+                    model->aiState.applySureInformation(model->gameState.state, myFaction);
                 }
 
                 state = m.getIsGameOver() ? NetworkState::GAME_OVER : NetworkState::IN_GAME;
