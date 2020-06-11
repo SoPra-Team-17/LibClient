@@ -229,7 +229,7 @@ namespace libclient {
             return false;
         }
 
-        if (state != NetworkState::NOT_CONNECTED) {
+        if (state != NetworkState::NOT_CONNECTED && state != NetworkState::GAME_OVER) {
             if (this->serverName != servername || this->serverPort != port) {
                 // connect to another server -> disconnect to current server
                 disconnect();
