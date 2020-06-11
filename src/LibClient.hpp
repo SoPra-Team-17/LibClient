@@ -126,7 +126,7 @@ namespace libclient {
             bool setFaction(spy::util::UUID id, spy::character::FactionEnum faction);
 
             [[nodiscard]] auto
-            getUnknownFactionList() -> std::map<spy::util::UUID, std::vector<std::pair<spy::character::FactionEnum, double>>>;
+            getUnknownFactionList() -> std::map<spy::util::UUID, std::vector<std::pair<spy::character::FactionEnum, std::vector<double>>>>;
 
             [[nodiscard]] std::set<spy::util::UUID> getMyFactionList();
 
@@ -135,7 +135,7 @@ namespace libclient {
             [[nodiscard]] std::set<spy::util::UUID> getNpcFactionList();
 
             [[nodiscard]] auto
-            getUnknownGadgetsList() -> std::map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, double>>, util::cmpGadgetPtr>;
+            getUnknownGadgetsList() -> std::map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, std::vector<double>>>, util::cmpGadgetPtr>;
 
             /**
              * @brief       creates information string about an operation

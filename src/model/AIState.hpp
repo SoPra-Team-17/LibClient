@@ -14,6 +14,8 @@
 #include <datatypes/gameplay/GadgetAction.hpp>
 #include <util/OrderUtils.hpp>
 #include <datatypes/matchconfig/MatchConfig.hpp>
+#include <datatypes/gameplay/PropertyAction.hpp>
+#include <datatypes/gameplay/SpyAction.hpp>
 
 namespace libclient::model {
     class AIState {
@@ -105,7 +107,60 @@ namespace libclient::model {
             * @param config match config
              */
             void processGadgetAction(std::shared_ptr<const spy::gameplay::GadgetAction> action,
-                                     const spy::gameplay::State &s, const spy::MatchConfig &config);
+                                     const spy::gameplay::State &s, const spy::MatchConfig &config,
+                                     spy::character::FactionEnum me);
+
+            /**
+             * processes single spy action into state lists/maps/...
+             * @param action spy action to be processed
+            * @param s state without gadget action applied
+            * @param config match config
+             */
+            void processSpyAction(std::shared_ptr<const spy::gameplay::SpyAction> operation,
+                                  const spy::gameplay::State &s, const spy::MatchConfig &config,
+                                  spy::character::FactionEnum me);
+
+            /**
+             * processes single property action into state lists/maps/...
+             * @param action spy action to be processed
+            * @param s state without gadget action applied
+            * @param config match config
+             */
+            void processPropertyAction(std::shared_ptr<const spy::gameplay::PropertyAction> op,
+                                       const spy::gameplay::State &s);
+
+            void processGadgetGrapple(std::shared_ptr<const spy::gameplay::GadgetAction> action,
+                                      const spy::gameplay::State &s);
+
+            void processGadgetNugget(std::shared_ptr<const spy::gameplay::GadgetAction> action,
+                                              const spy::gameplay::State &s,
+                                              spy::character::FactionEnum me);
+
+            void processGadgetBowlerBlade(std::shared_ptr<const spy::gameplay::GadgetAction> action,
+                                                   const spy::gameplay::State &s, const spy::MatchConfig &config);
+
+            void processGadgetCocktail(std::shared_ptr<const spy::gameplay::GadgetAction> action,
+                                                const spy::gameplay::State &s);
+
+            void processGadgetMoledie(std::shared_ptr<const spy::gameplay::GadgetAction> action,
+                                               const spy::gameplay::State &s, const spy::MatchConfig &config);
+
+            void processGadgetLaserCompact(std::shared_ptr<const spy::gameplay::GadgetAction> action,
+                                                    const spy::gameplay::State &s);
+
+            void processGadgetPoisonPills(std::shared_ptr<const spy::gameplay::GadgetAction> action,
+                                                   const spy::gameplay::State &s);
+
+            void processGadgetChickenFeed(std::shared_ptr<const spy::gameplay::GadgetAction> action,
+                                                   const spy::gameplay::State &s);
+
+            void processGadgetMirrorOfWilderness(std::shared_ptr<const spy::gameplay::GadgetAction> action,
+                                                          const spy::gameplay::State &s);
+
+            void processGadgetHairdryer(std::shared_ptr<const spy::gameplay::GadgetAction> action,
+                                                 const spy::gameplay::State &s);
+
+            void processGettingRidOfMoledie(std::shared_ptr<const spy::gameplay::BaseOperation> operation);
 
             /**
              * get faction of character according to AIState
@@ -116,13 +171,18 @@ namespace libclient::model {
 
             void modifyUsagesLeft(const std::shared_ptr<spy::gadget::Gadget> &gad);
 
+            std::optional<double> hasCharacterFaction(const spy::util::UUID &id, spy::character::FactionEnum faction,
+                                                      spy::character::FactionEnum me);
+
             std::optional<double> hasCharacterGadget(const spy::util::UUID &id, spy::gadget::GadgetEnum type);
 
             bool hasCharacterProperty(const spy::util::UUID &id, spy::character::PropertyEnum prop);
 
-            void push_back_toUnknownGadgets(std::shared_ptr<spy::gadget::Gadget> key, const spy::util::UUID &val, double certainty);
+            void push_back_toUnknownGadgets(std::shared_ptr<spy::gadget::Gadget> key, const spy::util::UUID &val,
+                                            double certainty);
 
-            void push_back_toUnknownFaction(const spy::util::UUID &key, spy::character::FactionEnum val, double certainty);
+            void
+            push_back_toUnknownFaction(const spy::util::UUID &key, spy::character::FactionEnum val, double certainty);
     };
 }
 
