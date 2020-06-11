@@ -224,10 +224,15 @@ namespace libclient {
         }
     }
 
-    bool Network::reconnectPlayerAfterCrash(const std::string &servername, int port, const std::string &clientName,
-                                            const spy::util::UUID &clientId, const spy::util::UUID &sessionId,
-                                            const spy::util::UUID &playerOneId, const spy::util::UUID &playerTwoId,
-                                            const std::string &playerOneName, const std::string &playerTwoName) {
+    bool Network::reconnectPlayerAfterCrash(const std::string &servername,
+                                            int port,
+                                            const std::string &clientName,
+                                            const spy::util::UUID &clientId,
+                                            const spy::util::UUID &sessionId,
+                                            const spy::util::UUID &playerOneId,
+                                            const spy::util::UUID &playerTwoId,
+                                            const std::string &playerOneName,
+                                            const std::string &playerTwoName) {
         // save params
         this->serverName = servername;
         this->serverPort = port;

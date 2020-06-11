@@ -59,8 +59,11 @@ namespace libclient {
              * @param playerTwoName name of player two
              * @return true if reconnect message could be sent
              */
-            bool reconnectPlayerAfterCrash(const std::string &servername, int port, const std::string &clientName,
-                                           const spy::util::UUID &clientId, const spy::util::UUID &sessionId,
+            bool reconnectPlayerAfterCrash(const std::string &servername,
+                                           int port,
+                                           const std::string &clientName,
+                                           const spy::util::UUID &clientId,
+                                           const spy::util::UUID &sessionId,
                                            const spy::util::UUID &playerOneId = {},
                                            const spy::util::UUID &playerTwoId = {},
                                            const std::string &playerOneName = {},
