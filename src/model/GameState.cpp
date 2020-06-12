@@ -60,16 +60,6 @@ void libclient::model::GameState::handleLastClientOperation(const spy::gameplay:
                 this->isEnemy = std::pair<bool, spy::util::UUID>(enemy, id);
             }
         }
-
-        // if nugget was used successfully, add target to chosenCharacter
-        if (character_op->getType() == OperationEnum::GADGET_ACTION) {
-            const auto gadget_op = std::dynamic_pointer_cast<const spy::gameplay::GadgetAction>(character_op);
-            if (gadget_op->getGadget() == spy::gadget::GadgetEnum::NUGGET && gadget_op->isSuccessful()) {
-                auto targetChar = spy::util::GameLogicUtils::findInCharacterSetByCoordinates(s.getCharacters(),
-                                                                                             gadget_op->getTarget());
-                chosenCharacter.push_back(targetChar->getCharacterId());
-            }
-        }
     }
 
 }
