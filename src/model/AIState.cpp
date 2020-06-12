@@ -478,11 +478,11 @@ namespace libclient::model {
             if (targetChar != s.getCharacters().end()) { // character holds cocktail
                 poisonedCocktails.erase(std::remove(poisonedCocktails.begin(), poisonedCocktails.end(),
                                                     std::variant<spy::util::UUID, spy::util::Point>(
-                                                            targetChar->getCharacterId())));
+                                                            targetChar->getCharacterId())), poisonedCocktails.end());
             } else { // cocktail is on bar table
                 poisonedCocktails.erase(
                         std::remove(poisonedCocktails.begin(), poisonedCocktails.end(),
-                                    std::variant<spy::util::UUID, spy::util::Point>(action->getTarget())));
+                                    std::variant<spy::util::UUID, spy::util::Point>(action->getTarget())), poisonedCocktails.end());
             }
         }
     }
@@ -545,7 +545,7 @@ namespace libclient::model {
         if (pour || drink) {
             poisonedCocktails.erase(
                     std::remove(poisonedCocktails.begin(), poisonedCocktails.end(),
-                                std::variant<spy::util::UUID, spy::util::Point>(action->getCharacterId())));
+                                std::variant<spy::util::UUID, spy::util::Point>(action->getCharacterId())), poisonedCocktails.end());
         }
 
         // successfully poured -> add property clammy clothes to target
@@ -559,7 +559,7 @@ namespace libclient::model {
                                         std::variant<spy::util::UUID, spy::util::Point>(action->getTarget()));
             if (cocktail != poisonedCocktails.end()) {
                 // cocktail from bar table is poisoned
-                poisonedCocktails.erase(cocktail);
+                poisonedCocktails.erase(cocktail, poisonedCocktails.end());
                 poisonedCocktails.emplace_back(action->getCharacterId());
             }
         }
