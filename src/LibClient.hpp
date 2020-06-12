@@ -142,13 +142,6 @@ namespace libclient {
              * @return      std::string containing info
              */
             [[nodiscard]] std::string operationToString(const std::shared_ptr<const spy::gameplay::BaseOperation> op) const;
-
-            /**
-             * @brief               sets character information
-             * @notes               needed when clients tries to reconnect after a crash
-             * @param charInfo      vector of character information
-             */
-            void setCharacterSettings(const std::vector<spy::character::CharacterInformation> &charInfo);
     };
 
 }
