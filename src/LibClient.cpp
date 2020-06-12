@@ -248,7 +248,7 @@ namespace libclient {
     LibClient::getUnknownGadgetsList() -> std::unordered_map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, float>>> {
         return model->aiState.unknownGadgets;
     }
-  
+
     std::string LibClient::operationToString(const std::shared_ptr<const spy::gameplay::BaseOperation> op) const {
         using spy::gameplay::OperationEnum;
 
@@ -391,5 +391,9 @@ namespace libclient {
 
     std::optional<std::pair<bool, spy::util::UUID>> LibClient::isEnemy() const {
         return model->gameState.isEnemy;
+    }
+
+    void LibClient::setCharacterSettings(const std::vector<spy::character::CharacterInformation> &charInfo) {
+        model->gameState.characterSettings = charInfo;
     }
 }

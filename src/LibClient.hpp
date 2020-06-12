@@ -142,6 +142,8 @@ namespace libclient {
              * @return      std::string containing info
              */
             [[nodiscard]] std::string operationToString(const std::shared_ptr<const spy::gameplay::BaseOperation> op) const;
+
+            void setCharacterSettings(const std::vector<spy::character::CharacterInformation> &charInfo);
     };
 
 }
