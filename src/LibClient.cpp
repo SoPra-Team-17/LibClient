@@ -396,4 +396,8 @@ namespace libclient {
     void LibClient::setCharacterSettings(const std::vector<spy::character::CharacterInformation> &charInfo) {
         model->gameState.characterSettings = charInfo;
     }
+
+    std::optional<spy::network::messages::Replay> LibClient::getReplay() const {
+        return model->replay;
+    }
 }
