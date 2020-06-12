@@ -259,9 +259,17 @@ namespace libclient::model {
                 addFaction(targetChar->getCharacterId(), enemyFaction);
             }
 
-            // spy successful -> target is npc
+            // spy successful -> target is npc, track safe combinations Client has
             if (op->isSuccessful() && isSourceCharMyFaction) {
                 addFaction(targetChar->getCharacterId(), npcFaction);
+
+                for (int comb: s.getMySafeCombinations()) {
+                    auto known = safeComibnations.find(comb) != safeComibnations.end();
+                    if (!known) {
+                        safeComibnations.insert(comb);
+                        combinationsFromNpcs.insert(targetChar->getCharacterId());
+                    }
+                }
             }
 
             // spy not successful -> target is enemy with prob
@@ -271,13 +279,6 @@ namespace libclient::model {
                                            ? spy::character::FactionEnum::PLAYER2
                                            : spy::character::FactionEnum::PLAYER1,
                                            config.getSpySuccessChance());
-            }
-
-            // track safe combinations Client has
-            if (isSourceCharMyFaction && op->isSuccessful()) {
-                for (int comb: s.getMySafeCombinations()) {
-                    safeComibnations.insert(comb);
-                }
             }
 
         } else { // spy on safe

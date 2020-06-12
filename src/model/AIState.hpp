@@ -48,6 +48,7 @@ namespace libclient::model {
             std::map<unsigned int, int> triedSafes;
             std::set<unsigned int> safeComibnations;
             std::set<unsigned int> openedSafesTotal;
+            std::set<spy::util::UUID> combinationsFromNpcs;
 
             /**
              * applies all lists without "unknown" in name to current state
