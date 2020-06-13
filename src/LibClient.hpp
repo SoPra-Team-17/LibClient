@@ -137,7 +137,8 @@ namespace libclient {
             * @param faction faction of the character to be checked
             * @return nullopt if no info available, 0 and 1 indicate bool result, double between 0 and 1 indicates certainty
             */
-            [[nodiscard]] std::optional<double> hasCharacterFaction(const spy::util::UUID &id, spy::character::FactionEnum faction);
+            [[nodiscard]] std::optional<double>
+            hasCharacterFaction(const spy::util::UUID &id, spy::character::FactionEnum faction);
 
             /**
              * find out how certain it is that given character has given gadget
@@ -145,7 +146,8 @@ namespace libclient {
              * @param type type of the gadget to be checked
              * @return nullopt if no info available, 0 and 1 indicate bool result, double between 0 and 1 indicates certainty
              */
-            [[nodiscard]] std::optional<double> hasCharacterGadget(const spy::util::UUID &id, spy::gadget::GadgetEnum type);
+            [[nodiscard]] std::optional<double>
+            hasCharacterGadget(const spy::util::UUID &id, spy::gadget::GadgetEnum type);
 
             /**
              * calculate unique index for safe
@@ -176,7 +178,13 @@ namespace libclient {
             [[nodiscard]] std::string
             operationToString(const std::shared_ptr<const spy::gameplay::BaseOperation> op) const;
 
-            void setCharacterSettings(const std::vector<spy::character::CharacterInformation> &charInfo);
+            /**
+             * sets configs and initialises unknownLists in AIState
+             * @param charInfo character config
+             * @param matchInfo match config
+             */
+            void setConfigs(const std::vector<spy::character::CharacterInformation> &charInfo,
+                            const spy::MatchConfig &matchInfo);
 
             [[nodiscard]] std::optional<spy::network::messages::Replay> getReplay() const;
     };

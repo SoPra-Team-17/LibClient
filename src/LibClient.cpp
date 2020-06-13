@@ -420,8 +420,21 @@ namespace libclient {
         return model->gameState.isEnemy;
     }
 
-    void LibClient::setCharacterSettings(const std::vector<spy::character::CharacterInformation> &charInfo) {
+    void LibClient::setConfigs(const std::vector<spy::character::CharacterInformation> &charInfo,
+                               const spy::MatchConfig &matchInfo) {
         model->gameState.characterSettings = charInfo;
+        model->gameState.settings = matchInfo;
+
+        for (const auto &info: charInfo) {
+            model->aiState.unknownFaction[info.getCharacterId()];
+            model->aiState.properties[info.getCharacterId()] = info.getFeatures();
+        }
+
+        // not nice but have to iterate over enum values
+        for (int gadgetType = 1; gadgetType < 22; gadgetType++) {
+            model->aiState.unknownGadgets[std::make_shared<spy::gadget::Gadget>(
+                    spy::gadget::GadgetEnum(gadgetType))];
+        }
     }
 
     std::optional<spy::network::messages::Replay> LibClient::getReplay() const {
