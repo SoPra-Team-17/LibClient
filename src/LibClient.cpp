@@ -444,4 +444,8 @@ namespace libclient {
     std::optional<spy::network::messages::Replay> LibClient::getReplay() const {
         return model->replay;
     }
+
+    bool LibClient::setFactionReconnect(const spy::util::UUID &id) {
+	return model->aiState.addFaction(id, model->aiState.myFaction);	
+    }
 }

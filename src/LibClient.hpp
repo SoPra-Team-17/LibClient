@@ -189,6 +189,8 @@ namespace libclient {
                             const spy::MatchConfig &matchInfo);
 
             [[nodiscard]] std::optional<spy::network::messages::Replay> getReplay() const;
+
+	    bool setFactionReconnect(const spy::util::UUID &id);
     };
 
 }
