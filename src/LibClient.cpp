@@ -4,6 +4,7 @@
  * @date    14.04.2020 (creation)
  * @brief   Implementation of LibClient
  */
+
 #include "LibClient.hpp"
 
 #include <utility>
@@ -228,28 +229,54 @@ namespace libclient {
     }
 
     auto
-    LibClient::getUnknownFactionList() -> std::map<spy::util::UUID, std::vector<std::pair<spy::character::FactionEnum, float>>> {
+    LibClient::getUnknownFactionList() -> const std::map<spy::util::UUID, std::vector<std::pair<spy::character::FactionEnum, std::vector<double>>>> & {
         return model->aiState.unknownFaction;
     }
 
-    std::vector<spy::util::UUID> LibClient::getMyFactionList() {
+    auto
+    LibClient::getUnknownGadgetsList() -> const std::map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, std::vector<double>>>, util::cmpGadgetPtr> & {
+        return model->aiState.unknownGadgets;
+    }
+
+    std::optional<double>
+    LibClient::hasCharacterFaction(const spy::util::UUID &id, spy::character::FactionEnum faction) {
+        return model->aiState.hasCharacterFaction(id, faction, amIPlayer1() ? spy::character::FactionEnum::PLAYER1
+                                                                            : spy::character::FactionEnum::PLAYER2);
+    }
+
+    std::optional<double> LibClient::hasCharacterGadget(const spy::util::UUID &id, spy::gadget::GadgetEnum type) {
+        return model->aiState.hasCharacterGadget(id, type);
+    }
+
+    unsigned int LibClient::safePosToIndex(const spy::gameplay::State &s, const spy::util::Point &p) {
+        return model->aiState.safePosToIndex(s, p);
+    }
+
+    const std::set<unsigned int> &LibClient::getOpenedSafes() {
+        return model->aiState.openedSafes;
+    }
+
+    const std::map<unsigned int, int> &LibClient::getTriedSafes() {
+        return model->aiState.triedSafes;
+    }
+
+    const std::set<spy::util::UUID> &LibClient::getCombinationsFromNpcs() {
+        return model->aiState.combinationsFromNpcs;
+    }
+
+    const std::set<spy::util::UUID> &LibClient::getMyFactionList() {
         return model->aiState.myFaction;
     }
 
-    std::vector<spy::util::UUID> LibClient::getEnemyFactionList() {
+    const std::set<spy::util::UUID> &LibClient::getEnemyFactionList() {
         return model->aiState.enemyFaction;
     }
 
-    std::vector<spy::util::UUID> LibClient::getNpcFactionList() {
+    const std::set<spy::util::UUID> &LibClient::getNpcFactionList() {
         return model->aiState.npcFaction;
     }
 
-    auto
-    LibClient::getUnknownGadgetsList() -> std::unordered_map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, float>>> {
-        return model->aiState.unknownGadgets;
-    }
-  
-    std::string LibClient::operationToString(const std::shared_ptr<const spy::gameplay::BaseOperation> op) const {
+    std::string LibClient::operationToString(std::shared_ptr<const spy::gameplay::BaseOperation> op) const {
         using spy::gameplay::OperationEnum;
 
         std::string operationString;
