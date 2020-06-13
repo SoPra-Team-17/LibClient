@@ -303,6 +303,9 @@ namespace libclient {
         if (model->clientState.id.has_value() && model->clientState.role != spy::network::RoleEnum::SPECTATOR) {
             // Client is allowed to reconnect
             state = NetworkState::RECONNECT;
+            if (webSocketClient.has_value()) {
+                webSocketClient.reset();
+            }
             model->clientState.isConnected = false;
         } else {
             disconnect();
