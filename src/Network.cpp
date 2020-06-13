@@ -209,12 +209,20 @@ namespace libclient {
                 model->clientState.strikeMax = m.getStrikeMax();
                 model->clientState.strikeReason = m.getReason();
 
+                if (state == NetworkState::SENT_HELLO) {
+                    state = NetworkState::CONNECTED;
+                }
+
                 callback->onStrike();
                 break;
             }
             case spy::network::messages::MessageTypeEnum::ERROR: {
                 auto m = json.get<spy::network::messages::Error>();
                 model->clientState.errorReason = m.getReason();
+
+                if (state == NetworkState::SENT_HELLO) {
+                    state = NetworkState::CONNECTED;
+                }
 
                 callback->onError();
                 break;
