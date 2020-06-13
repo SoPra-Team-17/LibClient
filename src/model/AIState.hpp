@@ -84,13 +84,13 @@ namespace libclient::model {
                                   const spy::gameplay::State &s, const spy::MatchConfig &config,
                                   spy::character::FactionEnum me); // done by GameStatus message
 
-           /**
-            * find out how certain it is that given character has given faction
-            * @param id id of the character to be searched for
-            * @param faction faction of the character to be checked
-            * @param me my faction (player1 or player2)
-            * @return nullopt if no info available, 0 and 1 indicate bool result, double between 0 and 1 indicates certainty
-            */
+            /**
+             * find out how certain it is that given character has given faction
+             * @param id id of the character to be searched for
+             * @param faction faction of the character to be checked
+             * @param me my faction (player1 or player2)
+             * @return nullopt if no info available, 0 and 1 indicate bool result, double between 0 and 1 indicates certainty
+             */
             std::optional<double> hasCharacterFaction(const spy::util::UUID &id, spy::character::FactionEnum faction,
                                                       spy::character::FactionEnum me);
 
@@ -130,8 +130,8 @@ namespace libclient::model {
             /**
              * processes single gadget action into state lists/maps/...
              * @param action gadget action to be processed
-            * @param s state without gadget action applied
-            * @param config match config
+             * @param s state without gadget action applied
+             * @param config match config
              */
             void processGadgetAction(std::shared_ptr<const spy::gameplay::GadgetAction> action,
                                      const spy::gameplay::State &s, const spy::MatchConfig &config,
@@ -140,8 +140,8 @@ namespace libclient::model {
             /**
              * processes single spy action into state lists/maps/...
              * @param action spy action to be processed
-            * @param s state without gadget action applied
-            * @param config match config
+             * @param s state without gadget action applied
+             * @param config match config
              */
             void processSpyAction(std::shared_ptr<const spy::gameplay::SpyAction> operation,
                                   const spy::gameplay::State &s, const spy::MatchConfig &config,
@@ -150,8 +150,8 @@ namespace libclient::model {
             /**
              * processes single property action into state lists/maps/...
              * @param action spy action to be processed
-            * @param s state without gadget action applied
-            * @param config match config
+             * @param s state without gadget action applied
+             * @param config match config
              */
             void processPropertyAction(std::shared_ptr<const spy::gameplay::PropertyAction> op,
                                        const spy::gameplay::State &s);
@@ -160,32 +160,32 @@ namespace libclient::model {
                                       const spy::gameplay::State &s);
 
             void processGadgetNugget(std::shared_ptr<const spy::gameplay::GadgetAction> action,
-                                              const spy::gameplay::State &s,
-                                              spy::character::FactionEnum me);
+                                     const spy::gameplay::State &s,
+                                     spy::character::FactionEnum me);
 
             void processGadgetBowlerBlade(std::shared_ptr<const spy::gameplay::GadgetAction> action,
-                                                   const spy::gameplay::State &s, const spy::MatchConfig &config);
+                                          const spy::gameplay::State &s, const spy::MatchConfig &config);
 
             void processGadgetCocktail(std::shared_ptr<const spy::gameplay::GadgetAction> action,
-                                                const spy::gameplay::State &s);
+                                       const spy::gameplay::State &s);
 
             void processGadgetMoledie(std::shared_ptr<const spy::gameplay::GadgetAction> action,
-                                               const spy::gameplay::State &s, const spy::MatchConfig &config);
+                                      const spy::gameplay::State &s, const spy::MatchConfig &config);
 
             void processGadgetLaserCompact(std::shared_ptr<const spy::gameplay::GadgetAction> action,
-                                                    const spy::gameplay::State &s);
+                                           const spy::gameplay::State &s);
 
             void processGadgetPoisonPills(std::shared_ptr<const spy::gameplay::GadgetAction> action,
-                                                   const spy::gameplay::State &s);
+                                          const spy::gameplay::State &s);
 
             void processGadgetChickenFeed(std::shared_ptr<const spy::gameplay::GadgetAction> action,
-                                                   const spy::gameplay::State &s);
+                                          const spy::gameplay::State &s);
 
             void processGadgetMirrorOfWilderness(std::shared_ptr<const spy::gameplay::GadgetAction> action,
-                                                          const spy::gameplay::State &s);
+                                                 const spy::gameplay::State &s);
 
             void processGadgetHairdryer(std::shared_ptr<const spy::gameplay::GadgetAction> action,
-                                                 const spy::gameplay::State &s);
+                                        const spy::gameplay::State &s);
 
             void processGettingRidOfMoledie(std::shared_ptr<const spy::gameplay::BaseOperation> operation);
 
