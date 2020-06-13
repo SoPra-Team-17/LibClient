@@ -112,28 +112,43 @@ namespace libclient {
             case spy::network::messages::MessageTypeEnum::GAME_STATUS: {
                 auto m = json.get<spy::network::messages::GameStatus>();
                 model->gameState.lastActiveCharacter = m.getActiveCharacterId();
-                model->gameState.operations.reserve(m.getOperations().size());
                 model->gameState.operations.reserve(model->gameState.operations.size() + m.getOperations().size());
                 for (const auto &op: m.getOperations()) {
                     model->gameState.operations.push_back(op->clone());
                 }
-                model->gameState.state = m.getState();
+                model->gameState.handleLastClientOperation(m.getState());
                 model->gameState.isGameOver = m.getIsGameOver();
 
-                model->gameState.handleLastClientOperation();
-
-                if (state == IN_EQUIPMENTCHOICE) {
-                    // first GameStatus message
-                    onFirstGameStatus();
+                // update AIState for each operation
+                if (model->clientState.role != spy::network::RoleEnum::SPECTATOR) {
+                    auto myFaction = model->clientState.amIPlayer1() ? spy::character::FactionEnum::PLAYER1
+                                                                     : spy::character::FactionEnum::PLAYER2;
+                    for (const auto &op: m.getOperations()) {
+                        model->aiState.processOperation(op, model->gameState.state, model->gameState.settings, myFaction);
+                        model->aiState.applySureInformation(model->gameState.state, myFaction);
+                    }
                 }
 
-                model->aiState.processOperationList(m.getOperations());
+                // set current state and merge AIState into
+                model->gameState.state = m.getState();
+
+                // check for gadgets that are on the floor
+                const auto &mo = model;
+                auto map = model->gameState.state.getMap();
+                for (auto y = 0U; y < map.getMap().size(); y++) {
+                    for (auto x = 0U; x < map.getMap().at(y).size(); x++) {
+                        auto field = (map.getField(x, y));
+                        auto gad = field.getGadget();
+                        if (gad.has_value() && gad.value()->getType() != spy::gadget::GadgetEnum::COCKTAIL) {
+                            mo->aiState.addGadget(gad.value()->getType(), std::nullopt);
+                        }
+                    }
+                }
 
                 if (model->clientState.role != spy::network::RoleEnum::SPECTATOR) {
-                    model->aiState.applySureInformation(model->gameState.state,
-                                                        model->clientState.amIPlayer1()
-                                                        ? spy::character::FactionEnum::PLAYER1
-                                                        : spy::character::FactionEnum::PLAYER2);
+                    auto myFaction = model->clientState.amIPlayer1() ? spy::character::FactionEnum::PLAYER1
+                                                                     : spy::character::FactionEnum::PLAYER2;
+                    model->aiState.applySureInformation(model->gameState.state, myFaction);
                 }
 
                 state = m.getIsGameOver() ? NetworkState::GAME_OVER : NetworkState::IN_GAME;
@@ -288,6 +303,9 @@ namespace libclient {
         if (model->clientState.id.has_value() && model->clientState.role != spy::network::RoleEnum::SPECTATOR) {
             // Client is allowed to reconnect
             state = NetworkState::RECONNECT;
+            if (webSocketClient.has_value()) {
+                webSocketClient.reset();
+            }
             model->clientState.isConnected = false;
         } else {
             disconnect();
@@ -343,7 +361,7 @@ namespace libclient {
         model->gameState.equipmentMap = equipment;
         for (auto &it : equipment) {
             for (auto gadgetType: it.second) {
-                model->aiState.addGadget(std::make_shared<spy::gadget::Gadget>(gadgetType), it.first);
+                model->aiState.addGadget(gadgetType, it.first);
             }
         }
 
@@ -442,21 +460,4 @@ namespace libclient {
         return state;
     }
 
-    void Network::onFirstGameStatus() {
-        const auto &mo = model;
-        auto map = model->gameState.state.getMap();
-
-        for (auto y = 0U; y < map.getMap().size(); y++) {
-            for (auto x = 0U; x < map.getMap().at(y).size(); x++) {
-                auto field = (map.getField(x, y));
-                auto gad = field.getGadget();
-                if (gad.has_value()) {
-                    if (gad.value()->getType() != spy::gadget::GadgetEnum::COCKTAIL) {
-                        mo->aiState.addGadget(std::make_shared<spy::gadget::Gadget>(gad.value()->getType()),
-                                              std::nullopt);
-                    }
-                }
-            }
-        }
-    }
 }

@@ -121,11 +121,6 @@ namespace libclient {
              * function to handle connection lost
              */
             void onClose();
-
-            /**
-             * sets fields in AIState initially
-             */
-            void onFirstGameStatus();
     };
 }
 

@@ -41,9 +41,10 @@ namespace libclient::model {
             /**
              * @brief   Helper function for client, to check if the last operation by the client was successfull
              * @note    To determine success a dynamic ptr cast is needed, which I wasn't able to achieve through cppyy
-             * @author  Marco Deuscher
+             * @param s up to date state without AIState information
+             * @author  Marco Deuscher (Carolin changed param list)
              */
-            void handleLastClientOperation();
+            void handleLastClientOperation(const spy::gameplay::State &s);
     };
 
 }

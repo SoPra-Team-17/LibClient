@@ -120,22 +120,52 @@ namespace libclient {
             /**
              * @brief sets Faction of given character
              * @param id id of the client to set faction
-             * @param facrion faction to be set to characer
-             * @return true if setting was successfull (depends on network state and client role)
+             * @param facrion faction to be set to character
+             * @return true if setting was successful (depends on network state and client role)
              */
             bool setFaction(spy::util::UUID id, spy::character::FactionEnum faction);
 
             [[nodiscard]] auto
-            getUnknownFactionList() -> std::map<spy::util::UUID, std::vector<std::pair<spy::character::FactionEnum, float>>>;
-
-            [[nodiscard]] std::vector<spy::util::UUID> getMyFactionList();
-
-            [[nodiscard]] std::vector<spy::util::UUID> getEnemyFactionList();
-
-            [[nodiscard]] std::vector<spy::util::UUID> getNpcFactionList();
+            getUnknownFactionList() -> const std::map<spy::util::UUID, std::vector<std::pair<spy::character::FactionEnum, std::vector<double>>>> &;
 
             [[nodiscard]] auto
-            getUnknownGadgetsList() -> std::unordered_map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, float>>>;
+            getUnknownGadgetsList() -> const std::map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, std::vector<double>>>, util::cmpGadgetPtr> &;
+
+            /**
+            * find out how certain it is that given character has given faction
+            * @param id id of the character to be searched for
+            * @param faction faction of the character to be checked
+            * @return nullopt if no info available, 0 and 1 indicate bool result, double between 0 and 1 indicates certainty
+            */
+            [[nodiscard]] std::optional<double> hasCharacterFaction(const spy::util::UUID &id, spy::character::FactionEnum faction);
+
+            /**
+             * find out how certain it is that given character has given gadget
+             * @param id id of the character to be searched for
+             * @param type type of the gadget to be checked
+             * @return nullopt if no info available, 0 and 1 indicate bool result, double between 0 and 1 indicates certainty
+             */
+            [[nodiscard]] std::optional<double> hasCharacterGadget(const spy::util::UUID &id, spy::gadget::GadgetEnum type);
+
+            /**
+             * calculate unique index for safe
+             * @param s current state
+             * @param p position of the safe as Point
+             * @return index for the safe at position p
+             */
+            unsigned int safePosToIndex(const spy::gameplay::State &s, const spy::util::Point &p);
+
+            [[nodiscard]] const std::set<unsigned int> &getOpenedSafes();
+
+            [[nodiscard]] const std::map<unsigned int, int> &getTriedSafes();
+
+            [[nodiscard]] const std::set<spy::util::UUID> &getCombinationsFromNpcs();
+
+            [[nodiscard]] const std::set<spy::util::UUID> &getMyFactionList();
+
+            [[nodiscard]] const std::set<spy::util::UUID> &getEnemyFactionList();
+
+            [[nodiscard]] const std::set<spy::util::UUID> &getNpcFactionList();
 
             /**
              * @brief       creates information string about an operation
