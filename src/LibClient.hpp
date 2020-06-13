@@ -115,7 +115,7 @@ namespace libclient {
              * checks if client is player1
              * @return nullopt for spectator or if state is not valid
              */
-            [[nodiscard]] std::optional<bool> amIPlayer1();
+            [[nodiscard]] std::optional<bool> amIPlayer1() const;
 
             /**
              * @brief sets Faction of given character
@@ -126,10 +126,10 @@ namespace libclient {
             bool setFaction(spy::util::UUID id, spy::character::FactionEnum faction);
 
             [[nodiscard]] auto
-            getUnknownFactionList() -> const std::map<spy::util::UUID, std::vector<std::pair<spy::character::FactionEnum, std::vector<double>>>> &;
+            getUnknownFactionList() const -> const std::map<spy::util::UUID, std::vector<std::pair<spy::character::FactionEnum, std::vector<double>>>> &;
 
             [[nodiscard]] auto
-            getUnknownGadgetsList() -> const std::map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, std::vector<double>>>, util::cmpGadgetPtr> &;
+            getUnknownGadgetsList() const -> const std::map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, std::vector<double>>>, util::cmpGadgetPtr> &;
 
             /**
             * find out how certain it is that given character has given faction
@@ -137,7 +137,8 @@ namespace libclient {
             * @param faction faction of the character to be checked
             * @return nullopt if no info available, 0 and 1 indicate bool result, double between 0 and 1 indicates certainty
             */
-            [[nodiscard]] std::optional<double> hasCharacterFaction(const spy::util::UUID &id, spy::character::FactionEnum faction);
+            [[nodiscard]] std::optional<double>
+            hasCharacterFaction(const spy::util::UUID &id, spy::character::FactionEnum faction) const;
 
             /**
              * find out how certain it is that given character has given gadget
@@ -145,7 +146,8 @@ namespace libclient {
              * @param type type of the gadget to be checked
              * @return nullopt if no info available, 0 and 1 indicate bool result, double between 0 and 1 indicates certainty
              */
-            [[nodiscard]] std::optional<double> hasCharacterGadget(const spy::util::UUID &id, spy::gadget::GadgetEnum type);
+            [[nodiscard]] std::optional<double>
+            hasCharacterGadget(const spy::util::UUID &id, spy::gadget::GadgetEnum type) const;
 
             /**
              * calculate unique index for safe
@@ -153,19 +155,21 @@ namespace libclient {
              * @param p position of the safe as Point
              * @return index for the safe at position p
              */
-            unsigned int safePosToIndex(const spy::gameplay::State &s, const spy::util::Point &p);
+            unsigned int safePosToIndex(const spy::gameplay::State &s, const spy::util::Point &p) const;
 
-            [[nodiscard]] const std::set<unsigned int> &getOpenedSafes();
+            [[nodiscard]] const std::set<unsigned int> &getOpenedSafes() const;
 
-            [[nodiscard]] const std::map<unsigned int, int> &getTriedSafes();
+            [[nodiscard]] const std::map<unsigned int, int> &getTriedSafes() const;
 
-            [[nodiscard]] const std::set<spy::util::UUID> &getCombinationsFromNpcs();
+            [[nodiscard]] const std::set<unsigned int> &getSafeCombinations() const;
 
-            [[nodiscard]] const std::set<spy::util::UUID> &getMyFactionList();
+            [[nodiscard]] const std::set<spy::util::UUID> &getCombinationsFromNpcs() const;
 
-            [[nodiscard]] const std::set<spy::util::UUID> &getEnemyFactionList();
+            [[nodiscard]] const std::set<spy::util::UUID> &getMyFactionList() const;
 
-            [[nodiscard]] const std::set<spy::util::UUID> &getNpcFactionList();
+            [[nodiscard]] const std::set<spy::util::UUID> &getEnemyFactionList() const;
+
+            [[nodiscard]] const std::set<spy::util::UUID> &getNpcFactionList() const;
 
             /**
              * @brief       creates information string about an operation
@@ -176,9 +180,17 @@ namespace libclient {
             [[nodiscard]] std::string
             operationToString(const std::shared_ptr<const spy::gameplay::BaseOperation> op) const;
 
-            void setCharacterSettings(const std::vector<spy::character::CharacterInformation> &charInfo);
+            /**
+             * sets configs and initialises unknownLists in AIState
+             * @param charInfo character config
+             * @param matchInfo match config
+             */
+            void setConfigs(const std::vector<spy::character::CharacterInformation> &charInfo,
+                            const spy::MatchConfig &matchInfo);
 
             [[nodiscard]] std::optional<spy::network::messages::Replay> getReplay() const;
+
+	    bool setFactionReconnect(const spy::util::UUID &id);
     };
 
 }

@@ -264,9 +264,9 @@ namespace libclient::model {
                 addFaction(targetChar->getCharacterId(), npcFaction);
 
                 for (int comb: s.getMySafeCombinations()) {
-                    auto known = safeComibnations.find(comb) != safeComibnations.end();
+                    auto known = safeCombinations.find(comb) != safeCombinations.end();
                     if (!known) {
-                        safeComibnations.insert(comb);
+                        safeCombinations.insert(comb);
                         combinationsFromNpcs.insert(targetChar->getCharacterId());
                     }
                 }
@@ -291,7 +291,7 @@ namespace libclient::model {
                     openedSafesTotal.insert(safeIndex);
                     triedSafes.erase(safeIndex);
                 } else {
-                    triedSafes.insert(std::pair<int, int>(safeIndex, safeComibnations.size()));
+                    triedSafes.insert(std::pair<int, int>(safeIndex, safeCombinations.size()));
                 }
             }
 
