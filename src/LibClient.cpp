@@ -260,6 +260,10 @@ namespace libclient {
         return model->aiState.triedSafes;
     }
 
+    const std::set<unsigned int> &LibClient::getSafeComibnations() {
+        return model->aiState.safeComibnations;
+    }
+
     const std::set<spy::util::UUID> &LibClient::getCombinationsFromNpcs() {
         return model->aiState.combinationsFromNpcs;
     }

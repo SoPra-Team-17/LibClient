@@ -161,6 +161,8 @@ namespace libclient {
 
             [[nodiscard]] const std::map<unsigned int, int> &getTriedSafes();
 
+            [[nodiscard]] const std::set<unsigned int> &getSafeComibnations();
+
             [[nodiscard]] const std::set<spy::util::UUID> &getCombinationsFromNpcs();
 
             [[nodiscard]] const std::set<spy::util::UUID> &getMyFactionList();
