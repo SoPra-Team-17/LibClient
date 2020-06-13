@@ -282,7 +282,7 @@ namespace libclient::model {
             }
 
         } else { // spy on safe
-            unsigned int safeIndex = op->getTarget().y + op->getTarget().x * s.getMap().getNumberOfRows();
+            unsigned int safeIndex = safePosToIndex(s, op->getTarget());
 
             // track which safes are opened by Client
             if (isSourceCharMyFaction) {
@@ -791,6 +791,10 @@ namespace libclient::model {
                 unknownGadgets[key].push_back(std::pair<spy::util::UUID, std::vector<double>>(val, {certainty}));
             }
         }
+    }
+
+    unsigned int AIState::safePosToIndex(const spy::gameplay::State &s, const spy::util::Point &p) {
+        return p.y + p.x * s.getMap().getNumberOfRows();
     }
 
 }

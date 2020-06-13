@@ -84,6 +84,32 @@ namespace libclient::model {
                                   const spy::gameplay::State &s, const spy::MatchConfig &config,
                                   spy::character::FactionEnum me); // done by GameStatus message
 
+           /**
+            * find out how certain it is that given character has given faction
+            * @param id id of the character to be searched for
+            * @param faction faction of the character to be checked
+            * @param me my faction (player1 or player2)
+            * @return nullopt if no info available, 0 and 1 indicate bool result, double between 0 and 1 indicates certainty
+            */
+            std::optional<double> hasCharacterFaction(const spy::util::UUID &id, spy::character::FactionEnum faction,
+                                                      spy::character::FactionEnum me);
+
+            /**
+             * find out how certain it is that given character has given gadget
+             * @param id id of the character to be searched for
+             * @param type type of the gadget to be checked
+             * @return nullopt if no info available, 0 and 1 indicate bool result, double between 0 and 1 indicates certainty
+             */
+            std::optional<double> hasCharacterGadget(const spy::util::UUID &id, spy::gadget::GadgetEnum type);
+
+            /**
+             * calculate unique index for safe
+             * @param s current state
+             * @param p position of the safe as Point
+             * @return index for the safe at position p
+             */
+            unsigned int safePosToIndex(const spy::gameplay::State &s, const spy::util::Point &p);
+
         private:
             /**
              * moves gadget to characterGadgets list
@@ -170,14 +196,15 @@ namespace libclient::model {
              */
             spy::character::FactionEnum getFaction(const spy::util::UUID &id);
 
-            void modifyUsagesLeft(const std::shared_ptr<spy::gadget::Gadget> &gad);
-
-            std::optional<double> hasCharacterFaction(const spy::util::UUID &id, spy::character::FactionEnum faction,
-                                                      spy::character::FactionEnum me);
-
-            std::optional<double> hasCharacterGadget(const spy::util::UUID &id, spy::gadget::GadgetEnum type);
-
+            /**
+             * find out if character has certain property
+             * @param id id of the character to be searched for
+             * @param prop property to be checked
+             * @return true if character has property, else false
+             */
             bool hasCharacterProperty(const spy::util::UUID &id, spy::character::PropertyEnum prop);
+
+            void modifyUsagesLeft(const std::shared_ptr<spy::gadget::Gadget> &gad);
 
             void push_back_toUnknownGadgets(std::shared_ptr<spy::gadget::Gadget> key, const spy::util::UUID &val,
                                             double certainty);
