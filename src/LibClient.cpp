@@ -276,7 +276,7 @@ namespace libclient {
         return model->aiState.npcFaction;
     }
 
-    std::string LibClient::operationToString(std::shared_ptr<const spy::gameplay::BaseOperation> op) const {
+    std::string LibClient::operationToString(const std::shared_ptr<const spy::gameplay::BaseOperation> op) const {
         using spy::gameplay::OperationEnum;
 
         std::string operationString;
@@ -418,5 +418,13 @@ namespace libclient {
 
     std::optional<std::pair<bool, spy::util::UUID>> LibClient::isEnemy() const {
         return model->gameState.isEnemy;
+    }
+
+    void LibClient::setCharacterSettings(const std::vector<spy::character::CharacterInformation> &charInfo) {
+        model->gameState.characterSettings = charInfo;
+    }
+
+    std::optional<spy::network::messages::Replay> LibClient::getReplay() const {
+        return model->replay;
     }
 }
