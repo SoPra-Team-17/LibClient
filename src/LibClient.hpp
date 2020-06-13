@@ -174,7 +174,11 @@ namespace libclient {
              * @return      std::string containing info
              */
             [[nodiscard]] std::string
-            operationToString(std::shared_ptr<const spy::gameplay::BaseOperation> op) const;
+            operationToString(const std::shared_ptr<const spy::gameplay::BaseOperation> op) const;
+
+            void setCharacterSettings(const std::vector<spy::character::CharacterInformation> &charInfo);
+
+            [[nodiscard]] std::optional<spy::network::messages::Replay> getReplay() const;
     };
 
 }
