@@ -46,7 +46,7 @@ namespace libclient::model {
             std::set<unsigned int> openedSafes;
             // from safe to numberOfSafeCombinations when tried to open
             std::map<unsigned int, int> triedSafes;
-            std::set<unsigned int> safeComibnations;
+            std::set<unsigned int> safeCombinations;
             std::set<unsigned int> openedSafesTotal;
             std::set<spy::util::UUID> combinationsFromNpcs;
 

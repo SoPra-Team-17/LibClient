@@ -215,7 +215,7 @@ namespace libclient {
         }
     }
 
-    std::optional<bool> LibClient::amIPlayer1() {
+    std::optional<bool> LibClient::amIPlayer1() const {
         if (network.getState() != Network::NetworkState::IN_GAME &&
             network.getState() != Network::NetworkState::IN_GAME_ACTIVE &&
             network.getState() != Network::NetworkState::PAUSE &&
@@ -229,54 +229,54 @@ namespace libclient {
     }
 
     auto
-    LibClient::getUnknownFactionList() -> const std::map<spy::util::UUID, std::vector<std::pair<spy::character::FactionEnum, std::vector<double>>>> & {
+    LibClient::getUnknownFactionList() const -> const std::map<spy::util::UUID, std::vector<std::pair<spy::character::FactionEnum, std::vector<double>>>> & {
         return model->aiState.unknownFaction;
     }
 
     auto
-    LibClient::getUnknownGadgetsList() -> const std::map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, std::vector<double>>>, util::cmpGadgetPtr> & {
+    LibClient::getUnknownGadgetsList() const -> const std::map<std::shared_ptr<spy::gadget::Gadget>, std::vector<std::pair<spy::util::UUID, std::vector<double>>>, util::cmpGadgetPtr> & {
         return model->aiState.unknownGadgets;
     }
 
     std::optional<double>
-    LibClient::hasCharacterFaction(const spy::util::UUID &id, spy::character::FactionEnum faction) {
+    LibClient::hasCharacterFaction(const spy::util::UUID &id, spy::character::FactionEnum faction) const {
         return model->aiState.hasCharacterFaction(id, faction, amIPlayer1() ? spy::character::FactionEnum::PLAYER1
                                                                             : spy::character::FactionEnum::PLAYER2);
     }
 
-    std::optional<double> LibClient::hasCharacterGadget(const spy::util::UUID &id, spy::gadget::GadgetEnum type) {
+    std::optional<double> LibClient::hasCharacterGadget(const spy::util::UUID &id, spy::gadget::GadgetEnum type) const {
         return model->aiState.hasCharacterGadget(id, type);
     }
 
-    unsigned int LibClient::safePosToIndex(const spy::gameplay::State &s, const spy::util::Point &p) {
+    unsigned int LibClient::safePosToIndex(const spy::gameplay::State &s, const spy::util::Point &p) const {
         return model->aiState.safePosToIndex(s, p);
     }
 
-    const std::set<unsigned int> &LibClient::getOpenedSafes() {
+    const std::set<unsigned int> &LibClient::getOpenedSafes() const {
         return model->aiState.openedSafes;
     }
 
-    const std::map<unsigned int, int> &LibClient::getTriedSafes() {
+    const std::map<unsigned int, int> &LibClient::getTriedSafes() const {
         return model->aiState.triedSafes;
     }
 
-    const std::set<unsigned int> &LibClient::getSafeComibnations() {
-        return model->aiState.safeComibnations;
+    const std::set<unsigned int> &LibClient::getSafeCombinations() const {
+        return model->aiState.safeCombinations;
     }
 
-    const std::set<spy::util::UUID> &LibClient::getCombinationsFromNpcs() {
+    const std::set<spy::util::UUID> &LibClient::getCombinationsFromNpcs() const {
         return model->aiState.combinationsFromNpcs;
     }
 
-    const std::set<spy::util::UUID> &LibClient::getMyFactionList() {
+    const std::set<spy::util::UUID> &LibClient::getMyFactionList() const {
         return model->aiState.myFaction;
     }
 
-    const std::set<spy::util::UUID> &LibClient::getEnemyFactionList() {
+    const std::set<spy::util::UUID> &LibClient::getEnemyFactionList() const {
         return model->aiState.enemyFaction;
     }
 
-    const std::set<spy::util::UUID> &LibClient::getNpcFactionList() {
+    const std::set<spy::util::UUID> &LibClient::getNpcFactionList() const {
         return model->aiState.npcFaction;
     }
 
