@@ -19,10 +19,6 @@
 
 namespace libclient::model {
     class AIState {
-            // TODO (optional): count hp of characters to check for exfiltration (might find out who has AntiPlagueMask and take into account) -> more variables needed
-            // TODO (optional): track who uses actions against which persons (probs for faction groups) -> more variables needed
-            // TODO (optional): character got rid of moledie -> is npc (but could also be enemy trying to tarn as npc) with prob -> more variables needed
-
         public:
             // double is percentage to show how sure one is
             std::map<spy::util::UUID, std::vector<std::pair<spy::character::FactionEnum, std::vector<double>>>> unknownFaction; // initially set by HelloReply message
