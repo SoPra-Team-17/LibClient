@@ -153,7 +153,7 @@ namespace libclient::model {
                                    const spy::gameplay::State &s, const spy::MatchConfig &config,
                                    spy::character::FactionEnum me) {
         // check for getting rid of MOLEDIE
-        processGettingRidOfMoledie(operation);
+        processGettingRidOfMoledie(operation, s);
 
         switch (operation->getType()) {
             case spy::gameplay::OperationEnum::GADGET_ACTION: {
@@ -188,7 +188,8 @@ namespace libclient::model {
         }
     }
 
-    void AIState::processGettingRidOfMoledie(std::shared_ptr<const spy::gameplay::BaseOperation> operation) {
+    void AIState::processGettingRidOfMoledie(std::shared_ptr<const spy::gameplay::BaseOperation> operation,
+                                             const spy::gameplay::State &s) {
         auto opType = operation->getType();
         if (opType != spy::gameplay::OperationEnum::CAT_ACTION &&
             opType != spy::gameplay::OperationEnum::JANITOR_ACTION &&
@@ -199,19 +200,28 @@ namespace libclient::model {
 
                 // character got not rid of MOLEDIE in turn -> character is enemy (take prob of having moledie into account)
                 if (!gotRidOfMoleDie) {
-                    auto probHasMoleDie = hasCharacterGadget(lastCharTurn, spy::gadget::GadgetEnum::MOLEDIE);
-                    if (probHasMoleDie.has_value()) {
-                        if (probHasMoleDie.value() == 1) {
-                            addFaction(lastCharTurn, enemyFaction);
-                        } else if (probHasMoleDie.value() != 0) {
-                            push_back_toUnknownFaction(lastCharTurn, spy::character::FactionEnum::NEUTRAL,
-                                                       probHasMoleDie.value());
+                    bool couldHaveNoAP = s.getCharacters().findByUUID(lastCharTurn)->hasProperty(
+                            spy::character::PropertyEnum::PONDEROUSNESS);
+                    if (madeAction || !couldHaveNoAP) {
+                        auto probHasMoleDie = hasCharacterGadget(lastCharTurn, spy::gadget::GadgetEnum::MOLEDIE);
+                        if (probHasMoleDie.has_value()) {
+                            if (probHasMoleDie.value() == 1) {
+                                addFaction(lastCharTurn, enemyFaction);
+                            } else if (probHasMoleDie.value() != 0) {
+                                push_back_toUnknownFaction(lastCharTurn, spy::character::FactionEnum::NEUTRAL,
+                                                           probHasMoleDie.value());
+                            }
                         }
                     }
                 }
 
                 lastCharTurn = op->getCharacterId();
                 gotRidOfMoleDie = false;
+                madeAction = false;
+            }
+
+            if (opType != spy::gameplay::OperationEnum::MOVEMENT && opType != spy::gameplay::OperationEnum::RETIRE) {
+                madeAction = true;
             }
         }
     }
@@ -483,7 +493,8 @@ namespace libclient::model {
             } else { // cocktail is on bar table
                 poisonedCocktails.erase(
                         std::remove(poisonedCocktails.begin(), poisonedCocktails.end(),
-                                    std::variant<spy::util::UUID, spy::util::Point>(action->getTarget())), poisonedCocktails.end());
+                                    std::variant<spy::util::UUID, spy::util::Point>(action->getTarget())),
+                        poisonedCocktails.end());
             }
         }
     }
@@ -546,7 +557,8 @@ namespace libclient::model {
         if (pour || drink) {
             poisonedCocktails.erase(
                     std::remove(poisonedCocktails.begin(), poisonedCocktails.end(),
-                                std::variant<spy::util::UUID, spy::util::Point>(action->getCharacterId())), poisonedCocktails.end());
+                                std::variant<spy::util::UUID, spy::util::Point>(action->getCharacterId())),
+                    poisonedCocktails.end());
         }
 
         // successfully poured -> add property clammy clothes to target
