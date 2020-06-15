@@ -137,7 +137,7 @@ namespace libclient {
                 auto map = model->gameState.state.getMap();
                 for (auto y = 0U; y < map.getMap().size(); y++) {
                     for (auto x = 0U; x < map.getMap().at(y).size(); x++) {
-                        auto field = (map.getField(x, y));
+                        auto field = map.getField(x, y);
                         auto gad = field.getGadget();
                         if (gad.has_value() && gad.value()->getType() != spy::gadget::GadgetEnum::COCKTAIL) {
                             mo->aiState.addGadget(gad.value()->getType(), std::nullopt);
@@ -301,7 +301,7 @@ namespace libclient {
             state = (state == NetworkState::RECONNECT) ? NetworkState::RECONNECT : NetworkState::CONNECTED;
             model->clientState.isConnected = true;
             return true;
-        } catch (std::runtime_error &e) {
+        } catch (const std::runtime_error &/*e*/) {
             // could not connect
             return false;
         }

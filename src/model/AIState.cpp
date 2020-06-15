@@ -13,7 +13,7 @@ namespace libclient::model {
     void AIState::applySureInformation(spy::gameplay::State &s, spy::character::FactionEnum me) {
         using namespace spy::character;
 
-        auto handleFaction = [](std::set<spy::util::UUID> &list, FactionEnum faction, spy::character::Character &c) {
+        auto handleFaction = [](const std::set<spy::util::UUID> &list, FactionEnum faction, spy::character::Character &c) {
             auto it = std::find(list.begin(), list.end(), c.getCharacterId());
             if (it != list.end()) {
                 c.setFaction(faction);
@@ -655,7 +655,7 @@ namespace libclient::model {
     }
 
     spy::character::FactionEnum AIState::getFaction(const spy::util::UUID &id) {
-        auto isInList = [&id](std::set<spy::util::UUID> &list) {
+        auto isInList = [&id](const std::set<spy::util::UUID> &list) {
             auto it = std::find(list.begin(), list.end(), id);
             return it != list.end();
         };

@@ -299,7 +299,7 @@ namespace libclient {
         if (isCharacterAction) {
             auto characterOperation = std::dynamic_pointer_cast<const spy::gameplay::CharacterOperation>(op);
             auto executingCharInfo = std::find_if(characterInformation.begin(), characterInformation.end(),
-                                                  [characterOperation](const spy::character::CharacterInformation &ci) {
+                                                  [&characterOperation](const spy::character::CharacterInformation &ci) {
                                                       return characterOperation->getCharacterId() ==
                                                              ci.getCharacterId();
                                                   });
