@@ -16,11 +16,11 @@ namespace libclient {
     class LibClient {
         private:
             std::shared_ptr<libclient::Model> model;
+
         public:
             explicit LibClient(Callback *callback);
 
             libclient::Network network;
-
 
             [[nodiscard]] const std::optional<spy::util::UUID> &getId() const;
 
@@ -190,7 +190,7 @@ namespace libclient {
 
             [[nodiscard]] std::optional<spy::network::messages::Replay> getReplay() const;
 
-	    bool setFactionReconnect(const spy::util::UUID &id);
+            bool setFactionReconnect(const spy::util::UUID &id);
     };
 
 }
