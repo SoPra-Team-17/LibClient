@@ -1,3 +1,6 @@
-[submodule "test/googletest"]
-	path = test/googletest
-	url = https://github.com/google/googletest.git
+[submodule "extern/LibCommon"]
+	path = extern/LibCommon
+	url = https://github.com/SoPra-Team-17/LibCommon.git
+[submodule "extern/WebsocketCPP"]
+	path = extern/WebsocketCPP
+	url = https://github.com/SoPra-Team-17/WebsocketCPP.git
