@@ -191,38 +191,40 @@ namespace libclient::model {
 
     void AIState::processGettingRidOfMoledie(std::shared_ptr<const spy::gameplay::BaseOperation> operation) {
         auto opType = operation->getType();
-        if (opType != spy::gameplay::OperationEnum::CAT_ACTION &&
-            opType != spy::gameplay::OperationEnum::JANITOR_ACTION &&
-            opType != spy::gameplay::OperationEnum::EXFILTRATION) {
-            auto op = std::dynamic_pointer_cast<const spy::gameplay::CharacterOperation>(operation);
-            if (op->getCharacterId() != lastCharTurn) {
-                // next characters turn
+        if (opType == spy::gameplay::OperationEnum::CAT_ACTION ||
+            opType == spy::gameplay::OperationEnum::JANITOR_ACTION ||
+            opType == spy::gameplay::OperationEnum::EXFILTRATION) {
+            return;
+        }
 
-                // character got not rid of MOLEDIE in turn -> character is enemy (take prob of having moledie into account)
-                if (!gotRidOfMoleDie) {
-                    bool couldHaveNoAP = hasCharacterProperty(lastCharTurn,
-                                                              spy::character::PropertyEnum::PONDEROUSNESS);
-                    if (madeAction || !couldHaveNoAP) {
-                        auto probHasMoleDie = hasCharacterGadget(lastCharTurn, spy::gadget::GadgetEnum::MOLEDIE);
-                        if (probHasMoleDie.has_value()) {
-                            if (probHasMoleDie.value() == 1) {
-                                addFaction(lastCharTurn, enemyFaction);
-                            } else if (probHasMoleDie.value() != 0) {
-                                push_back_toUnknownFaction(lastCharTurn, spy::character::FactionEnum::NEUTRAL,
-                                                           probHasMoleDie.value());
-                            }
+        auto op = std::dynamic_pointer_cast<const spy::gameplay::CharacterOperation>(operation);
+        if (op->getCharacterId() != lastCharTurn) {
+            // next characters turn
+
+            // character got not rid of MOLEDIE in turn -> character is enemy (take prob of having moledie into account)
+            if (!gotRidOfMoleDie) {
+                bool couldHaveNoAP = hasCharacterProperty(lastCharTurn,
+                                                          spy::character::PropertyEnum::PONDEROUSNESS);
+                if (madeAction || !couldHaveNoAP) {
+                    auto probHasMoleDie = hasCharacterGadget(lastCharTurn, spy::gadget::GadgetEnum::MOLEDIE);
+                    if (probHasMoleDie.has_value()) {
+                        if (probHasMoleDie.value() == 1) {
+                            addFaction(lastCharTurn, enemyFaction);
+                        } else if (probHasMoleDie.value() != 0) {
+                            push_back_toUnknownFaction(lastCharTurn, spy::character::FactionEnum::NEUTRAL,
+                                                       probHasMoleDie.value());
                         }
                     }
                 }
-
-                lastCharTurn = op->getCharacterId();
-                gotRidOfMoleDie = false;
-                madeAction = false;
             }
 
-            if (opType != spy::gameplay::OperationEnum::MOVEMENT && opType != spy::gameplay::OperationEnum::RETIRE) {
-                madeAction = true;
-            }
+            lastCharTurn = op->getCharacterId();
+            gotRidOfMoleDie = false;
+            madeAction = false;
+        }
+
+        if (opType != spy::gameplay::OperationEnum::MOVEMENT && opType != spy::gameplay::OperationEnum::RETIRE) {
+            madeAction = true;
         }
     }
 
