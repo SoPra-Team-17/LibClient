@@ -13,7 +13,8 @@ namespace libclient::model {
     void AIState::applySureInformation(spy::gameplay::State &s, spy::character::FactionEnum me) {
         using namespace spy::character;
 
-        auto handleFaction = [](const std::set<spy::util::UUID> &list, FactionEnum faction, spy::character::Character &c) {
+        auto handleFaction = [](const std::set<spy::util::UUID> &list, FactionEnum faction,
+                                spy::character::Character &c) {
             auto it = std::find(list.begin(), list.end(), c.getCharacterId());
             if (it != list.end()) {
                 c.setFaction(faction);
@@ -153,7 +154,7 @@ namespace libclient::model {
                                    const spy::gameplay::State &s, const spy::MatchConfig &config,
                                    spy::character::FactionEnum me) {
         // check for getting rid of MOLEDIE
-        processGettingRidOfMoledie(operation, s);
+        processGettingRidOfMoledie(operation);
 
         switch (operation->getType()) {
             case spy::gameplay::OperationEnum::GADGET_ACTION: {
@@ -188,8 +189,7 @@ namespace libclient::model {
         }
     }
 
-    void AIState::processGettingRidOfMoledie(std::shared_ptr<const spy::gameplay::BaseOperation> operation,
-                                             const spy::gameplay::State &s) {
+    void AIState::processGettingRidOfMoledie(std::shared_ptr<const spy::gameplay::BaseOperation> operation) {
         auto opType = operation->getType();
         if (opType != spy::gameplay::OperationEnum::CAT_ACTION &&
             opType != spy::gameplay::OperationEnum::JANITOR_ACTION &&
@@ -200,8 +200,8 @@ namespace libclient::model {
 
                 // character got not rid of MOLEDIE in turn -> character is enemy (take prob of having moledie into account)
                 if (!gotRidOfMoleDie) {
-                    bool couldHaveNoAP = s.getCharacters().findByUUID(lastCharTurn)->hasProperty(
-                            spy::character::PropertyEnum::PONDEROUSNESS);
+                    bool couldHaveNoAP = hasCharacterProperty(lastCharTurn,
+                                                              spy::character::PropertyEnum::PONDEROUSNESS);
                     if (madeAction || !couldHaveNoAP) {
                         auto probHasMoleDie = hasCharacterGadget(lastCharTurn, spy::gadget::GadgetEnum::MOLEDIE);
                         if (probHasMoleDie.has_value()) {
