@@ -184,8 +184,7 @@ namespace libclient::model {
             void processGadgetHairdryer(std::shared_ptr<const spy::gameplay::GadgetAction> action,
                                         const spy::gameplay::State &s);
 
-            void processGettingRidOfMoledie(std::shared_ptr<const spy::gameplay::BaseOperation> operation,
-                                            const spy::gameplay::State &s);
+            void processGettingRidOfMoledie(std::shared_ptr<const spy::gameplay::BaseOperation> operation);
 
             /**
              * get faction of character according to AIState
