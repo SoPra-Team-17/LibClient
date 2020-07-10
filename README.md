@@ -56,3 +56,9 @@ RECONNECT
 
 stateBeforePause
 * wird zum state wenn GAME_PAUSE Nachricht mit gamePause==false empfangen wurde
+
+## For Developers
+LibClient is implemented in C++. You can use e.g. CLION as development environment.  
+The following libraries where used. The respective licences  can be found in this repositories Licence file:
+* LibCommon: version see submodule
+* WebsocketCpp: version see submodule 
