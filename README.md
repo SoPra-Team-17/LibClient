@@ -59,6 +59,6 @@ stateBeforePause
 
 ## For Developers
 LibClient is implemented in C++. You can use e.g. CLION as development environment.  
-The following libraries where used. The respective licences  can be found in this repositories Licence file:
-* LibCommon: version see submodule
-* WebsocketCpp: version see submodule 
+The following libraries where used:
+* LibCommon: version see submodule [GPLv3]
+* WebsocketCpp: version see submodule [GPLv3]
